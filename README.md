@@ -20,19 +20,15 @@ cargo run
 
 This will generate an executable file in the `target/debug` directory. This is the interpreter. You can run the interpreter by running the following command:
 ```bash
-./rss --help
-```
-or
-```bash
 ./rss <path-to-file>
 ```
+The file should have the extension `.rss`. You can find some example files in the `examples` directory.
 
 ## Features
-- [x] No features yet
-
+- [x] Arithmetic Operations (addition, subtraction, multiplication, division, modulo)
+- [x] Math Functions (min, max, pow, sqrt, sin, cos, tan, abs, zero?, even?, odd?, pos?, neg?)
+- [x] Comparison Operations (eq?, neq?, gt?, lt?, gte?, lte?)
 ## Todo
-- [ ] Arithmetic operations
-- [ ] Comparison operations
 - [ ] Variables
 - [ ] Control flow and loops
 - [ ] Maybe functions
