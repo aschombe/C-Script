@@ -42,7 +42,6 @@ The file should have the extension `.rss`. You can find some example files in th
 
 ## Todo
 - [ ] Type checking
-- [ ] Debug mode passed via command line argument, enabled debug print messages
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while, for)
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)

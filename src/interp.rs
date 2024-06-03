@@ -80,6 +80,7 @@ impl Interpreter {
                     Err(ErrorHandler::VariableNotFound(val.clone()))
                 }
             }
+
             ASTNode::Operator(op, operands) => match op.as_str() {
                 "base" => {
                     if operands.len() != 1 {
