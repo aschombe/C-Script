@@ -3,7 +3,6 @@ use std::fs::read_to_string;
 use std::path::PathBuf;
 use std::fmt;
 
-// Structure for error types
 #[derive(Debug)]
 pub enum ErrorHandler {
     DivisionByZero,
