@@ -22,14 +22,32 @@ impl fmt::Display for ErrorHandler {
     }
 }
 
+#[derive(Debug, Clone)]
+struct Function {
+    params: Vec<String>,
+    body: ASTNode,
+}
+
+#[derive(Debug)]
 pub struct Interpreter {
     variables: HashMap<String, f64>,
+    functions: HashMap<String, Function>,
+}
+
+impl Clone for Interpreter {
+    fn clone(&self) -> Self {
+        Interpreter {
+            variables: self.variables.clone(),
+            functions: self.functions.clone(),
+        }
+    }
 }
 
 impl Interpreter {
     pub fn new() -> Self {
         Interpreter {
             variables: HashMap::new(),
+            functions: HashMap::new(),
         }
     }
 
@@ -59,6 +77,77 @@ impl Interpreter {
                 }
             }
             ASTNode::Operator(op, operands) => match op.as_str() {
+                "func" => {
+                    if operands.len() != 3 {
+                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
+                    }
+
+                    if let ASTNode::Value(name) = &operands[0] {
+                        if let ASTNode::Operator(_, param_nodes) = &operands[1] {
+                            let params: Vec<String> = param_nodes.iter().map(|param| match param {
+                                ASTNode::Value(val) => Ok(val.clone()),
+                                _ => Err(ErrorHandler::ParseError("Invalid parameter".to_string())),
+                            }).collect::<Result<Vec<_>, _>>()?;
+
+                            println!("DEBUG: Function '{}' defined with params: {:?}", name, params);
+
+                            let body: ASTNode = operands[2].clone();
+                            let func: Function = Function { params, body };
+
+                            self.functions.insert(name.clone(), func);
+                            Ok(0.0)
+                        } else {
+                            Err(ErrorHandler::ParseError("Invalid function parameters".to_string()))
+                        }
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid function name".to_string()))
+                    }
+                }
+                "call" => {
+                    if operands.len() < 1 {
+                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
+                    }
+
+                    if let ASTNode::Value(name) = &operands[0] {
+                        if let Some(func) = self.functions.get(name) {
+                            println!("DEBUG: Function '{}' called with args: {:?}", name, &operands[1..]);
+
+                            if operands.len() - 1 != func.params.len() {
+                                return Err(ErrorHandler::ParseError(format!("Invalid number of arguments for function '{}'", name)));
+                            }
+
+                            let mut local_interpreter: Interpreter = Interpreter {
+                                variables: self.variables.clone(),
+                                functions: self.functions.clone(),
+                            };
+
+                            let mut local_vars: HashMap<String, f64> = local_interpreter.variables.clone();
+                            let local_funcs: HashMap<String, Function> = local_interpreter.functions.clone();
+
+                            let mut results: Vec<f64> = Vec::new();
+                            for arg in &operands[1..] {
+                                results.push(local_interpreter.eval_ast(arg)?);
+                            }
+
+                            for (param, result) in func.params.iter().zip(results) {
+                                local_vars.insert(param.clone(), result);
+                            }
+
+                            println!("DEBUG: Local variables for function '{}': {:?}", name, local_vars);
+
+                            let mut local_interpreter: Interpreter = Interpreter {
+                                variables: local_vars,
+                                functions: local_funcs,
+                            };
+
+                            local_interpreter.eval_ast(&func.body)
+                        } else {
+                            Err(ErrorHandler::UnknownOperator(name.clone()))
+                        }
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid function name".to_string()))
+                    }
+                }
                 "let" => {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
@@ -386,7 +475,7 @@ impl Interpreter {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum ASTNode {
     Operator(String, Vec<ASTNode>),
     Value(String),
