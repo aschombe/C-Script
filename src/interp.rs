@@ -77,7 +77,6 @@ impl Interpreter {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
                     }
-    
                     if let ASTNode::Value(var) = &operands[0] {
                         let value = self.eval_ast(&operands[1])?;
                         if !self.variables.contains_key(var) {
