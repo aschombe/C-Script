@@ -1,11 +1,10 @@
-(if 0 (add 5 5) (else (add 10 10)))
-
+//(if False (add 5 5) (else (add 10 10)))
 //(if 0
 //    (add 5 5)
 //    (elif 1
 //        (add 10 10)
 //        (else
-            (add 15 15)
+//           (add 15 15)
 //        )
 //    )
 //)

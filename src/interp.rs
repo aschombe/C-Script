@@ -46,7 +46,11 @@ impl Interpreter {
     fn eval_ast(&mut self, node: &ASTNode) -> Result<f64, ErrorHandler> {
         match node {
             ASTNode::Value(val) => {
-                if let Ok(num) = val.parse::<f64>() {
+                if val == "True" {
+                    Ok(1.0)
+                } else if val == "False" {
+                    Ok(0.0)
+                } else if let Ok(num) = val.parse::<f64>() {
                     Ok(num)
                 } else if let Some(&num) = self.variables.get(val) {
                     Ok(num)

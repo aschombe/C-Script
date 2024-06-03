@@ -35,10 +35,12 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Variables (let, set, get)
 - [x] Floating point numbers
 - [x] Control Flow (if, elif, else)
+- [x] Add boolean keywords (0 is False, 1 is True)
 
 ## Todo
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while, for)
+- [ ] String support for printing
 - [ ] Maybe String Operations
 - [ ] Maybe Functions
 
