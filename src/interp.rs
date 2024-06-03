@@ -233,7 +233,7 @@ impl Interpreter {
                     if condition != 0.0 {
                         self.eval_ast(&operands[1])
                     } else {
-                        let mut i: usize = 2;
+                        let i: usize = 2;
                         while i < operands.len() {
                             if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i]
                             {
@@ -258,7 +258,6 @@ impl Interpreter {
                                     "Invalid conditional syntax".to_string(),
                                 ));
                             }
-                            i += 1;
                         }
                         Ok(0.0)
                     }
@@ -451,6 +450,17 @@ impl Interpreter {
                     }
                     Ok(
                         (self.eval_ast(&operands[0])? == self.eval_ast(&operands[1])?) as i32
+                            as f64,
+                    )
+                }
+                "neq?" => {
+                    if operands.len() != 2 {
+                        return Err(ErrorHandler::ParseError(
+                            "Invalid number of operands for 'neq?'".to_string(),
+                        ));
+                    }
+                    Ok(
+                        (self.eval_ast(&operands[0])? != self.eval_ast(&operands[1])?) as i32
                             as f64,
                     )
                 }
@@ -652,4 +662,3 @@ fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
 
     Ok((ASTNode::Operator(operator, operands), index + 1))
 }
-
