@@ -5,11 +5,9 @@
 (max 1 (* 2 3) 4)
 (pow (+ 1 2) 3)
 (sqrt (+ 1 2 3))
-// line below is approximate (no floats, always rounds down)
 (sqrt (sqrt (+ 1 2 3)))
 (sin (- 1 1))
 (cos (- 2 (+ 1 1)))
-// probably approximately right
 (tan (- 3 1))
 (abs (- 1 2))
 (zero? (- 1 1))
