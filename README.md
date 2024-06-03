@@ -33,6 +33,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] And, Or, Not
 - [x] Nested Expressions
 - [x] Variables (let, set, get)
+- [x] Floating point numbers
 
 ## Todo
 - [ ] Control flow and loops (if, elif, else, while, for)

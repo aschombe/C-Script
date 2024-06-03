@@ -4,3 +4,5 @@
 (get x)
 (add x 5)
 (get x)
+(let y 1.5)
+(get y)

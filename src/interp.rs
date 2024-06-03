@@ -24,7 +24,7 @@ impl fmt::Display for ErrorHandler {
 }
 
 pub struct Interpreter {
-    variables: HashMap<String, i32>,
+    variables: HashMap<String, f64>,
 }
 
 impl Interpreter {
@@ -44,10 +44,10 @@ impl Interpreter {
         }
     }
 
-    fn eval_ast(&mut self, node: &ASTNode) -> Result<i32, ErrorHandler> {
+    fn eval_ast(&mut self, node: &ASTNode) -> Result<f64, ErrorHandler> {
         match node {
             ASTNode::Value(val) => {
-                if let Ok(num) = val.parse::<i32>() {
+                if let Ok(num) = val.parse::<f64>() {
                     Ok(num)
                 } else if let Some(&num) = self.variables.get(val) {
                     Ok(num)
@@ -62,7 +62,7 @@ impl Interpreter {
                     }
     
                     if let ASTNode::Value(var) = &operands[0] {
-                        let value = self.eval_ast(&operands[1])?;
+                        let value: f64 = self.eval_ast(&operands[1])?;
                         if self.variables.contains_key(var) {
                             return Err(ErrorHandler::ParseError(format!("Variable '{}' already exists", var)));
                         }
@@ -78,7 +78,7 @@ impl Interpreter {
                         return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
                     }
                     if let ASTNode::Value(var) = &operands[0] {
-                        let value = self.eval_ast(&operands[1])?;
+                        let value: f64 = self.eval_ast(&operands[1])?;
                         if !self.variables.contains_key(var) {
                             return Err(ErrorHandler::ParseError(format!("Variable '{}' not found", var)));
                         }
@@ -89,15 +89,15 @@ impl Interpreter {
                     }
                 }
     
-                let args: Result<Vec<i32>, _> = operands.iter().map(|operand| self.eval_ast(operand)).collect();
-                let args: Vec<i32> = args?;
+                let args: Result<Vec<f64>, _> = operands.iter().map(|operand| self.eval_ast(operand)).collect();
+                let args: Vec<f64> = args?;
     
                 match op.as_str() {
                     "print" => {
                         for arg in &args {
                             println!("{}", arg);
                         }
-                        return Ok(0);
+                        return Ok(0.0);
                     }
                     "get" => {
                         if let ASTNode::Value(var) = &operands[0] {
@@ -114,39 +114,39 @@ impl Interpreter {
                     "-" | "subtract" | "sub" => Ok(args.iter().skip(1).fold(args[0], |acc, &num| acc - num)),
                     "*" | "multiply" | "mul" => Ok(args.iter().product()),
                     "/" | "divide" | "div" => {
-                        if args.iter().skip(1).any(|&num| num == 0) {
+                        if args.iter().skip(1).any(|&num| num == 0.0) {
                             return Err(ErrorHandler::DivisionByZero);
                         }
                         Ok(args.iter().skip(1).fold(args[0], |acc, &num| acc / num))
                     }
                     "%" | "modulo" | "mod" => {
-                        if args.iter().skip(1).any(|&num| num == 0) {
+                        if args.iter().skip(1).any(|&num| num == 0.0) {
                             return Err(ErrorHandler::DivisionByZero);
                         }
                         Ok(args.iter().skip(1).fold(args[0], |acc, &num| acc % num))
                     }
-                    "max" => Ok(*args.iter().max().unwrap()),
-                    "min" => Ok(*args.iter().min().unwrap()),
-                    "pow" => Ok(args[0].pow(args[1] as u32)),
-                    "sqrt" => Ok((args[0] as f64).sqrt() as i32),
-                    "sin" => Ok((args[0] as f64).sin() as i32),
-                    "cos" => Ok((args[0] as f64).cos() as i32),
-                    "tan" => Ok((args[0] as f64).tan() as i32),
-                    "abs" => Ok((args[0] as f64).abs() as i32),
-                    "zero?" => Ok((args[0] == 0) as i32),
-                    "even?" => Ok((args[0] % 2 == 0) as i32),
-                    "odd?" => Ok((args[0] % 2 != 0) as i32),
-                    "pos?" => Ok((args[0] > 0) as i32),
-                    "neg?" => Ok((args[0] < 0) as i32),
-                    "eq?" => Ok((args[0] == args[1]) as i32),
-                    "neq?" => Ok((args[0] != args[1]) as i32),
-                    "lt?" => Ok((args[0] < args[1]) as i32),
-                    "gt?" => Ok((args[0] > args[1]) as i32),
-                    "lte?" => Ok((args[0] <= args[1]) as i32),
-                    "gte?" => Ok((args[0] >= args[1]) as i32),
-                    "and" => Ok(args.iter().all(|&num| num != 0) as i32),
-                    "or" => Ok(args.iter().any(|&num| num != 0) as i32),
-                    "not" => Ok((args[0] == 0) as i32),
+                    "max" => Ok(*args.iter().max_by(|a: &&f64, b: &&f64| a.partial_cmp(b).unwrap()).unwrap()),
+                    "min" => Ok(*args.iter().min_by(|a: &&f64, b: &&f64| a.partial_cmp(b).unwrap()).unwrap()),
+                    "pow" => Ok(args[0].powf(args[1])),
+                    "sqrt" => Ok(args[0].sqrt()),
+                    "sin" => Ok(args[0].sin()),
+                    "cos" => Ok(args[0].cos()),
+                    "tan" => Ok(args[0].tan()),
+                    "abs" => Ok(args[0].abs()),
+                    "zero?" => Ok((args[0] == 0.0) as i32 as f64),
+                    "even?" => Ok((args[0] % 2.0 == 0.0) as i32 as f64),
+                    "odd?" => Ok((args[0] % 2.0 != 0.0) as i32 as f64),
+                    "pos?" => Ok((args[0] > 0.0) as i32 as f64),
+                    "neg?" => Ok((args[0] < 0.0) as i32 as f64),
+                    "eq?" => Ok((args[0] == args[1]) as i32 as f64),
+                    "neq?" => Ok((args[0] != args[1]) as i32 as f64),
+                    "lt?" => Ok((args[0] < args[1]) as i32 as f64),
+                    "gt?" => Ok((args[0] > args[1]) as i32 as f64),
+                    "lte?" => Ok((args[0] <= args[1]) as i32 as f64),
+                    "gte?" => Ok((args[0] >= args[1]) as i32 as f64),
+                    "and" => Ok(args.iter().all(|&num| num != 0.0) as i32 as f64),
+                    "or" => Ok(args.iter().any(|&num| num != 0.0) as i32 as f64),
+                    "not" => Ok((args[0] == 0.0) as i32 as f64),
                     _ => Err(ErrorHandler::UnknownOperator(op.clone())),
                 }
             }
