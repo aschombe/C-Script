@@ -93,11 +93,11 @@ impl Interpreter {
                     if operands.len() < 2 {
                         return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
                     }
-                    let condition = self.eval_ast(&operands[0])?;
+                    let condition: f64 = self.eval_ast(&operands[0])?;
                     if condition != 0.0 {
                         self.eval_ast(&operands[1])
                     } else {
-                        let mut i = 2;
+                        let mut i: usize = 2;
                         while i < operands.len() {
                             if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i] {
                                 match cond_op.as_str() {
@@ -105,7 +105,7 @@ impl Interpreter {
                                         if cond_operands.len() != 2 {
                                             return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", cond_op)));
                                         }
-                                        let condition = self.eval_ast(&cond_operands[0])?;
+                                        let condition: f64 = self.eval_ast(&cond_operands[0])?;
                                         if condition != 0.0 {
                                             return self.eval_ast(&cond_operands[1]);
                                         }
@@ -128,7 +128,7 @@ impl Interpreter {
                 }
                 "print" => {
                     for operand in operands {
-                        let result = self.eval_ast(operand)?;
+                        let result: f64 = self.eval_ast(operand)?;
                         println!("{}", result);
                     }
                     Ok(0.0)
@@ -145,7 +145,7 @@ impl Interpreter {
                     }
                 }
                 "+" | "add" => {
-                    let mut result = 0.0;
+                    let mut result: f64 = 0.0;
                     for operand in operands {
                         result += self.eval_ast(operand)?;
                     }
@@ -155,14 +155,14 @@ impl Interpreter {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty subtraction".to_string()));
                     }
-                    let mut result = self.eval_ast(&operands[0])?;
+                    let mut result: f64 = self.eval_ast(&operands[0])?;
                     for operand in &operands[1..] {
                         result -= self.eval_ast(operand)?;
                     }
                     Ok(result)
                 }
                 "*" | "multiply" | "mul" => {
-                    let mut result = 1.0;
+                    let mut result: f64 = 1.0;
                     for operand in operands {
                         result *= self.eval_ast(operand)?;
                     }
@@ -172,9 +172,9 @@ impl Interpreter {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty division".to_string()));
                     }
-                    let mut result = self.eval_ast(&operands[0])?;
+                    let mut result: f64 = self.eval_ast(&operands[0])?;
                     for operand in &operands[1..] {
-                        let divisor = self.eval_ast(operand)?;
+                        let divisor: f64 = self.eval_ast(operand)?;
                         if divisor == 0.0 {
                             return Err(ErrorHandler::DivisionByZero);
                         }
@@ -186,9 +186,9 @@ impl Interpreter {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty modulo".to_string()));
                     }
-                    let mut result = self.eval_ast(&operands[0])?;
+                    let mut result: f64 = self.eval_ast(&operands[0])?;
                     for operand in &operands[1..] {
-                        let divisor = self.eval_ast(operand)?;
+                        let divisor: f64 = self.eval_ast(operand)?;
                         if divisor == 0.0 {
                             return Err(ErrorHandler::DivisionByZero);
                         }
@@ -197,9 +197,9 @@ impl Interpreter {
                     Ok(result)
                 }
                 "max" => {
-                    let mut max_val = f64::MIN;
+                    let mut max_val: f64 = f64::MIN;
                     for operand in operands {
-                        let val = self.eval_ast(operand)?;
+                        let val: f64 = self.eval_ast(operand)?;
                         if val > max_val {
                             max_val = val;
                         }
@@ -207,9 +207,9 @@ impl Interpreter {
                     Ok(max_val)
                 }
                 "min" => {
-                    let mut min_val = f64::MAX;
+                    let mut min_val: f64 = f64::MAX;
                     for operand in operands {
-                        let val = self.eval_ast(operand)?;
+                        let val: f64 = self.eval_ast(operand)?;
                         if val < min_val {
                             min_val = val;
                         }
@@ -220,8 +220,8 @@ impl Interpreter {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError("Invalid number of operands for 'pow'".to_string()));
                     }
-                    let base = self.eval_ast(&operands[0])?;
-                    let exp = self.eval_ast(&operands[1])?;
+                    let base: f64 = self.eval_ast(&operands[0])?;
+                    let exp: f64 = self.eval_ast(&operands[1])?;
                     Ok(base.powf(exp))
                 }
                 "sqrt" => {
@@ -318,9 +318,9 @@ impl Interpreter {
                     if operands.len() < 2 {
                         return Err(ErrorHandler::ParseError("Invalid number of operands for 'and'".to_string()));
                     }
-                    let mut result = 1.0;
+                    let mut result: f64 = 1.0;
                     for operand in operands {
-                        let val = self.eval_ast(operand)?;
+                        let val: f64 = self.eval_ast(operand)?;
                         if val == 0.0 {
                             result = 0.0;
                             break;
@@ -332,9 +332,9 @@ impl Interpreter {
                     if operands.len() < 2 {
                         return Err(ErrorHandler::ParseError("Invalid number of operands for 'or'".to_string()));
                     }
-                    let mut result = 0.0;
+                    let mut result: f64 = 0.0;
                     for operand in operands {
-                        let val = self.eval_ast(operand)?;
+                        let val: f64 = self.eval_ast(operand)?;
                         if val != 0.0 {
                             result = 1.0;
                             break;
