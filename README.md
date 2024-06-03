@@ -10,7 +10,6 @@ This is an interpreter written in rust.
   - [Features](#features)
   - [Todo](#todo)
   - [Notes](#notes)
-  <!-- - [License](#license) -->
 
 ## Usage
 To run the project, you need to have Rust installed. You can install Rust by following the instructions on the [official website](https://www.rust-lang.org/tools/install). After installing Rust, you can generate the interpreter by running the following in the project directory:
@@ -36,17 +35,14 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Floating point numbers
 - [x] Control Flow (if, else)
 - [x] Add boolean keywords (0 is False, 1 is True)
-- [x] Functions 
+- [x] Functions
 - [x] Recursion
 
 ## Todo
-- [ ] Recursive Functions (rfunc "name" (placeholder arg1 arg2 ... argn) (body))
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while, for)
-- [ ] String support for printing
-- [ ] Maybe String Operations
+- [ ] String Literals (for printing)
 
 ## Notes
 - Functions: (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything, but it must be there (or everything breaks)
 - Recursive Functions: (rfunc "name" (placeholder arg1 arg2 ... argn) (base-case) (recursive-case)), the placeholder can be anything, but it must be there (or everything breaks), the base-case's return value must be prepended by the "base" keyword. Look in the examples directory for an example of a recursive function.
-<!-- ## License -->
