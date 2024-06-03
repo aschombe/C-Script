@@ -37,6 +37,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Add boolean keywords (0 is False, 1 is True)
 - [x] Functions
 - [x] Recursion
+- [x] Expansive Examples in the examples directory
 
 ## Todo
 - [ ] Support for code spanning multiple lines
@@ -45,4 +46,4 @@ The file should have the extension `.rss`. You can find some example files in th
 
 ## Notes
 - Functions: (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything, but it must be there (or everything breaks)
-- Recursive Functions: (rfunc "name" (placeholder arg1 arg2 ... argn) (base-case) (recursive-case)), the placeholder can be anything, but it must be there (or everything breaks), the base-case's return value must be prepended by the "base" keyword. Look in the examples directory for an example of a recursive function.
+- Recursive Functions: Base case must be prepended by "base" keyword. Look in the examples directory for an example of a recursive function.
