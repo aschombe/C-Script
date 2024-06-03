@@ -31,16 +31,18 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Comparison Operations (eq?, neq?, gt?, lt?, gte?, lte?)
 - [x] And, Or, Not
 - [x] Nested Expressions
-- [x] Variables (let, set, get)
+- [x] Variables (let, set, get, del)
 - [x] Floating point numbers
 - [x] Control Flow (if, else)
 - [x] Add boolean keywords (0 is False, 1 is True)
 - [x] Functions
 - [x] Recursion
 - [x] Expansive Examples in the examples directory
+- [x] Debug function that prints the current state of the interpreter (variables and functions) syntax: (debug)
 
 ## Todo
 - [ ] Type checking
+- [ ] Debug mode passed via command line argument, enabled debug print messages
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while, for)
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)

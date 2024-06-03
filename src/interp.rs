@@ -217,6 +217,29 @@ impl Interpreter {
                         Err(ErrorHandler::ParseError("Invalid set syntax".to_string()))
                     }
                 }
+                "get" => {
+                    if let ASTNode::Value(var) = &operands[0] {
+                        if let Some(&val) = self.variables.get(var) {
+                            Ok(val)
+                        } else {
+                            Err(ErrorHandler::VariableNotFound(var.clone()))
+                        }
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid get syntax".to_string()))
+                    }
+                }
+                "del" => {
+                    if let ASTNode::Value(var) = &operands[0] {
+                        if self.variables.contains_key(var) {
+                            self.variables.remove(var);
+                            Ok(0.0)
+                        } else {
+                            Err(ErrorHandler::VariableNotFound(var.clone()))
+                        }
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid del syntax".to_string()))
+                    }
+                }
                 "if" => {
                     if operands.len() < 2 {
                         return Err(ErrorHandler::ParseError(format!(
@@ -263,17 +286,6 @@ impl Interpreter {
                         println!("{}", result);
                     }
                     Ok(0.0)
-                }
-                "get" => {
-                    if let ASTNode::Value(var) = &operands[0] {
-                        if let Some(&val) = self.variables.get(var) {
-                            Ok(val)
-                        } else {
-                            Err(ErrorHandler::VariableNotFound(var.clone()))
-                        }
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid get syntax".to_string()))
-                    }
                 }
                 "+" | "add" => {
                     let mut result: f64 = 0.0;
@@ -536,6 +548,25 @@ impl Interpreter {
                         ));
                     }
                     Ok((self.eval_ast(&operands[0])? == 0.0) as i32 as f64)
+                }
+                // called as (debug), prints all variables and functions in the environment, along
+                // with their values and 1bodies and memory addresses
+                "debug" => {
+                    if !self.variables.is_empty() {
+                        println!("Variables:");
+                        for (var, val) in &self.variables {
+                            println!("{}: {}", var, val);
+                        }
+                    }
+
+                    if !self.functions.is_empty() {
+                        println!("Functions:");
+                        for (func, f) in &self.functions {
+                            println!("{}: {:?}", func, f);
+                        }
+                    }
+
+                    Ok(0.0)
                 }
                 _ => Err(ErrorHandler::UnknownOperator(op.clone())),
             },

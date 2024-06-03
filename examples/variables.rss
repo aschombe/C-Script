@@ -6,3 +6,6 @@
 (get x)
 (let y 1.5)
 (get y)
+(del x)
+(debug)
+(get x)
