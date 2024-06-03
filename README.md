@@ -25,22 +25,24 @@ Run the interpreter by running the following command:
 The file should have the extension `.rss`. You can find some example files in the `examples` directory.
 
 ## Features
-- [x] Print Statements (print x y z) (need to be reworked) (printing variables doesn't work)
+- [x] Print Statements
 - [x] Comments (single line comments)
 - [x] Arithmetic Operations (addition, subtraction, multiplication, division, modulo)
 - [x] Math Functions (min, max, pow, sqrt, sin, cos, tan, abs, zero?, even?, odd?, pos?, neg?)
 - [x] Comparison Operations (eq?, neq?, gt?, lt?, gte?, lte?)
-- [x] And, Or, Not (and, or, not) (might need to be reworked)
-- [x] Nested Expressions (except for print statements)
+- [x] And, Or, Not
+- [x] Nested Expressions
 
 ## Todo
-- [ ] Variables (let, set, get) (broken)
+- [ ] Variables (let, set, get)
 - [ ] Printing Variables and nested expressions
 - [ ] Control flow and loops (if, elif, else, while, for)
 - [ ] Maybe String Operations
 - [ ] Maybe functions
 
 ## Notes
-- Nothing to see here
+- Variables are entirely broken. They don't work at all.
+- Print statements are broken. They don't print variables or nested expressions.
+- Potentially rework the and, or, not functions.
 
 <!-- ## License -->
