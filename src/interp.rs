@@ -56,43 +56,49 @@ impl Interpreter {
                 }
             }
             ASTNode::Operator(op, operands) => {
-                // Special handling for let, set, and get
-                if op == "let" || op == "set" || op == "get" {
+                if op == "let" {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
                     }
+    
+                    if let ASTNode::Value(var) = &operands[0] {
+                        let value = self.eval_ast(&operands[1])?;
+                        if self.variables.contains_key(var) {
+                            return Err(ErrorHandler::ParseError(format!("Variable '{}' already exists", var)));
+                        }
+                        self.variables.insert(var.clone(), value);
+                        return Ok(value);
+                    } else {
+                        return Err(ErrorHandler::ParseError("Invalid let syntax".to_string()));
+                    }
                 }
 
+                if op == "set" {
+                    if operands.len() != 2 {
+                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
+                    }
+    
+                    if let ASTNode::Value(var) = &operands[0] {
+                        let value = self.eval_ast(&operands[1])?;
+                        if !self.variables.contains_key(var) {
+                            return Err(ErrorHandler::ParseError(format!("Variable '{}' not found", var)));
+                        }
+                        self.variables.insert(var.clone(), value);
+                        return Ok(value);
+                    } else {
+                        return Err(ErrorHandler::ParseError("Invalid set syntax".to_string()));
+                    }
+                }
+    
                 let args: Result<Vec<i32>, _> = operands.iter().map(|operand| self.eval_ast(operand)).collect();
                 let args: Vec<i32> = args?;
-
+    
                 match op.as_str() {
                     "print" => {
                         for arg in &args {
                             println!("{}", arg);
                         }
                         return Ok(0);
-                    }
-                    "let" => {
-                        if let ASTNode::Value(var) = &operands[0] {
-                            let value: i32 = self.eval_ast(&operands[1])?;
-                            self.variables.insert(var.clone(), value);
-                            return Ok(value);
-                        } else {
-                            return Err(ErrorHandler::ParseError("Invalid let syntax".to_string()));
-                        }
-                    }
-                    "set" => {
-                        if let ASTNode::Value(var) = &operands[0] {
-                            if !self.variables.contains_key(var) {
-                                return Err(ErrorHandler::VariableNotFound(var.clone()));
-                            }
-                            let value: i32 = self.eval_ast(&operands[1])?;
-                            self.variables.insert(var.clone(), value);
-                            return Ok(value);
-                        } else {
-                            return Err(ErrorHandler::ParseError("Invalid set syntax".to_string()));
-                        }
                     }
                     "get" => {
                         if let ASTNode::Value(var) = &operands[0] {

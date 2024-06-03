@@ -32,17 +32,14 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Comparison Operations (eq?, neq?, gt?, lt?, gte?, lte?)
 - [x] And, Or, Not
 - [x] Nested Expressions
+- [x] Variables (let, set, get)
 
 ## Todo
-- [ ] Variables (let, set, get)
-- [ ] Printing Variables and nested expressions
 - [ ] Control flow and loops (if, elif, else, while, for)
 - [ ] Maybe String Operations
 - [ ] Maybe functions
 
 ## Notes
-- Variables are entirely broken. They don't work at all.
-- Print statements are broken. They don't print variables or nested expressions.
 - Potentially rework the and, or, not functions.
 
 <!-- ## License -->
