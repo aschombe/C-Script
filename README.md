@@ -38,7 +38,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Add boolean keywords (0 is False, 1 is True)
 
 ## Todo
-- [ ] Functions
+- [ ] Functions (single parameter and multiparemeter)
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while, for)
 - [ ] String support for printing
