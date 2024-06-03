@@ -40,6 +40,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Expansive Examples in the examples directory
 
 ## Todo
+- [ ] Type checking
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while, for)
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)

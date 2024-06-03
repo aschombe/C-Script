@@ -1,2 +1,19 @@
+// Factorial
 (func fact ("" x) (if (eq? x 0) (base 1) (else (mul x (call fact (sub x 1))))))
 (call fact 5)
+
+// Summation
+(func sum ("" x) (if (eq? x 0) (base 0) (else (add x (call sum (sub x 1))))))
+(call sum 5)
+
+// Fibonacci
+//(func fib ("" x) (if (or (eq? x 0) (eq? x 1)) (base x) (else (add (call fib (sub x 1)) (call fib (sub x 2))))))
+//(call fib 5)
+
+// Pascal's Triangle nth row using the (print x y z) function
+//
+//
+
+// Count down from n to 0 
+(func count-down ("" x) (if (eq? x 0) (base 0) (else (print x (call count-down (sub x 1))))))
+(call count-down 10)
