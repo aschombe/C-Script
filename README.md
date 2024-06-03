@@ -45,5 +45,5 @@ The file should have the extension `.rss`. You can find some example files in th
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)
 
 ## Notes
-- Functions: (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything, but it must be there (or everything breaks)
+- Functions: (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything but (), but it must be there (or everything breaks)
 - Recursive Functions: Base case must be prepended by "base" keyword. Look in the examples directory for an example of a recursive function.
