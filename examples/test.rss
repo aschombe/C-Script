@@ -1,0 +1,21 @@
+(if 0 (add 5 5) (else (add 10 10)))
+
+//(if 0
+//    (add 5 5)
+//    (elif 1
+//        (add 10 10)
+//        (else
+            (add 15 15)
+//        )
+//    )
+//)
+
+//(if (lt? 10 20)
+//    (print "10 is less than 20")
+//    (elif (lt? 20 30)
+//        (print "20 is less than 30")
+//        (else
+//            (print "None of the above")
+//        )
+//    )
+//)

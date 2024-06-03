@@ -34,11 +34,13 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Nested Expressions
 - [x] Variables (let, set, get)
 - [x] Floating point numbers
+- [x] Control Flow (if, elif, else)
 
 ## Todo
-- [ ] Control flow and loops (if, elif, else, while, for)
+- [ ] Support for code spanning multiple lines
+- [ ] Loops (while, for)
 - [ ] Maybe String Operations
-- [ ] Maybe functions
+- [ ] Maybe Functions
 
 ## Notes
 - Potentially rework the and, or, not functions.

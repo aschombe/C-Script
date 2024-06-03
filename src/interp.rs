@@ -59,7 +59,6 @@ impl Interpreter {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
                     }
-    
                     if let ASTNode::Value(var) = &operands[0] {
                         let value: f64 = self.eval_ast(&operands[1])?;
                         if self.variables.contains_key(var) {
@@ -71,7 +70,7 @@ impl Interpreter {
                         return Err(ErrorHandler::ParseError("Invalid let syntax".to_string()));
                     }
                 }
-
+    
                 if op == "set" {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
@@ -88,6 +87,45 @@ impl Interpreter {
                     }
                 }
     
+                if op == "if" {
+                if operands.len() < 2 {
+                    return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
+                }
+                let condition = self.eval_ast(&operands[0])?;
+                if condition != 0.0 {
+                    return self.eval_ast(&operands[1]);
+                } else {
+                    for i in 2..operands.len() {
+                        if let ASTNode::Operator(ref cond_op, ref cond_operands) = operands[i] {
+                            match cond_op.as_str() {
+                                "elif" => {
+                                    if cond_operands.len() != 2 {
+                                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", cond_op)));
+                                    }
+                                    let condition = self.eval_ast(&cond_operands[0])?;
+                                    if condition != 0.0 {
+                                        return self.eval_ast(&cond_operands[1]);
+                                    }
+                                }
+                                "else" => {
+                                    if cond_operands.len() != 1 {
+                                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", cond_op)));
+                                    }
+                                    return self.eval_ast(&cond_operands[0]);
+                                }
+                                _ => {
+                                    return Err(ErrorHandler::ParseError("Invalid conditional syntax".to_string()));
+                                }
+                            }
+                        } else {
+                            return Err(ErrorHandler::ParseError("Invalid conditional syntax".to_string()));
+                        }
+                    }
+                }
+                return Ok(0.0);
+            }
+    
+                // Handle other operations...
                 let args: Result<Vec<f64>, _> = operands.iter().map(|operand| self.eval_ast(operand)).collect();
                 let args: Vec<f64> = args?;
     
@@ -213,7 +251,7 @@ fn tokenize(expr: &str) -> Vec<String> {
                     token.clear();
                 }
             }
-            ' ' if !in_string => {
+            ' ' | '\n' if !in_string => {
                 if !token.is_empty() {
                     tokens.push(token.clone());
                     token.clear();
