@@ -137,6 +137,23 @@ impl Interpreter {
                             "and" => args.iter().all(|&num| num != 0) as i32,
                             "or" => args.iter().any(|&num| num != 0) as i32,
                             "not" => (args[0] == 0) as i32,
+                            // "if" => {
+                            //     if args[0] != 0 {
+                            //         args[1]
+                            //     } else {
+                            //         args[2]
+                            //     }
+                            // }
+                            // "elif" => {
+                            //     if args[0] != 0 {
+                            //         args[1]
+                            //     } else if args[2] != 0 {
+                            //         args[3]
+                            //     } else {
+                            //         args[4]
+                            //     }
+                            // }
+                            // "else" => args[0],
                             _ => return Err(ErrorHandler::UnknownOperator(op.to_string())),
                         };
                         Ok(result.to_string())

@@ -36,7 +36,8 @@ The file should have the extension `.rss`. You can find some example files in th
 
 ## Todo
 - [ ] Nested Expressions
-- [ ] Control flow and loops
+- [ ] Printing Variables
+- [ ] Control flow and loops (if, else, while, for)
 - [ ] Maybe String Operations
 - [ ] Maybe functions
 
