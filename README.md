@@ -13,12 +13,12 @@ This is an interpreter written in rust.
   <!-- - [License](#license) -->
 
 ## Usage
-To run the project, you need to have Rust installed. You can install Rust by following the instructions on the [official website](https://www.rust-lang.org/tools/install). After installing Rust, you can run the project by running the following command in the project directory:
+To run the project, you need to have Rust installed. You can install Rust by following the instructions on the [official website](https://www.rust-lang.org/tools/install). After installing Rust, you can generate the interpreter by running the following in the project directory:
 ```bash
 cargo run
 ```
 
-This will generate an executable file in the `target/debug` directory. This is the interpreter. You can run the interpreter by running the following command:
+Run the interpreter by running the following command:
 ```bash
 ./rss <path-to-file>
 ```
