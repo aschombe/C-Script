@@ -1,4 +1,7 @@
-use std::{collections::HashMap, fs::read_to_string, path::PathBuf, fmt};
+use std::collections::HashMap;
+use std::fs::read_to_string;
+use std::path::PathBuf;
+use std::fmt;
 
 // Structure for error types
 #[derive(Debug)]
@@ -32,161 +35,129 @@ impl Interpreter {
     }
 
     pub fn eval(&mut self, expr: &str) -> Result<String, ErrorHandler> {
-        let args: Vec<&str> = expr.trim_matches(|p: char| p == '(' || p == ')')
-                                  .split_whitespace()
-                                  .collect();
-        match &args[..] {
-            // Empty expression e.g. ()
-            &[] => Ok("0".to_string()),
-            // Handling expressions with operators
-            &[op, ref rest @ ..] if !rest.is_empty() => {
-                match op {
-                    "print" => {
-                        for arg in rest {
-                            if let Ok(num) = arg.parse::<i32>() {
-                                println!("{}", num);
-                            } else if let Some(&val) = self.variables.get(&arg.to_string()) {
-                                println!("{}", val);
-                            } else {
-                                println!("{}", arg.trim_matches('"'));
-                            }
-                        }
-                        return Ok("0".to_string());
-                    }
-                    "let" => {
-                        if rest.len() != 2 {
-                            return Err(ErrorHandler::ParseError(format!("Invalid let syntax in '{}'", expr)));
-                        }
-                        let var = rest[0].to_string();
-                        let val = rest[1].parse::<i32>().map_err(|_| ErrorHandler::ParseError(format!("Invalid number '{}'", rest[1])))?;
-                        self.variables.insert(var, val);
-                        return Ok(val.to_string());
-                    }
-                    "set" => {
-                        if rest.len() != 2 {
-                            return Err(ErrorHandler::ParseError(format!("Invalid set syntax in '{}'", expr)));
-                        }
-                        let var = rest[0].to_string();
-                        let val = rest[1].parse::<i32>().map_err(|_| ErrorHandler::ParseError(format!("Invalid number '{}'", rest[1])))?;
-                        if !self.variables.contains_key(&var) {
-                            return Err(ErrorHandler::VariableNotFound(var));
-                        }
-                        self.variables.insert(var, val);
-                        return Ok(val.to_string());
-                    }
-                    "get" => {
-                        if rest.len() != 1 {
-                            return Err(ErrorHandler::ParseError(format!("Invalid get syntax in '{}'", expr)));
-                        }
-                        let var = rest[0].to_string();
-                        match self.variables.get(&var) {
-                            Some(&val) => return Ok(val.to_string()),
-                            None => return Err(ErrorHandler::VariableNotFound(var)),
-                        }
-                    }
-                    _ => {
-                        let args: Result<Vec<i32>, _> = rest.iter().map(|&arg| {
-                            if let Ok(num) = arg.parse::<i32>() {
-                                Ok(num)
-                            } else if let Some(&val) = self.variables.get(arg) {
-                                Ok(val)
-                            } else {
-                                Err(ErrorHandler::ParseError(format!("Failed to parse args in '{}'", expr)))
-                            }
-                        }).collect();
-                        let args = match args {
-                            Ok(nums) => nums,
-                            Err(_) => return Err(ErrorHandler::ParseError(format!("Failed to parse args in '{}'", expr))),
-                        };
+        let tokens = tokenize(expr);
+        let (ast, _) = parse(&tokens)?;
 
-                        let result: i32 = match op {
-                            "+" | "add" => args.iter().sum(),
-                            "-" | "subtract" => args.iter().skip(1).fold(args[0], |acc, &num| acc - num),
-                            "*" | "multiply" => args.iter().product(),
-                            "/" | "divide" => {
-                                if args.iter().skip(1).any(|&num| num == 0) {
-                                    return Err(ErrorHandler::DivisionByZero);
-                                }
-                                args.iter().skip(1).fold(args[0], |acc, &num| acc / num)
-                            },
-                            "%" => {
-                                if args.iter().skip(1).any(|&num| num == 0) {
-                                    return Err(ErrorHandler::DivisionByZero);
-                                }
-                                args.iter().skip(1).fold(args[0], |acc, &num| acc % num)
-                            },
-                            "max" => *args.iter().max().unwrap(),
-                            "min" => *args.iter().min().unwrap(),
-                            "pow" => args[0].pow(args[1] as u32),
-                            "sqrt" => (args[0] as f64).sqrt() as i32,
-                            "sin" => (args[0] as f64).sin() as i32,
-                            "cos" => (args[0] as f64).cos() as i32,
-                            "tan" => (args[0] as f64).tan() as i32,
-                            "abs" => (args[0] as f64).abs() as i32,
-                            "zero?" => (args[0] == 0) as i32,
-                            "even?" => (args[0] % 2 == 0) as i32,
-                            "odd?" => (args[0] % 2 != 0) as i32,
-                            "pos?" => (args[0] > 0) as i32,
-                            "neg?" => (args[0] < 0) as i32,
-                            "eq?" => (args[0] == args[1]) as i32,
-                            "neq?" => (args[0] != args[1]) as i32,
-                            "lt?" => (args[0] < args[1]) as i32,
-                            "gt?" => (args[0] > args[1]) as i32,
-                            "lte?" => (args[0] <= args[1]) as i32,
-                            "gte?" => (args[0] >= args[1]) as i32,
-                            "and" => args.iter().all(|&num| num != 0) as i32,
-                            "or" => args.iter().any(|&num| num != 0) as i32,
-                            "not" => (args[0] == 0) as i32,
-                            // "if" => {
-                            //     if args[0] != 0 {
-                            //         args[1]
-                            //     } else {
-                            //         args[2]
-                            //     }
-                            // }
-                            // "elif" => {
-                            //     if args[0] != 0 {
-                            //         args[1]
-                            //     } else if args[2] != 0 {
-                            //         args[3]
-                            //     } else {
-                            //         args[4]
-                            //     }
-                            // }
-                            // "else" => args[0],
-                            _ => return Err(ErrorHandler::UnknownOperator(op.to_string())),
-                        };
-                        Ok(result.to_string())
-                    }
+        match self.eval_ast(&ast) {
+            Ok(result) => Ok(result.to_string()),
+            Err(e) => Err(e),
+        }
+    }
+
+    fn eval_ast(&mut self, node: &ASTNode) -> Result<i32, ErrorHandler> {
+        match node {
+            ASTNode::Value(val) => {
+                if let Ok(num) = val.parse::<i32>() {
+                    Ok(num)
+                } else if let Some(&num) = self.variables.get(val) {
+                    Ok(num)
+                } else {
+                    Err(ErrorHandler::VariableNotFound(val.clone()))
                 }
             }
-            // Unknown operator
-            _ => Err(ErrorHandler::UnknownOperator(args.join(" "))),
+            ASTNode::Operator(op, operands) => {
+                // Special handling for let, set, and get
+                if op == "let" || op == "set" || op == "get" {
+                    if operands.len() != 2 {
+                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
+                    }
+                }
+
+                let args: Result<Vec<i32>, _> = operands.iter().map(|operand| self.eval_ast(operand)).collect();
+                let args = args?;
+
+                match op.as_str() {
+                    "print" => {
+                        for arg in &args {
+                            println!("{}", arg);
+                        }
+                        return Ok(0);
+                    }
+                    "let" => {
+                        if let ASTNode::Value(var) = &operands[0] {
+                            let value = self.eval_ast(&operands[1])?;
+                            self.variables.insert(var.clone(), value);
+                            return Ok(value);
+                        } else {
+                            return Err(ErrorHandler::ParseError("Invalid let syntax".to_string()));
+                        }
+                    }
+                    "set" => {
+                        if let ASTNode::Value(var) = &operands[0] {
+                            if !self.variables.contains_key(var) {
+                                return Err(ErrorHandler::VariableNotFound(var.clone()));
+                            }
+                            let value = self.eval_ast(&operands[1])?;
+                            self.variables.insert(var.clone(), value);
+                            return Ok(value);
+                        } else {
+                            return Err(ErrorHandler::ParseError("Invalid set syntax".to_string()));
+                        }
+                    }
+                    "get" => {
+                        if let ASTNode::Value(var) = &operands[0] {
+                            if let Some(&val) = self.variables.get(var) {
+                                return Ok(val);
+                            } else {
+                                return Err(ErrorHandler::VariableNotFound(var.clone()));
+                            }
+                        } else {
+                            return Err(ErrorHandler::ParseError("Invalid get syntax".to_string()));
+                        }
+                    }
+                    "+" | "add" => Ok(args.iter().sum()),
+                    "-" | "subtract" | "sub" => Ok(args.iter().skip(1).fold(args[0], |acc, &num| acc - num)),
+                    "*" | "multiply" | "mul" => Ok(args.iter().product()),
+                    "/" | "divide" | "div" => {
+                        if args.iter().skip(1).any(|&num| num == 0) {
+                            return Err(ErrorHandler::DivisionByZero);
+                        }
+                        Ok(args.iter().skip(1).fold(args[0], |acc, &num| acc / num))
+                    }
+                    "%" | "modulo" | "mod" => {
+                        if args.iter().skip(1).any(|&num| num == 0) {
+                            return Err(ErrorHandler::DivisionByZero);
+                        }
+                        Ok(args.iter().skip(1).fold(args[0], |acc, &num| acc % num))
+                    }
+                    "max" => Ok(*args.iter().max().unwrap()),
+                    "min" => Ok(*args.iter().min().unwrap()),
+                    "pow" => Ok(args[0].pow(args[1] as u32)),
+                    "sqrt" => Ok((args[0] as f64).sqrt() as i32),
+                    "sin" => Ok((args[0] as f64).sin() as i32),
+                    "cos" => Ok((args[0] as f64).cos() as i32),
+                    "tan" => Ok((args[0] as f64).tan() as i32),
+                    "abs" => Ok((args[0] as f64).abs() as i32),
+                    "zero?" => Ok((args[0] == 0) as i32),
+                    "even?" => Ok((args[0] % 2 == 0) as i32),
+                    "odd?" => Ok((args[0] % 2 != 0) as i32),
+                    "pos?" => Ok((args[0] > 0) as i32),
+                    "neg?" => Ok((args[0] < 0) as i32),
+                    "eq?" => Ok((args[0] == args[1]) as i32),
+                    "neq?" => Ok((args[0] != args[1]) as i32),
+                    "lt?" => Ok((args[0] < args[1]) as i32),
+                    "gt?" => Ok((args[0] > args[1]) as i32),
+                    "lte?" => Ok((args[0] <= args[1]) as i32),
+                    "gte?" => Ok((args[0] >= args[1]) as i32),
+                    "and" => Ok(args.iter().all(|&num| num != 0) as i32),
+                    "or" => Ok(args.iter().any(|&num| num != 0) as i32),
+                    "not" => Ok((args[0] == 0) as i32),
+                    _ => Err(ErrorHandler::UnknownOperator(op.clone())),
+                }
+            }
         }
     }
 
     pub fn interp(&mut self, path: PathBuf) -> Result<(), ErrorHandler> {
-        // Read the contents of the file
-        let contents: String = read_to_string(&path).map_err(|e| ErrorHandler::ParseError(e.to_string()))?;
+        let contents = read_to_string(&path).map_err(|e| ErrorHandler::ParseError(e.to_string()))?;
+        let lines = contents.lines();
 
-        // Split the contents of the file by newlines
-        let lines: std::str::Lines = contents.lines();
+        let mut line_num = 1;
 
-        let mut line_num: i32 = 1;
-
-        // Iterate over each line
         for line in lines {
-            // Remove leading and trailing whitespace
             let line = line.trim();
 
-            // If the line is empty, skip it
-            if line.is_empty() {
-                line_num += 1;
-                continue;
-            }
-
-            // If the line starts with a //, it is a comment
-            if line.starts_with("//") {
+            if line.is_empty() || line.starts_with("//") {
                 line_num += 1;
                 continue;
             }
@@ -208,4 +179,86 @@ impl Interpreter {
 
         Ok(())
     }
+}
+
+#[derive(Debug)]
+enum ASTNode {
+    Operator(String, Vec<ASTNode>),
+    Value(String),
+}
+
+fn tokenize(expr: &str) -> Vec<String> {
+    let mut tokens = Vec::new();
+    let mut token = String::new();
+    let mut in_string = false;
+
+    for c in expr.chars() {
+        match c {
+            '(' | ')' if !in_string => {
+                if !token.is_empty() {
+                    tokens.push(token.clone());
+                    token.clear();
+                }
+                tokens.push(c.to_string());
+            }
+            '"' => {
+                token.push(c);
+                in_string = !in_string;
+                if !in_string {
+                    tokens.push(token.clone());
+                    token.clear();
+                }
+            }
+            ' ' if !in_string => {
+                if !token.is_empty() {
+                    tokens.push(token.clone());
+                    token.clear();
+                }
+            }
+            _ => {
+                token.push(c);
+            }
+        }
+    }
+
+    if !token.is_empty() {
+        tokens.push(token);
+    }
+
+    tokens
+}
+
+fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
+    if tokens.is_empty() {
+        return Err(ErrorHandler::ParseError("Empty expression".to_string()));
+    }
+
+    let mut index = 0;
+
+    if tokens[index] != "(" {
+        return Err(ErrorHandler::ParseError("Expected '('".to_string()));
+    }
+
+    index += 1;
+    let operator = tokens[index].clone();
+    index += 1;
+
+    let mut operands = Vec::new();
+
+    while index < tokens.len() && tokens[index] != ")" {
+        if tokens[index] == "(" {
+            let (node, consumed) = parse(&tokens[index..])?;
+            operands.push(node);
+            index += consumed;
+        } else {
+            operands.push(ASTNode::Value(tokens[index].clone()));
+            index += 1;
+        }
+    }
+
+    if index >= tokens.len() || tokens[index] != ")" {
+        return Err(ErrorHandler::ParseError("Expected ')'".to_string()));
+    }
+
+    Ok((ASTNode::Operator(operator, operands), index + 1))
 }
