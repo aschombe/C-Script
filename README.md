@@ -25,12 +25,19 @@ This will generate an executable file in the `target/debug` directory. This is t
 The file should have the extension `.rss`. You can find some example files in the `examples` directory.
 
 ## Features
+- [x] Print Statements (print x y z) (need to be reworked) (printing variables doesn't work)
+- [x] Comments (single line comments)
 - [x] Arithmetic Operations (addition, subtraction, multiplication, division, modulo)
 - [x] Math Functions (min, max, pow, sqrt, sin, cos, tan, abs, zero?, even?, odd?, pos?, neg?)
 - [x] Comparison Operations (eq?, neq?, gt?, lt?, gte?, lte?)
+- [x] Variables (let, set, get)
+- [x] And, Or, Not (and, or, not) (need to be reworked)
+
+
 ## Todo
-- [ ] Variables
+- [ ] Nested Expressions
 - [ ] Control flow and loops
+- [ ] Maybe String Operations
 - [ ] Maybe functions
 
 ## Notes

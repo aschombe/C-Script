@@ -30,5 +30,7 @@ fn main() {
     }
 
     // pass path to the interpreter
-    let _res: Result<(), interp::ErrorHandler> = interp::interp(PathBuf::from(filename));
+    // let _res: Result<(), interp::ErrorHandler> = interp::interp(PathBuf::from(filename));
+    let mut interpreter: interp::Interpreter = interp::Interpreter::new();
+    let _res: Result<(), interp::ErrorHandler> = interpreter.interp(PathBuf::from(filename));
 }

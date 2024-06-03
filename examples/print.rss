@@ -1,0 +1,6 @@
+(print 1 1 "hello")
+(print 1 5)
+(print True)
+(print 0f)
+(let x 15)
+(print x)

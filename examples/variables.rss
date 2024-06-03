@@ -1,0 +1,6 @@
+(let x 5)
+(get x)
+(set x 10)
+(get x)
+(add x 5)
+(get x)
