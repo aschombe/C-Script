@@ -1,0 +1,2 @@
+(func fact ("" x) (if (eq? x 0) (base 1) (else (mul x (call fact (sub x 1))))))
+(call fact 5)

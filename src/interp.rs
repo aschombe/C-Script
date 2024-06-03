@@ -81,6 +81,51 @@ impl Interpreter {
                 }
             }
             ASTNode::Operator(op, operands) => match op.as_str() {
+                "base" => {
+                    if operands.len() != 1 {
+                        return Err(ErrorHandler::ParseError(format!(
+                            "Invalid syntax for '{}'",
+                            op
+                        )));
+                    }
+                    self.eval_ast(&operands[0])
+                }
+                "rfunc" => {
+                    if operands.len() != 3 {
+                        return Err(ErrorHandler::ParseError(format!(
+                            "Invalid syntax for '{}'",
+                            op
+                        )));
+                    }
+
+                    if let ASTNode::Value(name) = &operands[0] {
+                        if let ASTNode::Operator(_, param_nodes) = &operands[1] {
+                            let params: Vec<String> = param_nodes
+                                .iter()
+                                .map(|param| match param {
+                                    ASTNode::Value(val) => Ok(val.clone()),
+                                    _ => Err(ErrorHandler::ParseError(
+                                        "Invalid parameter".to_string(),
+                                    )),
+                                })
+                                .collect::<Result<Vec<_>, _>>()?;
+
+                            let body: ASTNode = operands[2].clone();
+                            let func: Function = Function { params, body };
+
+                            self.functions.insert(name.clone(), func);
+                            Ok(0.0)
+                        } else {
+                            Err(ErrorHandler::ParseError(
+                                "Invalid function parameters".to_string(),
+                            ))
+                        }
+                    } else {
+                        Err(ErrorHandler::ParseError(
+                            "Invalid function name".to_string(),
+                        ))
+                    }
+                }
                 "func" => {
                     if operands.len() != 3 {
                         return Err(ErrorHandler::ParseError(format!(

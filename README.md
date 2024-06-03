@@ -36,15 +36,17 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Floating point numbers
 - [x] Control Flow (if, else)
 - [x] Add boolean keywords (0 is False, 1 is True)
-- [x] Functions
+- [x] Functions 
+- [x] Recursion
 
 ## Todo
+- [ ] Recursive Functions (rfunc "name" (placeholder arg1 arg2 ... argn) (body))
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while, for)
 - [ ] String support for printing
 - [ ] Maybe String Operations
 
 ## Notes
-- Functions are are a little odd. (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything, but it must be there (or everything breaks)
-
+- Functions: (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything, but it must be there (or everything breaks)
+- Recursive Functions: (rfunc "name" (placeholder arg1 arg2 ... argn) (base-case) (recursive-case)), the placeholder can be anything, but it must be there (or everything breaks), the base-case's return value must be prepended by the "base" keyword. Look in the examples directory for an example of a recursive function.
 <!-- ## License -->
