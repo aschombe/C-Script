@@ -1,5 +1,5 @@
-(func square (x) (mul x x))
-(call square 5)
+(func square (0 y z v) (mul y z))
+(call square 5 5 10)
 
 
 //(func hello (1) (print 1))

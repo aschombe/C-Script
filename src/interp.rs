@@ -9,6 +9,7 @@ pub enum ErrorHandler {
     UnknownOperator(String),
     ParseError(String),
     VariableNotFound(String),
+    FunctionNotFound(String),
 }
 
 impl fmt::Display for ErrorHandler {
@@ -18,6 +19,9 @@ impl fmt::Display for ErrorHandler {
             ErrorHandler::UnknownOperator(op) => write!(f, "Error: Unknown operator '{}'", op),
             ErrorHandler::ParseError(err) => write!(f, "Error: Parse error - {}", err),
             ErrorHandler::VariableNotFound(var) => write!(f, "Error: Variable '{}' not found", var),
+            ErrorHandler::FunctionNotFound(func) => {
+                write!(f, "Error: Function '{}' not found", func)
+            }
         }
     }
 }
@@ -97,11 +101,6 @@ impl Interpreter {
                                 })
                                 .collect::<Result<Vec<_>, _>>()?;
 
-                            println!(
-                                "DEBUG: Function '{}' defined with params: {:?}",
-                                name, params
-                            );
-
                             let body: ASTNode = operands[2].clone();
                             let func: Function = Function { params, body };
 
@@ -128,12 +127,6 @@ impl Interpreter {
 
                     if let ASTNode::Value(name) = &operands[0] {
                         if let Some(func) = self.functions.get(name) {
-                            println!(
-                                "DEBUG: Function '{}' called with args: {:?}",
-                                name,
-                                &operands[1..]
-                            );
-
                             if operands.len() - 1 != func.params.len() {
                                 return Err(ErrorHandler::ParseError(format!(
                                     "Invalid number of arguments for function '{}'",
@@ -160,19 +153,12 @@ impl Interpreter {
                                 local_vars.insert(param.clone(), result);
                             }
 
-                            println!(
-                                "DEBUG: Local variables for function '{}': {:?}",
-                                name, local_vars
-                            );
-
-                            let mut local_interpreter: Interpreter = Interpreter {
-                                variables: local_vars,
-                                functions: local_funcs,
-                            };
+                            local_interpreter.variables = local_vars;
+                            local_interpreter.functions = local_funcs;
 
                             local_interpreter.eval_ast(&func.body)
                         } else {
-                            Err(ErrorHandler::UnknownOperator(name.clone()))
+                            Err(ErrorHandler::FunctionNotFound(name.clone()))
                         }
                     } else {
                         Err(ErrorHandler::ParseError(

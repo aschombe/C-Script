@@ -36,15 +36,15 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Floating point numbers
 - [x] Control Flow (if, else)
 - [x] Add boolean keywords (0 is False, 1 is True)
+- [x] Functions
 
 ## Todo
-- [ ] Functions (single parameter and multiparemeter)
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while, for)
 - [ ] String support for printing
 - [ ] Maybe String Operations
 
 ## Notes
-- Functions aren't storing parameters properly, causes errors when calling functions with parameters.
+- Functions are are a little odd. (func "name" (0 arg1 arg2 ... argn) (body)), 0 must be the first argument.
 
 <!-- ## License -->
