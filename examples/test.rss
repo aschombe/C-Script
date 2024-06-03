@@ -1,6 +1,8 @@
 (func square (x) (mul x x))
 (call square 5)
 
+//(func hello (1) (print 1))
+//(call hello)
 
 //(if (eq? 1 1) (add 5 5) (else (add 10 10)))
 

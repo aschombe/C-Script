@@ -46,5 +46,6 @@ The file should have the extension `.rss`. You can find some example files in th
 
 ## Notes
 - Elif might be broken or not working as intended.
+- Functions arent storing parameters properly, causes errors when calling functions with parameters.
 
 <!-- ## License -->
