@@ -45,6 +45,6 @@ The file should have the extension `.rss`. You can find some example files in th
 - [ ] Maybe Functions
 
 ## Notes
-- Potentially rework the and, or, not functions.
+- Elif might be broken or not working as intended.
 
 <!-- ## License -->
