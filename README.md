@@ -34,7 +34,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Nested Expressions
 - [x] Variables (let, set, get)
 - [x] Floating point numbers
-- [x] Control Flow (if, elif, else)
+- [x] Control Flow (if, else)
 - [x] Add boolean keywords (0 is False, 1 is True)
 
 ## Todo
@@ -45,7 +45,6 @@ The file should have the extension `.rss`. You can find some example files in th
 - [ ] Maybe String Operations
 
 ## Notes
-- Elif might be broken or not working as intended.
-- Functions arent storing parameters properly, causes errors when calling functions with parameters.
+- Functions aren't storing parameters properly, causes errors when calling functions with parameters.
 
 <!-- ## License -->
