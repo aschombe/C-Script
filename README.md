@@ -45,6 +45,6 @@ The file should have the extension `.rss`. You can find some example files in th
 - [ ] Maybe String Operations
 
 ## Notes
-- Functions are are a little odd. (func "name" (0 arg1 arg2 ... argn) (body)), 0 must be the first argument.
+- Functions are are a little odd. (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything, but it must be there (or everything breaks)
 
 <!-- ## License -->

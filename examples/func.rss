@@ -1,0 +1,5 @@
+(func mult ("" y z v) (mul y z))
+(call mult 5 5 10)
+
+(func hello (1) (print 1))
+(call hello)
