@@ -35,7 +35,7 @@ impl Interpreter {
     }
 
     pub fn eval(&mut self, expr: &str) -> Result<String, ErrorHandler> {
-        let tokens = tokenize(expr);
+        let tokens: Vec<String> = tokenize(expr);
         let (ast, _) = parse(&tokens)?;
 
         match self.eval_ast(&ast) {
@@ -64,7 +64,7 @@ impl Interpreter {
                 }
 
                 let args: Result<Vec<i32>, _> = operands.iter().map(|operand| self.eval_ast(operand)).collect();
-                let args = args?;
+                let args: Vec<i32> = args?;
 
                 match op.as_str() {
                     "print" => {
@@ -75,7 +75,7 @@ impl Interpreter {
                     }
                     "let" => {
                         if let ASTNode::Value(var) = &operands[0] {
-                            let value = self.eval_ast(&operands[1])?;
+                            let value: i32 = self.eval_ast(&operands[1])?;
                             self.variables.insert(var.clone(), value);
                             return Ok(value);
                         } else {
@@ -87,7 +87,7 @@ impl Interpreter {
                             if !self.variables.contains_key(var) {
                                 return Err(ErrorHandler::VariableNotFound(var.clone()));
                             }
-                            let value = self.eval_ast(&operands[1])?;
+                            let value: i32 = self.eval_ast(&operands[1])?;
                             self.variables.insert(var.clone(), value);
                             return Ok(value);
                         } else {
@@ -149,13 +149,13 @@ impl Interpreter {
     }
 
     pub fn interp(&mut self, path: PathBuf) -> Result<(), ErrorHandler> {
-        let contents = read_to_string(&path).map_err(|e| ErrorHandler::ParseError(e.to_string()))?;
-        let lines = contents.lines();
+        let contents: String = read_to_string(&path).map_err(|e| ErrorHandler::ParseError(e.to_string()))?;
+        let lines: std::str::Lines = contents.lines();
 
-        let mut line_num = 1;
+        let mut line_num: i32 = 1;
 
         for line in lines {
-            let line = line.trim();
+            let line: &str = line.trim();
 
             if line.is_empty() || line.starts_with("//") {
                 line_num += 1;
@@ -188,9 +188,9 @@ enum ASTNode {
 }
 
 fn tokenize(expr: &str) -> Vec<String> {
-    let mut tokens = Vec::new();
-    let mut token = String::new();
-    let mut in_string = false;
+    let mut tokens: Vec<String> = Vec::new();
+    let mut token: String = String::new();
+    let mut in_string: bool = false;
 
     for c in expr.chars() {
         match c {
@@ -233,17 +233,17 @@ fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
         return Err(ErrorHandler::ParseError("Empty expression".to_string()));
     }
 
-    let mut index = 0;
+    let mut index: usize = 0;
 
     if tokens[index] != "(" {
         return Err(ErrorHandler::ParseError("Expected '('".to_string()));
     }
 
     index += 1;
-    let operator = tokens[index].clone();
+    let operator: String = tokens[index].clone();
     index += 1;
 
-    let mut operands = Vec::new();
+    let mut operands: Vec<ASTNode> = Vec::new();
 
     while index < tokens.len() && tokens[index] != ")" {
         if tokens[index] == "(" {

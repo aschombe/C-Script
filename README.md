@@ -30,12 +30,12 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Arithmetic Operations (addition, subtraction, multiplication, division, modulo)
 - [x] Math Functions (min, max, pow, sqrt, sin, cos, tan, abs, zero?, even?, odd?, pos?, neg?)
 - [x] Comparison Operations (eq?, neq?, gt?, lt?, gte?, lte?)
-- [x] And, Or, Not (and, or, not) (need to be reworked)
+- [x] And, Or, Not (and, or, not) (might need to be reworked)
 - [x] Nested Expressions (except for print statements)
 
 ## Todo
 - [ ] Variables (let, set, get) (broken)
-- [ ] Printing Variables
+- [ ] Printing Variables and nested expressions
 - [ ] Control flow and loops (if, elif, else, while, for)
 - [ ] Maybe String Operations
 - [ ] Maybe functions
