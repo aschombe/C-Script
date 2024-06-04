@@ -10,7 +10,7 @@ pub enum ErrorHandler {
     ParseError(String),
     VariableNotFound(String),
     FunctionNotFound(String),
-    LabelNotFound(String),
+    // LabelNotFound(String),
     StackOverflow,
 }
 
@@ -24,7 +24,7 @@ impl fmt::Display for ErrorHandler {
             ErrorHandler::FunctionNotFound(func) => {
                 write!(f, "Error: Function '{}' not found", func)
             }
-            ErrorHandler::LabelNotFound(label) => write!(f, "Error: Label '{}' not found", label),
+            // ErrorHandler::LabelNotFound(label) => write!(f, "Error: Label '{}' not found", label),
             ErrorHandler::StackOverflow => write!(f, "Error: Stack overflow"),
         }
     }
