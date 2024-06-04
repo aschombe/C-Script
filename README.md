@@ -41,6 +41,8 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Exit function (exits the interpreter) syntax: (exit num)
 
 ## Todo
+- [ ] Fix parser by adding a special parse case to fix how functions are parsed
+- [ ] While loops
 - [ ] Put print statement output after the output for the line being interpreted, and dont print a 0 for every successful line
 - [ ] Support for code spanning multiple lines
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)
