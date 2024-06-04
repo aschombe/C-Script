@@ -9,9 +9,9 @@ pub enum ErrorHandler {
     UnknownOperator(String),
     ParseError(String),
     VariableNotFound(String),
-    FunctionNotFound(String),
+    // FunctionNotFound(String),
     // LabelNotFound(String),
-    StackOverflow,
+    // StackOverflow,
 }
 
 impl fmt::Display for ErrorHandler {
@@ -21,26 +21,27 @@ impl fmt::Display for ErrorHandler {
             ErrorHandler::UnknownOperator(op) => write!(f, "Error: Unknown operator '{}'", op),
             ErrorHandler::ParseError(err) => write!(f, "Error: Parse error - {}", err),
             ErrorHandler::VariableNotFound(var) => write!(f, "Error: Variable '{}' not found", var),
-            ErrorHandler::FunctionNotFound(func) => {
-                write!(f, "Error: Function '{}' not found", func)
-            }
+            // ErrorHandler::FunctionNotFound(func) => {
+            //     write!(f, "Error: Function '{}' not found", func)
+            // }
             // ErrorHandler::LabelNotFound(label) => write!(f, "Error: Label '{}' not found", label),
-            ErrorHandler::StackOverflow => write!(f, "Error: Stack overflow"),
+            // ErrorHandler::StackOverflow => write!(f, "Error: Stack overflow"),
         }
     }
 }
 
-#[derive(Debug, Clone)]
-struct Function {
-    params: Vec<String>,
-    body: ASTNode,
-}
+// #[derive(Debug, Clone)]
+// struct Function {
+//     params: Vec<String>,
+//     body: ASTNode,
+// }
 
 #[derive(Debug)]
 pub struct Tape {
     nodes: Vec<ASTNode>,
     pc: usize, // program counter
     labels: HashMap<String, usize>,
+    pc_stack: Vec<usize>,
 }
 
 impl Tape {
@@ -49,6 +50,7 @@ impl Tape {
             nodes: Vec::new(),
             pc: 0,
             labels: HashMap::new(),
+            pc_stack: Vec::new(),
         }
     }
 
@@ -83,9 +85,9 @@ impl Tape {
 #[derive(Debug)]
 pub struct Interpreter {
     variables: HashMap<String, f64>,
-    functions: HashMap<String, Function>,
+    // functions: HashMap<String, Function>,
     tape: Tape,
-    max_recusion_depth: usize,
+    // max_recusion_depth: usize,
 }
 
 impl Clone for Tape {
@@ -94,6 +96,7 @@ impl Clone for Tape {
             nodes: self.nodes.clone(),
             pc: self.pc,
             labels: self.labels.clone(),
+            pc_stack: self.pc_stack.clone(),
         }
     }
 }
@@ -102,9 +105,9 @@ impl Interpreter {
     pub fn new() -> Self {
         Interpreter {
             variables: HashMap::new(),
-            functions: HashMap::new(),
+            // functions: HashMap::new(),
             tape: Tape::new(),
-            max_recusion_depth: 1000,
+            // max_recusion_depth: 1000,
         }
     }
 
@@ -541,7 +544,7 @@ impl Interpreter {
                                 )));
                             }
                             self.variables.insert(var.clone(), value);
-                            Ok(Some(value))
+                            Ok(None)
                         } else {
                             Err(ErrorHandler::ParseError("Invalid let syntax".to_string()))
                         }
@@ -594,44 +597,73 @@ impl Interpreter {
                         }
                     }
                     /*
-                    Function related operators:
+                    Function-ish related operators:
                     */
-                    "func" => {
-                        if operands.len() != 3 {
+                    "call" => {
+                        if operands.len() != 1 {
                             return Err(ErrorHandler::ParseError(format!(
                                 "Invalid syntax for '{}'",
                                 op
                             )));
                         }
-
-                        if let ASTNode::Value(name) = &operands[0] {
-                            if let ASTNode::Operator(_, param_nodes) = &operands[1] {
-                                let params: Vec<String> = param_nodes
-                                    .iter()
-                                    .map(|param| match param {
-                                        ASTNode::Value(val) => Ok(val.clone()),
-                                        _ => Err(ErrorHandler::ParseError(
-                                            "Invalid parameter".to_string(),
-                                        )),
-                                    })
-                                    .collect::<Result<Vec<_>, _>>()?;
-
-                                let body: ASTNode = operands[2].clone();
-                                let func: Function = Function { params, body };
-
-                                self.functions.insert(name.clone(), func);
-                                Ok(None)
-                            } else {
-                                Err(ErrorHandler::ParseError(
-                                    "Invalid function parameters".to_string(),
-                                ))
-                            }
+                        if let ASTNode::Value(label) = &operands[0] {
+                            self.tape.pc_stack.push(self.tape.pc);
+                            self.tape.jump_to_label(label)?;
+                            Ok(None)
                         } else {
-                            Err(ErrorHandler::ParseError(
-                                "Invalid function name".to_string(),
-                            ))
+                            Err(ErrorHandler::ParseError("Invalid call syntax".to_string()))
                         }
                     }
+                    "ret" => {
+                        if operands.len() != 0 {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Invalid syntax for '{}'",
+                                op
+                            )));
+                        }
+                        if let Some(pc) = self.tape.pc_stack.pop() {
+                            self.tape.pc = pc;
+                            Ok(None)
+                        } else {
+                            Err(ErrorHandler::ParseError("No return address".to_string()))
+                        }
+                    }
+                    // "func" => {
+                    //     if operands.len() != 3 {
+                    //         return Err(ErrorHandler::ParseError(format!(
+                    //             "Invalid syntax for '{}'",
+                    //             op
+                    //         )));
+                    //     }
+
+                    //     if let ASTNode::Value(name) = &operands[0] {
+                    //         if let ASTNode::Operator(_, param_nodes) = &operands[1] {
+                    //             let params: Vec<String> = param_nodes
+                    //                 .iter()
+                    //                 .map(|param| match param {
+                    //                     ASTNode::Value(val) => Ok(val.clone()),
+                    //                     _ => Err(ErrorHandler::ParseError(
+                    //                         "Invalid parameter".to_string(),
+                    //                     )),
+                    //                 })
+                    //                 .collect::<Result<Vec<_>, _>>()?;
+
+                    //             let body: ASTNode = operands[2].clone();
+                    //             let func: Function = Function { params, body };
+
+                    //             self.functions.insert(name.clone(), func);
+                    //             Ok(None)
+                    //         } else {
+                    //             Err(ErrorHandler::ParseError(
+                    //                 "Invalid function parameters".to_string(),
+                    //             ))
+                    //         }
+                    //     } else {
+                    //         Err(ErrorHandler::ParseError(
+                    //             "Invalid function name".to_string(),
+                    //         ))
+                    //     }
+                    // }
                     "base" => {
                         if operands.len() != 1 {
                             return Err(ErrorHandler::ParseError(format!(
@@ -641,55 +673,55 @@ impl Interpreter {
                         }
                         self.eval_ast(&operands[0], depth)
                     }
-                    "call" => {
-                        if depth >= self.max_recusion_depth {
-                            return Err(ErrorHandler::StackOverflow);
-                        }
+                    // "call" => {
+                    //     if depth >= self.max_recusion_depth {
+                    //         return Err(ErrorHandler::StackOverflow);
+                    //     }
 
-                        if operands.len() < 1 {
-                            return Err(ErrorHandler::ParseError(format!(
-                                "Invalid syntax for '{}'",
-                                op
-                            )));
-                        }
+                    //     if operands.len() < 1 {
+                    //         return Err(ErrorHandler::ParseError(format!(
+                    //             "Invalid syntax for '{}'",
+                    //             op
+                    //         )));
+                    //     }
 
-                        if let ASTNode::Value(name) = &operands[0] {
-                            if let Some(func) = self.functions.get(name) {
-                                if operands.len() - 1 != func.params.len() {
-                                    return Err(ErrorHandler::ParseError(format!(
-                                        "Invalid number of arguments for function '{}'",
-                                        name
-                                    )));
-                                }
+                    //     if let ASTNode::Value(name) = &operands[0] {
+                    //         if let Some(func) = self.functions.get(name) {
+                    //             if operands.len() - 1 != func.params.len() {
+                    //                 return Err(ErrorHandler::ParseError(format!(
+                    //                     "Invalid number of arguments for function '{}'",
+                    //                     name
+                    //                 )));
+                    //             }
 
-                                let mut local_interpreter: Interpreter = Interpreter {
-                                    variables: self.variables.clone(),
-                                    functions: self.functions.clone(),
-                                    tape: Tape::new(),
-                                    max_recusion_depth: self.max_recusion_depth - 1,
-                                };
+                    //             let mut local_interpreter: Interpreter = Interpreter {
+                    //                 variables: self.variables.clone(),
+                    //                 functions: self.functions.clone(),
+                    //                 tape: Tape::new(),
+                    //                 max_recusion_depth: self.max_recusion_depth - 1,
+                    //             };
 
-                                // let _local_vars: HashMap<String, f64> =
-                                //     local_interpreter.variables.clone();
-                                let mut results: Vec<f64> = Vec::new();
-                                for arg in &operands[1..] {
-                                    if let Some(result) = local_interpreter.eval_ast(arg, depth + 1)? {
-                                        results.push(result);
-                                    } else {
-                                        return Err(ErrorHandler::ParseError("Invalid result".to_string()));
-                                    }
-                                }
+                    //             // let _local_vars: HashMap<String, f64> =
+                    //             //     local_interpreter.variables.clone();
+                    //             let mut results: Vec<f64> = Vec::new();
+                    //             for arg in &operands[1..] {
+                    //                 if let Some(result) = local_interpreter.eval_ast(arg, depth + 1)? {
+                    //                     results.push(result);
+                    //                 } else {
+                    //                     return Err(ErrorHandler::ParseError("Invalid result".to_string()));
+                    //                 }
+                    //             }
 
-                                local_interpreter.eval_ast(&func.body, depth + 1)
-                            } else {
-                                Err(ErrorHandler::FunctionNotFound(name.clone()))
-                            }
-                        } else {
-                            Err(ErrorHandler::ParseError(
-                                "Invalid function name".to_string(),
-                            ))
-                        }
-                    }
+                    //             local_interpreter.eval_ast(&func.body, depth + 1)
+                    //         } else {
+                    //             Err(ErrorHandler::FunctionNotFound(name.clone()))
+                    //         }
+                    //     } else {
+                    //         Err(ErrorHandler::ParseError(
+                    //             "Invalid function name".to_string(),
+                    //         ))
+                    //     }
+                    // }
                     /*
                     Label and jump operators:
                     */
@@ -784,10 +816,24 @@ impl Interpreter {
                             }
                         }
 
-                        if !self.functions.is_empty() {
-                            println!("Functions:");
-                            for (func, f) in &self.functions {
-                                println!("{}: {:?}", func, f);
+                        // if !self.functions.is_empty() {
+                        //     println!("Functions:");
+                        //     for (func, f) in &self.functions {
+                        //         println!("{}: {:?}", func, f);
+                        //     }
+                        // }
+
+                        if !self.tape.labels.is_empty() {
+                            println!("Labels:");
+                            for (label, pos) in &self.tape.labels {
+                                println!("{}: {}", label, pos);
+                            }
+                        }
+
+                        if !self.tape.pc_stack.is_empty() {
+                            println!("PC Stack:");
+                            for pc in &self.tape.pc_stack {
+                                println!("{}", pc);
                             }
                         }
 
