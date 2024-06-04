@@ -48,6 +48,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)
 - [ ] Lists denoted by []
 - [ ] Type checking
+- [ ] Potentially convert the entire language over to tape based to make certain things easier (like labels and jumps)
 
 ## Notes
 - Empty parenthesis '()' are evaluated to 0.0
