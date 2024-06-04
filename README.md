@@ -36,12 +36,9 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Floating point numbers
 - [x] Control Flow (if, else)
 - [x] Add boolean keywords (0 is False, 1 is True)
-<!-- - [x] Functions -->
-<!-- - [x] Recursion -->
 - [x] Expansive Examples in the examples directory
 - [x] Debug function (prints the current state of the interpreter (variables and functions)) syntax: (debug)
 - [x] Exit function (exits the interpreter) syntax: (exit num)
-- [x] Stack overflow errors for recursive function calls
 
 ## Todo
 - [ ] Remove functions and implement BL and RET instructions (search for labels before interpreting)
