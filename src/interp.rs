@@ -45,8 +45,9 @@ impl Tape {
     pub fn add_node(&mut self, node: ASTNode) {
         if let ASTNode::Label(label) = &node {
             self.labels.insert(label.clone(), self.nodes.len());
+        } else {
+            self.nodes.push(node);
         }
-        self.nodes.push(node);
     }
 
     pub fn current_node(&self) -> Option<&ASTNode> {
@@ -62,10 +63,7 @@ impl Tape {
             self.pc = pos;
             Ok(())
         } else {
-            Err(ErrorHandler::ParseError(format!(
-                "Label '{}' not found",
-                label
-            )))
+            Err(ErrorHandler::LabelNotFound(label.to_string()))
         }
     }
 }
@@ -93,6 +91,32 @@ impl Interpreter {
             variables: HashMap::new(),
             tape: Tape::new(),
         }
+    }
+
+    pub fn collect_labels(&mut self, lines: std::str::Lines) -> Result<(), ErrorHandler> {
+        let mut line_num = 1;
+
+        for line in lines {
+            let line = line.trim();
+
+            if line.is_empty() || line.starts_with("//") {
+                line_num += 1;
+                continue;
+            }
+
+            if line.starts_with("(") {
+                let tokens: Vec<String> = tokenize(line);
+                if let Ok((ast, _)) = parse(&tokens) {
+                    if let ASTNode::Label(label) = &ast {
+                        self.tape.add_node(ast.clone());
+                    }
+                }
+            }
+
+            line_num += 1;
+        }
+
+        Ok(())
     }
 
     pub fn eval(&mut self, expr: &str) -> Result<(), ErrorHandler> {
@@ -711,14 +735,15 @@ impl Interpreter {
     }
 
     pub fn interp(&mut self, path: PathBuf) -> Result<(), ErrorHandler> {
-        let contents: String =
-            read_to_string(&path).map_err(|e| ErrorHandler::ParseError(e.to_string()))?;
-        let lines: std::str::Lines = contents.lines();
+        let contents = read_to_string(&path).map_err(|e| ErrorHandler::ParseError(e.to_string()))?;
+        let lines = contents.lines();
 
-        let mut line_num: i32 = 1;
+        self.collect_labels(lines.clone())?;
+
+        let mut line_num = 1;
 
         for line in lines {
-            let line: &str = line.trim();
+            let line = line.trim();
 
             if line.is_empty() || line.starts_with("//") {
                 line_num += 1;
@@ -799,25 +824,35 @@ fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
         return Err(ErrorHandler::ParseError("Empty expression".to_string()));
     }
 
-    let mut index: usize = 0;
+    let mut index = 0;
 
     if tokens[index] != "(" {
-        return Err(ErrorHandler::ParseError(
-            "Expected '('. Good luck!".to_string(),
-        ));
+        return Err(ErrorHandler::ParseError("Expected '('. Good luck!".to_string()));
     }
 
     index += 1;
 
-    // Handle the case of empty parentheses
     if index < tokens.len() && tokens[index] == ")" {
         return Ok((ASTNode::NoOp, index + 1));
     }
 
-    let operator: String = tokens[index].clone();
+    let operator = tokens[index].clone();
     index += 1;
 
-    let mut operands: Vec<ASTNode> = Vec::new();
+    if operator == "label" {
+        if index >= tokens.len() || tokens[index] == ")" {
+            return Err(ErrorHandler::ParseError("Expected label name".to_string()));
+        }
+        let label = tokens[index].clone();
+        index += 1;
+
+        if index >= tokens.len() || tokens[index] != ")" {
+            return Err(ErrorHandler::ParseError("Expected ')' after label name".to_string()));
+        }
+        return Ok((ASTNode::Label(label), index + 1));
+    }
+
+    let mut operands = Vec::new();
 
     while index < tokens.len() && tokens[index] != ")" {
         if tokens[index] == "(" {
@@ -831,9 +866,7 @@ fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
     }
 
     if index >= tokens.len() || tokens[index] != ")" {
-        return Err(ErrorHandler::ParseError(
-            "Expected ')'. Good luck!".to_string(),
-        ));
+        return Err(ErrorHandler::ParseError("Expected ')'".to_string()));
     }
 
     Ok((ASTNode::Operator(operator, operands), index + 1))
