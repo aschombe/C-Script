@@ -33,16 +33,59 @@ struct Function {
 }
 
 #[derive(Debug)]
+pub struct Tape {
+    nodes: Vec<ASTNode>,
+    pc: usize, // program counter
+    labels: HashMap<String, usize>,
+}
+
+impl Tape {
+    pub fn new() -> Self {
+        Tape {
+            nodes: Vec::new(),
+            pc: 0,
+            labels: HashMap::new(),
+        }
+    }
+
+    pub fn add_node(&mut self, node: ASTNode) {
+        if let ASTNode::Label(label) = &node {
+            self.labels.insert(label.clone(), self.nodes.len());
+        }
+        self.nodes.push(node);
+    }
+
+    pub fn current_node(&self) -> Option<&ASTNode> {
+        self.nodes.get(self.pc)
+    }
+
+    pub fn advance(&mut self) {
+        self.pc += 1;
+    }
+
+    pub fn jump_to_label(&mut self, label: &str) -> Result<(), ErrorHandler> {
+        if let Some(&pos) = self.labels.get(label) {
+            self.pc = pos;
+            Ok(())
+        } else {
+            Err(ErrorHandler::ParseError(format!("Label '{}' not found", label)))
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct Interpreter {
     variables: HashMap<String, f64>,
     functions: HashMap<String, Function>,
+    tape: Tape,
 }
 
-impl Clone for Interpreter {
+impl Clone for Tape {
     fn clone(&self) -> Self {
-        Interpreter {
-            variables: self.variables.clone(),
-            functions: self.functions.clone(),
+        Tape {
+            nodes: self.nodes.clone(),
+            pc: self.pc,
+            labels: self.labels.clone(),
         }
     }
 }
@@ -52,17 +95,28 @@ impl Interpreter {
         Interpreter {
             variables: HashMap::new(),
             functions: HashMap::new(),
+            tape: Tape::new(),
         }
     }
 
-    pub fn eval(&mut self, expr: &str) -> Result<String, ErrorHandler> {
+    pub fn eval(&mut self, expr: &str) -> Result<(), ErrorHandler> {
         let tokens: Vec<String> = tokenize(expr);
         let (ast, _) = parse(&tokens)?;
 
-        match self.eval_ast(&ast) {
-            Ok(result) => Ok(result.to_string()),
-            Err(e) => Err(e),
+        self.tape.add_node(ast);
+
+        while self.tape.pc < self.tape.nodes.len() {
+            let node = self.tape.current_node().cloned().ok_or(ErrorHandler::ParseError("No current node".to_string()))?;
+            match self.eval_ast(&node) {
+                Ok(result) => {
+                    println!("{}", result);
+                    self.tape.advance();
+                }
+                Err(e) => return Err(e),
+            }
         }
+
+        Ok(())
     }
 
     fn eval_ast(&mut self, node: &ASTNode) -> Result<f64, ErrorHandler> {
@@ -83,6 +137,34 @@ impl Interpreter {
             }
 
             ASTNode::Operator(op, operands) => match op.as_str() {
+                "label" => {
+                    if operands.len() != 1 {
+                        return Err(ErrorHandler::ParseError(format!(
+                            "Invalid syntax for '{}'",
+                            op
+                        )));
+                    }
+                    if let ASTNode::Value(label) = &operands[0] {
+                        self.tape.labels.insert(label.clone(), self.tape.pc);
+                        Ok(0.0)
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid label syntax".to_string()))
+                    }
+                }
+                "jump" => {
+                    if operands.len() != 1 {
+                        return Err(ErrorHandler::ParseError(format!(
+                            "Invalid syntax for '{}'",
+                            op
+                        )));
+                    }
+                    if let ASTNode::Value(label) = &operands[0] {
+                        self.tape.jump_to_label(label)?;
+                        Ok(0.0)
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid jump syntax".to_string()))
+                    }
+                }
                 "base" => {
                     if operands.len() != 1 {
                         return Err(ErrorHandler::ParseError(format!(
@@ -148,6 +230,7 @@ impl Interpreter {
                             let mut local_interpreter: Interpreter = Interpreter {
                                 variables: self.variables.clone(),
                                 functions: self.functions.clone(),
+                                tape: Tape::new(),
                             };
 
                             let mut local_vars: HashMap<String, f64> =
@@ -253,10 +336,9 @@ impl Interpreter {
                     if condition != 0.0 {
                         self.eval_ast(&operands[1])
                     } else {
-                        let i: usize = 2;
+                        let i = 2;
                         while i < operands.len() {
-                            if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i]
-                            {
+                            if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i] {
                                 match cond_op.as_str() {
                                     "else" => {
                                         if cond_operands.len() != 1 {
@@ -267,11 +349,9 @@ impl Interpreter {
                                         }
                                         return self.eval_ast(&cond_operands[0]);
                                     }
-                                    _ => {
-                                        return Err(ErrorHandler::ParseError(
-                                            "Invalid conditional syntax".to_string(),
-                                        ))
-                                    }
+                                    _ => return Err(ErrorHandler::ParseError(
+                                        "Invalid conditional syntax".to_string(),
+                                    )),
                                 }
                             } else {
                                 return Err(ErrorHandler::ParseError(
@@ -627,6 +707,11 @@ impl Interpreter {
                 }
                 _ => Err(ErrorHandler::UnknownOperator(op.clone())),
             },
+            ASTNode::Label(_) => Ok(0.0), // Labels are no-ops during evaluation
+            ASTNode::Jump(label) => {
+                self.tape.jump_to_label(label)?;
+                Ok(0.0)
+            }
         }
     }
 
@@ -647,11 +732,11 @@ impl Interpreter {
 
             if line.starts_with("(") {
                 match self.eval(line) {
-                    Ok(result) => {
-                        println!("{}. {}: {}", line_num, line, result);
+                    Ok(_) => {
+                        println!("{}. {}: OK", line_num, line);
                     }
                     Err(e) => {
-                        println!("{}", e);
+                        println!("{:?}", e);
                         return Err(e);
                     }
                 }
@@ -665,10 +750,12 @@ impl Interpreter {
 }
 
 #[derive(Debug, Clone)]
-enum ASTNode {
+pub enum ASTNode {
     Operator(String, Vec<ASTNode>),
     Value(String),
     NoOp,
+    Label(String),
+    Jump(String),
 }
 
 fn tokenize(expr: &str) -> Vec<String> {

@@ -1,0 +1,5 @@
+(let i 0)
+(label start)
+(print i)
+(set i (add i 1))
+(if (lt? i 5) (jump start) (else (print 100)))
