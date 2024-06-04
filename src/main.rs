@@ -26,5 +26,5 @@ fn main() {
     }
 
     let mut interpreter: interp::Interpreter = interp::Interpreter::new();
-    let _res: Result<(), interp::ErrorHandler> = interpreter.interp(PathBuf::from(filename));
+    let _res: Result<(), crate::interp::error_handler::ErrorHandler> = interpreter.interp(PathBuf::from(filename));
 }
