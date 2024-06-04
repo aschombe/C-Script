@@ -34,7 +34,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Variables (let, set, get, del)
 - [x] Floating point numbers
 - [x] For loops
-- [x] Control Flow (if, else)
+- [x] Control Flow (if, else, switch)
 - [x] Add boolean keywords (0 is False, 1 is True)
 - [x] Expansive Examples in the examples directory
 - [x] Debug function (prints the current state of the interpreter (variables and functions)) syntax: (debug)

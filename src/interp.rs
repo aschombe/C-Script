@@ -255,6 +255,50 @@ impl Interpreter {
                         Ok(None)
                     }
                 }
+                // switch syntax:
+                // (switch (variable)
+                //    (case (expression) (body))
+                //    (case (expression) (body))
+                //    (default (body)))
+                // )
+                "switch" => {
+                    if operands.len() < 2 {
+                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
+                    }
+                    let variable = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
+                    let mut i = 1;
+                    let mut default_body: Option<&ASTNode> = None;
+                    while i < operands.len() {
+                        if let ASTNode::Operator(ref case_op, ref case_operands) = &operands[i] {
+                            match case_op.as_str() {
+                                "case" => {
+                                    if case_operands.len() != 2 {
+                                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", case_op)));
+                                    }
+                                    let case_val = self.eval_ast(&case_operands[0])?.unwrap().as_number().unwrap();
+                                    if case_val == variable {
+                                        return self.eval_ast(&case_operands[1]);
+                                    }
+                                }
+                                "default" => {
+                                    if case_operands.len() != 1 {
+                                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", case_op)));
+                                    }
+                                    default_body = Some(&case_operands[0]);
+                                }
+                                _ => return Err(ErrorHandler::ParseError("Invalid switch syntax".to_string())),
+                            }
+                        } else {
+                            return Err(ErrorHandler::ParseError("Invalid switch syntax".to_string()));
+                        }
+                        i += 1;
+                    }
+                    if let Some(body) = default_body {
+                        self.eval_ast(body)
+                    } else {
+                        Ok(None)
+                    }
+                }
                 "zero?" => {
                     if operands.len() != 1 {
                         return Err(ErrorHandler::ParseError(
