@@ -43,6 +43,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Exit function (exits the interpreter) syntax: (exit num)
 
 ## Todo
+- [ ] REBIULD FROM THE GROUND UP WITH BETTER SEPARATION OF COMPONENTS AND TAPE BASED INTERPRETATION
 - [ ] Put print statement output after the output for the line being interpreted
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while (giving me a headache))
