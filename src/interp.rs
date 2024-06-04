@@ -1,13 +1,17 @@
-use std::collections::HashMap;
-use std::fs::read_to_string;
-use std::path::PathBuf;
+use std::{
+    collections::HashMap,
+    fs::read_to_string,
+    path::PathBuf,
+    process::exit,
+    str::Lines,
+};
 
-use error_handler::ErrorHandler;
 use variable_value::VariableValue;
+use error_handler::ErrorHandler;
 use function::Function;
 
-pub(crate) mod error_handler;
 pub(crate) mod variable_value;
+pub(crate) mod error_handler;
 pub(crate) mod function;
 
 #[derive(Debug)]
@@ -573,7 +577,7 @@ impl Interpreter {
                         Some(VariableValue::Number(val)) => val,
                         _ => return Err(ErrorHandler::ParseError("Invalid exit syntax".to_string())),
                     };
-                    std::process::exit(code as i32);
+                    exit(code as i32)
                 }
                 "debug" => {
                     if !self.variables.is_empty() {
@@ -683,7 +687,7 @@ impl Interpreter {
     pub fn interp(&mut self, path: PathBuf) -> Result<(), ErrorHandler> {
         let contents: String =
             read_to_string(&path).map_err(|e| ErrorHandler::ParseError(e.to_string()))?;
-        let lines: std::str::Lines = contents.lines();
+        let lines: Lines = contents.lines();
     
         let mut line_num: i32 = 1;
         let mut expression: String = String::new();
