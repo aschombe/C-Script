@@ -665,31 +665,6 @@ impl Interpreter {
                         Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
                     }
                 }
-                // (while <condition> <body>)
-                // condition can be a variable or an expression
-                // body is a list of expressions to be evaluated sequentially
-                // "while" => {
-                //     if operands.len() != 2 {
-                //         return Err(ErrorHandler::ParseError(
-                //             "Invalid number of operands for 'while'".to_string(),
-                //         ));
-                //     }
-
-                //     let condition = &operands[0];
-                //     let body = &operands[1];
-
-                //     while self.eval_ast(condition)? != 0.0 {
-                //         if let ASTNode::Operator(_, body_exprs) = body {
-                //             for expr in body_exprs {
-                //                 self.eval_ast(expr)?;
-                //             }
-                //         } else {
-                //             self.eval_ast(body)?;
-                //         }
-                //     }
-
-                //     Ok(0.0)
-                // }
                 "exit" => {
                     if operands.len() != 1 {
                         return Err(ErrorHandler::ParseError(
