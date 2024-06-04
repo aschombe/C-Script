@@ -44,6 +44,7 @@ The file should have the extension `.rss`. You can find some example files in th
 
 ## Todo
 - [ ] REBIULD FROM THE GROUND UP WITH BETTER SEPARATION OF COMPONENTS AND TAPE BASED INTERPRETATION
+- [ ] Stack overflow errors for recursion and variable stack
 - [ ] Put print statement output after the output for the line being interpreted
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while (giving me a headache))
