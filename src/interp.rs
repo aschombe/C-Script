@@ -6,8 +6,6 @@ use error_handler::ErrorHandler;
 
 pub(crate) mod error_handler;
 
-const DEBUG: bool = false;
-
 #[derive(Debug, Clone)]
 struct Function {
     params: Vec<String>,
@@ -566,12 +564,6 @@ impl Interpreter {
                                     )),
                                 })
                                 .collect::<Result<Vec<_>, _>>()?;
-
-                            if DEBUG {
-                                let params_clone = params.clone();
-                                let body = &operands[2];
-                                println!("{}: {:?} {:?}", name, params_clone, body);
-                            }
 
                             self.functions.insert(
                                 name.clone(),
