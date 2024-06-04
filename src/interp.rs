@@ -3,15 +3,13 @@ use std::fmt;
 use std::fs::read_to_string;
 use std::path::PathBuf;
 
-const debug: bool = false;
+const DEBUG: bool = false;
 
 #[derive(Debug)]
 pub enum ErrorHandler {
     DivisionByZero,
-    // UnknownOperator(String),
     ParseError(String),
     VariableNotFound(String),
-    // FunctionOrVariableNotFound(String),
     FunctionOrOperatorNotFound(String),
 }
 
@@ -19,12 +17,8 @@ impl fmt::Display for ErrorHandler {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             ErrorHandler::DivisionByZero => write!(f, "Error: Division by zero"),
-            // ErrorHandler::UnknownOperator(op) => write!(f, "Error: Unknown operator '{}'", op),
             ErrorHandler::ParseError(err) => write!(f, "Error: Parse error - {}", err),
             ErrorHandler::VariableNotFound(var) => write!(f, "Error: Variable '{}' not found", var),
-            // ErrorHandler::FunctionOrVariableNotFound(name) => {
-                // write!(f, "Error: Function or variable '{}' not found", name)
-            // }
             ErrorHandler::FunctionOrOperatorNotFound(name) => {
                 write!(f, "Error: Function or operator '{}' not found", name)
             }
@@ -88,234 +82,9 @@ impl Interpreter {
                 }
             }
             ASTNode::Operator(op, operands) => match op.as_str() {
-                "base" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-                    self.eval_ast(&operands[0])
-                }
-                "func" => {
-                    if operands.len() != 3 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-
-                    if let ASTNode::Value(name) = &operands[0] {
-                        if let ASTNode::Operator(_, param_nodes) = &operands[1] {
-                            let params: Vec<String> = param_nodes
-                                .iter()
-                                .map(|param| match param {
-                                    ASTNode::Value(val) => Ok(val.clone()),
-                                    _ => Err(ErrorHandler::ParseError(
-                                        "Invalid parameter".to_string(),
-                                    )),
-                                })
-                                .collect::<Result<Vec<_>, _>>()?;
-
-                            if debug {
-                                let params_clone = params.clone();
-                                let body = &operands[2];
-                                println!("{}: {:?} {:?}", name, params_clone, body);
-                            }
-
-                            self.functions.insert(
-                                name.clone(),
-                                Function {
-                                    params,
-                                    body: operands[2].clone(),
-                                },
-                            );
-                            Ok(None)
-                        } else {
-                            Err(ErrorHandler::ParseError(
-                                "Invalid function parameters".to_string(),
-                            ))
-                        }
-                    } else {
-                        Err(ErrorHandler::ParseError(
-                            "Invalid function name".to_string(),
-                        ))
-                    }
-                }
-                // "call" => {
-                //     if operands.len() < 1 {
-                //         return Err(ErrorHandler::ParseError(format!(
-                //             "Invalid syntax for '{}'",
-                //             op
-                //         )));
-                //     }
-
-                //     if let ASTNode::Value(name) = &operands[0] {
-                //         if let Some(func) = self.functions.get(name) {
-                //             if operands.len() - 1 != func.params.len() {
-                //                 return Err(ErrorHandler::ParseError(format!(
-                //                     "Invalid number of arguments for function '{}'",
-                //                     name
-                //                 )));
-                //             }
-
-                //             let mut local_interpreter: Interpreter = Interpreter {
-                //                 variables: self.variables.clone(),
-                //                 functions: self.functions.clone(),
-                //             };
-
-                //             let mut local_vars: HashMap<String, f64> =
-                //                 local_interpreter.variables.clone();
-                //             let local_funcs: HashMap<String, Function> =
-                //                 local_interpreter.functions.clone();
-
-                //             let mut results: Vec<f64> = Vec::new();
-                //             for arg in &operands[1..] {
-                //                 if let Some(val) = local_interpreter.eval_ast(arg)? {
-                //                     results.push(val);
-                //                 }
-                //             }
-
-                //             for (param, result) in func.params.iter().zip(results) {
-                //                 local_vars.insert(param.clone(), result);
-                //             }
-
-                //             local_interpreter.variables = local_vars;
-                //             local_interpreter.functions = local_funcs;
-
-                //             local_interpreter.eval_ast(&func.body)
-                //         } else {
-                //             Err(ErrorHandler::FunctionNotFound(name.clone()))
-                //         }
-                //     } else {
-                //         Err(ErrorHandler::ParseError(
-                //             "Invalid function name".to_string(),
-                //         ))
-                //     }
-                // }
-                "let" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-                    if let ASTNode::Value(var) = &operands[0] {
-                        let value: f64 = match self.eval_ast(&operands[1])? {
-                            Some(val) => val,
-                            None => return Err(ErrorHandler::ParseError("Invalid let syntax".to_string())),
-                        };
-                        if self.variables.contains_key(var) {
-                            return Err(ErrorHandler::ParseError(format!(
-                                "Variable '{}' already exists",
-                                var
-                            )));
-                        }
-                        self.variables.insert(var.clone(), value);
-                        Ok(None)
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid let syntax".to_string()))
-                    }
-                }
-                "set" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-                    if let ASTNode::Value(var) = &operands[0] {
-                        let value: f64 = match self.eval_ast(&operands[1])? {
-                            Some(val) => val,
-                            None => return Err(ErrorHandler::ParseError("Invalid set syntax".to_string())),
-                        };
-                        if !self.variables.contains_key(var) {
-                            return Err(ErrorHandler::ParseError(format!(
-                                "Variable '{}' not found",
-                                var
-                            )));
-                        }
-                        self.variables.insert(var.clone(), value);
-                        Ok(None)
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid set syntax".to_string()))
-                    }
-                }
-                "get" => {
-                    if let ASTNode::Value(var) = &operands[0] {
-                        if let Some(&val) = self.variables.get(var) {
-                            Ok(Some(val))
-                        } else {
-                            Err(ErrorHandler::VariableNotFound(var.clone()))
-                        }
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid get syntax".to_string()))
-                    }
-                }
-                "del" => {
-                    if let ASTNode::Value(var) = &operands[0] {
-                        if self.variables.contains_key(var) {
-                            self.variables.remove(var);
-                            Ok(None)
-                        } else {
-                            Err(ErrorHandler::VariableNotFound(var.clone()))
-                        }
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid del syntax".to_string()))
-                    }
-                }
-                "if" => {
-                    if operands.len() < 2 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-                    let condition: f64 = match self.eval_ast(&operands[0])? {
-                        Some(val) => val,
-                        None => return Err(ErrorHandler::ParseError("Invalid if syntax".to_string())),
-                    };
-                    if condition != 0.0 {
-                        self.eval_ast(&operands[1])
-                    } else {
-                        let i: usize = 2;
-                        while i < operands.len() {
-                            if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i] {
-                                match cond_op.as_str() {
-                                    "else" => {
-                                        if cond_operands.len() != 1 {
-                                            return Err(ErrorHandler::ParseError(format!(
-                                                "Invalid syntax for '{}'",
-                                                cond_op
-                                            )));
-                                        }
-                                        return self.eval_ast(&cond_operands[0]);
-                                    }
-                                    _ => {
-                                        return Err(ErrorHandler::ParseError(
-                                            "Invalid conditional syntax".to_string(),
-                                        ))
-                                    }
-                                }
-                            } else {
-                                return Err(ErrorHandler::ParseError(
-                                    "Invalid conditional syntax".to_string(),
-                                ));
-                            }
-                        }
-                        Ok(None)
-                    }
-                }
-                "print" => {
-                    for operand in operands {
-                        let result: f64 = match self.eval_ast(operand)? {
-                            Some(val) => val,
-                            None => return Err(ErrorHandler::ParseError("Invalid print syntax".to_string())),
-                        };
-                        println!("{}", result);
-                    }
-                    Ok(None)
-                }
+                /*
+                Arithmetic operators:
+                */
                 "+" | "add" => {
                     let mut result: f64 = 0.0;
                     for operand in operands {
@@ -368,6 +137,9 @@ impl Interpreter {
                     }
                     Ok(Some(result))
                 }
+                /*
+                Other math operators:
+                */
                 "max" => {
                     let mut max_val: f64 = f64::MIN;
                     for operand in operands {
@@ -441,6 +213,51 @@ impl Interpreter {
                         ));
                     }
                     Ok(Some(self.eval_ast(&operands[0])?.unwrap().abs()))
+                }
+                /*
+                Control flow and logic operators:
+                */
+                "if" => {
+                    if operands.len() < 2 {
+                        return Err(ErrorHandler::ParseError(format!(
+                            "Invalid syntax for '{}'",
+                            op
+                        )));
+                    }
+                    let condition: f64 = match self.eval_ast(&operands[0])? {
+                        Some(val) => val,
+                        None => return Err(ErrorHandler::ParseError("Invalid if syntax".to_string())),
+                    };
+                    if condition != 0.0 {
+                        self.eval_ast(&operands[1])
+                    } else {
+                        let i: usize = 2;
+                        while i < operands.len() {
+                            if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i] {
+                                match cond_op.as_str() {
+                                    "else" => {
+                                        if cond_operands.len() != 1 {
+                                            return Err(ErrorHandler::ParseError(format!(
+                                                "Invalid syntax for '{}'",
+                                                cond_op
+                                            )));
+                                        }
+                                        return self.eval_ast(&cond_operands[0]);
+                                    }
+                                    _ => {
+                                        return Err(ErrorHandler::ParseError(
+                                            "Invalid conditional syntax".to_string(),
+                                        ))
+                                    }
+                                }
+                            } else {
+                                return Err(ErrorHandler::ParseError(
+                                    "Invalid conditional syntax".to_string(),
+                                ));
+                            }
+                        }
+                        Ok(None)
+                    }
                 }
                 "zero?" => {
                     if operands.len() != 1 {
@@ -576,6 +393,83 @@ impl Interpreter {
                     }
                     Ok(Some((self.eval_ast(&operands[0])? == Some(0.0)) as i32 as f64))
                 }
+                /*
+                Variable operators:
+                */
+                "let" => {
+                    if operands.len() != 2 {
+                        return Err(ErrorHandler::ParseError(format!(
+                            "Invalid syntax for '{}'",
+                            op
+                        )));
+                    }
+                    if let ASTNode::Value(var) = &operands[0] {
+                        let value: f64 = match self.eval_ast(&operands[1])? {
+                            Some(val) => val,
+                            None => return Err(ErrorHandler::ParseError("Invalid let syntax".to_string())),
+                        };
+                        if self.variables.contains_key(var) {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Variable '{}' already exists",
+                                var
+                            )));
+                        }
+                        self.variables.insert(var.clone(), value);
+                        Ok(None)
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid let syntax".to_string()))
+                    }
+                }
+                "set" => {
+                    if operands.len() != 2 {
+                        return Err(ErrorHandler::ParseError(format!(
+                            "Invalid syntax for '{}'",
+                            op
+                        )));
+                    }
+                    if let ASTNode::Value(var) = &operands[0] {
+                        let value: f64 = match self.eval_ast(&operands[1])? {
+                            Some(val) => val,
+                            None => return Err(ErrorHandler::ParseError("Invalid set syntax".to_string())),
+                        };
+                        if !self.variables.contains_key(var) {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Variable '{}' not found",
+                                var
+                            )));
+                        }
+                        self.variables.insert(var.clone(), value);
+                        Ok(None)
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid set syntax".to_string()))
+                    }
+                }
+                "get" => {
+                    if let ASTNode::Value(var) = &operands[0] {
+                        if let Some(&val) = self.variables.get(var) {
+                            Ok(Some(val))
+                        } else {
+                            Err(ErrorHandler::VariableNotFound(var.clone()))
+                        }
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid get syntax".to_string()))
+                    }
+                }
+                "del" => {
+                    if let ASTNode::Value(var) = &operands[0] {
+                        if self.variables.contains_key(var) {
+                            self.variables.remove(var);
+                            Ok(None)
+                        } else {
+                            Err(ErrorHandler::VariableNotFound(var.clone()))
+                        }
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid del syntax".to_string()))
+                    }
+                }
+                /*
+                Loop operators:
+                */
                 "for" => {
                     if operands.len() != 4 {
                         return Err(ErrorHandler::ParseError(
@@ -604,6 +498,19 @@ impl Interpreter {
                     } else {
                         Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
                     }
+                }
+                /*
+                Extraneous operators:
+                */
+                "print" => {
+                    for operand in operands {
+                        let result: f64 = match self.eval_ast(operand)? {
+                            Some(val) => val,
+                            None => return Err(ErrorHandler::ParseError("Invalid print syntax".to_string())),
+                        };
+                        println!("{}", result);
+                    }
+                    Ok(None)
                 }
                 "exit" => {
                     if operands.len() != 1 {
@@ -634,6 +541,64 @@ impl Interpreter {
     
                     Ok(None)
                 }
+                /*
+                Functions
+                */
+                "base" => {
+                    if operands.len() != 1 {
+                        return Err(ErrorHandler::ParseError(format!(
+                            "Invalid syntax for '{}'",
+                            op
+                        )));
+                    }
+                    self.eval_ast(&operands[0])
+                }
+                "func" => {
+                    if operands.len() != 3 {
+                        return Err(ErrorHandler::ParseError(format!(
+                            "Invalid syntax for '{}'",
+                            op
+                        )));
+                    }
+
+                    if let ASTNode::Value(name) = &operands[0] {
+                        if let ASTNode::Operator(_, param_nodes) = &operands[1] {
+                            let params: Vec<String> = param_nodes
+                                .iter()
+                                .map(|param| match param {
+                                    ASTNode::Value(val) => Ok(val.clone()),
+                                    _ => Err(ErrorHandler::ParseError(
+                                        "Invalid parameter".to_string(),
+                                    )),
+                                })
+                                .collect::<Result<Vec<_>, _>>()?;
+
+                            if DEBUG {
+                                let params_clone = params.clone();
+                                let body = &operands[2];
+                                println!("{}: {:?} {:?}", name, params_clone, body);
+                            }
+
+                            self.functions.insert(
+                                name.clone(),
+                                Function {
+                                    params,
+                                    body: operands[2].clone(),
+                                },
+                            );
+                            Ok(None)
+                        } else {
+                            Err(ErrorHandler::ParseError(
+                                "Invalid function parameters".to_string(),
+                            ))
+                        }
+                    } else {
+                        Err(ErrorHandler::ParseError(
+                            "Invalid function name".to_string(),
+                        ))
+                    }
+                }
+                // This falls under function operators (also handles unknown keywords)
                 _ => {
                     // Handle function calls directly in the operator case
                     if let Some(func) = self.functions.get(op) {
