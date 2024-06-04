@@ -13,7 +13,6 @@ fn main() {
         println!("Usage: ./rss <filename>.rss");
         return;
     }
-
     let filename = args().nth(1).unwrap();
 
     if !Path::new(&filename).exists() {
