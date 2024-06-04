@@ -4,15 +4,11 @@ use std::path::PathBuf;
 
 use error_handler::ErrorHandler;
 use variable_value::VariableValue;
+use function::Function;
 
 pub(crate) mod error_handler;
 pub(crate) mod variable_value;
-
-#[derive(Debug, Clone)]
-struct Function {
-    params: Vec<String>,
-    body: ASTNode,
-}
+pub(crate) mod function;
 
 #[derive(Debug)]
 pub struct Interpreter {
@@ -739,7 +735,7 @@ impl Interpreter {
 }
 
 #[derive(Debug, Clone)]
-enum ASTNode {
+pub enum ASTNode {
     Operator(String, Vec<ASTNode>),
     Value(String),
     StringValue(String),

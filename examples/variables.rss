@@ -1,6 +1,6 @@
 (let x 5)
 (get x)
-(set x (+ (get x) 5))
+(set x (add (get x) 5))
 (get x)
 (add x 5)
 (get x)

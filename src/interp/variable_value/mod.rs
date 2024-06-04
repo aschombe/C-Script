@@ -4,7 +4,7 @@ use std::fmt;
 use crate::interp::error_handler::ErrorHandler;
 
 #[derive(Debug, Clone)]
-pub(crate) enum VariableValue {
+pub enum VariableValue {
     Number(f64),
     Text(String),
 }
