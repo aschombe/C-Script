@@ -724,35 +724,35 @@ impl Interpreter {
                     /*
                     Loop operators:
                     */
-                    "for" => {
-                        if operands.len() != 4 {
-                            return Err(ErrorHandler::ParseError(
-                                "Invalid number of operands for 'for'".to_string(),
-                            ));
-                        }
+                    // "for" => {
+                    //     if operands.len() != 4 {
+                    //         return Err(ErrorHandler::ParseError(
+                    //             "Invalid number of operands for 'for'".to_string(),
+                    //         ));
+                    //     }
 
-                        if let ASTNode::Value(var) = &operands[0] {
-                            let start: f64 = match self.eval_ast(&operands[1], depth)? {
-                                Some(value) => value,
-                                None => return Err(ErrorHandler::ParseError("Invalid start value".to_string())),
-                            };
-                            let end: f64 = match self.eval_ast(&operands[2], depth)? {
-                                Some(value) => value,
-                                None => return Err(ErrorHandler::ParseError("Invalid end value".to_string())),
-                            };
-                            let body: &ASTNode = &operands[3];
+                    //     if let ASTNode::Value(var) = &operands[0] {
+                    //         let start: f64 = match self.eval_ast(&operands[1], depth)? {
+                    //             Some(value) => value,
+                    //             None => return Err(ErrorHandler::ParseError("Invalid start value".to_string())),
+                    //         };
+                    //         let end: f64 = match self.eval_ast(&operands[2], depth)? {
+                    //             Some(value) => value,
+                    //             None => return Err(ErrorHandler::ParseError("Invalid end value".to_string())),
+                    //         };
+                    //         let body: &ASTNode = &operands[3];
 
-                            let mut result: f64 = 0.0;
-                            for i in (start as i32)..(end as i32) {
-                                self.variables.insert(var.clone(), i as f64);
-                                result = self.eval_ast(body, depth)?.unwrap();
-                            }
+                    //         let mut result: f64 = 0.0;
+                    //         for i in (start as i32)..(end as i32) {
+                    //             self.variables.insert(var.clone(), i as f64);
+                    //             result = self.eval_ast(body, depth)?.unwrap();
+                    //         }
 
-                            Ok(Some(result))
-                        } else {
-                            Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
-                        }
-                    }
+                    //         Ok(Some(result))
+                    //     } else {
+                    //         Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
+                    //     }
+                    // }
                     /*
                     Other operators:
                     */
