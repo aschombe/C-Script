@@ -10,6 +10,7 @@ pub enum ErrorHandler {
     ParseError(String),
     VariableNotFound(String),
     FunctionNotFound(String),
+    LabelNotFound(String),
     StackOverflow,
 }
 
@@ -23,6 +24,7 @@ impl fmt::Display for ErrorHandler {
             ErrorHandler::FunctionNotFound(func) => {
                 write!(f, "Error: Function '{}' not found", func)
             }
+            ErrorHandler::LabelNotFound(label) => write!(f, "Error: Label '{}' not found", label),
             ErrorHandler::StackOverflow => write!(f, "Error: Stack overflow"),
         }
     }
@@ -123,7 +125,6 @@ impl Interpreter {
         Ok(())
     }
 
-    // fn eval_ast(&mut self, node: &ASTNode) -> Result<f64, ErrorHandler> {
     fn eval_ast(&mut self, node: &ASTNode, depth: usize) -> Result<f64, ErrorHandler> {
         match node {
             ASTNode::NoOp => Ok(0.0),
