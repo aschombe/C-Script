@@ -209,41 +209,26 @@ impl Interpreter {
                 */
                 "if" => {
                     if operands.len() < 2 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
+                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
                     }
-                    let condition: f64 = match self.eval_ast(&operands[0])? {
-                        Some(val) => val,
-                        None => return Err(ErrorHandler::ParseError("Invalid if syntax".to_string())),
-                    };
+                    let condition: f64 = self.eval_ast(&operands[0])?.unwrap();
                     if condition != 0.0 {
                         self.eval_ast(&operands[1])
                     } else {
-                        let i: usize = 2;
+                        let i = 2;
                         while i < operands.len() {
                             if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i] {
                                 match cond_op.as_str() {
                                     "else" => {
                                         if cond_operands.len() != 1 {
-                                            return Err(ErrorHandler::ParseError(format!(
-                                                "Invalid syntax for '{}'",
-                                                cond_op
-                                            )));
+                                            return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", cond_op)));
                                         }
                                         return self.eval_ast(&cond_operands[0]);
                                     }
-                                    _ => {
-                                        return Err(ErrorHandler::ParseError(
-                                            "Invalid conditional syntax".to_string(),
-                                        ))
-                                    }
+                                    _ => return Err(ErrorHandler::ParseError("Invalid conditional syntax".to_string())),
                                 }
                             } else {
-                                return Err(ErrorHandler::ParseError(
-                                    "Invalid conditional syntax".to_string(),
-                                ));
+                                return Err(ErrorHandler::ParseError("Invalid conditional syntax".to_string()));
                             }
                         }
                         Ok(None)
@@ -589,42 +574,27 @@ impl Interpreter {
                     // Handle function calls directly in the operator case
                     if let Some(func) = self.functions.get(op) {
                         if operands.len() != func.params.len() {
-                            return Err(ErrorHandler::ParseError(format!(
-                                "Invalid number of arguments for function '{}'",
-                                op
-                            )));
+                            return Err(ErrorHandler::ParseError(format!("Invalid number of arguments for function '{}'", op)));
                         }
-
-                        let mut local_interpreter: Interpreter = Interpreter {
-                            variables: self.variables.clone(),
-                            functions: self.functions.clone(),
-                            output: Vec::new(), // local interpreter should have its own output buffer
-                        };
-
-                        let mut local_vars: HashMap<String, f64> =
-                            local_interpreter.variables.clone();
-                        let local_funcs: HashMap<String, Function> =
-                            local_interpreter.functions.clone();
-
+    
+                        let mut local_interpreter: Interpreter = self.clone();
                         let mut results: Vec<f64> = Vec::new();
+    
                         for arg in operands {
                             if let Some(val) = local_interpreter.eval_ast(arg)? {
                                 results.push(val);
                             }
                         }
-
+    
                         for (param, result) in func.params.iter().zip(results) {
-                            local_vars.insert(param.clone(), result);
+                            local_interpreter.variables.insert(param.clone(), result);
                         }
-
-                        local_interpreter.variables = local_vars;
-                        local_interpreter.functions = local_funcs;
-
+    
                         let result = local_interpreter.eval_ast(&func.body)?;
-
+    
                         // Collect the output from the local interpreter
                         self.output.extend(local_interpreter.output);
-                        
+    
                         Ok(result)
                     } else {
                         Err(ErrorHandler::FunctionOrOperatorNotFound(op.clone()))
@@ -638,32 +608,52 @@ impl Interpreter {
         let contents: String =
             read_to_string(&path).map_err(|e| ErrorHandler::ParseError(e.to_string()))?;
         let lines: std::str::Lines = contents.lines();
-
+    
         let mut line_num: i32 = 1;
-
+        let mut expression: String = String::new();
+        let mut open_parens: i32 = 0;
+    
         for line in lines {
             let line: &str = line.trim();
-
+    
             if line.is_empty() || line.starts_with("//") {
                 line_num += 1;
                 continue;
             }
-
-            if line.starts_with("(") {
-                match self.eval(line) {
+    
+            for char in line.chars() {
+                if char == '(' {
+                    open_parens += 1;
+                } else if char == ')' {
+                    open_parens -= 1;
+                }
+            }
+    
+            expression.push_str(line);
+            expression.push(' '); // Add a space to separate lines
+    
+            if open_parens == 0 && !expression.is_empty() {
+                match self.eval(&expression) {
                     Ok(result) => {
-                        println!("{}. {}: {}", line_num, line, result);
+                        println!("{}. {}: {}", line_num, expression.trim(), result);
                     }
                     Err(e) => {
                         println!("{}", e);
                         return Err(e);
                     }
                 }
+    
+                expression.clear();
             }
-
+    
             line_num += 1;
         }
-
+    
+        // Check for unclosed expressions at the end of the file
+        if !expression.is_empty() {
+            return Err(ErrorHandler::ParseError("Unclosed expression at the end of the file".to_string()));
+        }
+    
         Ok(())
     }
 }
@@ -697,7 +687,7 @@ fn tokenize(expr: &str) -> Vec<String> {
                     token.clear();
                 }
             }
-            ' ' | '\n' if !in_string => {
+            ' ' | '\n' | '\t' if !in_string => {  // treat newlines and tabs as spaces
                 if !token.is_empty() {
                     tokens.push(token.clone());
                     token.clear();

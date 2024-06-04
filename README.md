@@ -39,11 +39,11 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Expansive Examples in the examples directory
 - [x] Debug function (prints the current state of the interpreter (variables and functions)) syntax: (debug)
 - [x] Exit function (exits the interpreter) syntax: (exit num)
+- [x] Code can span multiple lines
 
 ## Todo
 - [ ] While loops
 - [ ] Put print statement output after the output for the line being interpreted
-- [ ] Support for code spanning multiple lines
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)
 - [ ] Maybe Type checking
 
