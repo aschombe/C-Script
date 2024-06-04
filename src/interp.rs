@@ -3,8 +3,10 @@ use std::fs::read_to_string;
 use std::path::PathBuf;
 
 use error_handler::ErrorHandler;
+use variable_value::VariableValue;
 
 pub(crate) mod error_handler;
+pub(crate) mod variable_value;
 
 #[derive(Debug, Clone)]
 struct Function {
@@ -14,7 +16,7 @@ struct Function {
 
 #[derive(Debug)]
 pub struct Interpreter {
-    variables: HashMap<String, f64>,
+    variables: HashMap<String, VariableValue>,
     functions: HashMap<String, Function>,
     output: Vec<String>, // Store output to print later
 }
@@ -55,22 +57,25 @@ impl Interpreter {
         }
     }
 
-    fn eval_ast(&mut self, node: &ASTNode) -> Result<Option<f64>, ErrorHandler> {
+    fn eval_ast(&mut self, node: &ASTNode) -> Result<Option<VariableValue>, ErrorHandler> {
         match node {
             ASTNode::NoOp => Ok(None),
             ASTNode::Value(val) => {
                 if val == "True" {
-                    Ok(Some(1.0))
+                    Ok(Some(VariableValue::Number(1.0)))
                 } else if val == "False" {
-                    Ok(Some(0.0))
+                    Ok(Some(VariableValue::Number(0.0)))
                 } else if let Ok(num) = val.parse::<f64>() {
-                    Ok(Some(num))
-                } else if let Some(&num) = self.variables.get(val) {
+                    Ok(Some(VariableValue::Number(num)))
+                } else if let Some(num) = self.variables.get(val).cloned() {
                     Ok(Some(num))
                 } else {
                     Err(ErrorHandler::VariableNotFound(val.clone()))
                 }
             }
+
+            // ASTNode::StringValue(_val) => Ok(None),
+            ASTNode::StringValue(val) => Ok(Some(VariableValue::Text(val.clone()))),
             ASTNode::Operator(op, operands) => match op.as_str() {
                 /*
                 Arithmetic operators:
@@ -78,54 +83,66 @@ impl Interpreter {
                 "add" => {
                     let mut result: f64 = 0.0;
                     for operand in operands {
-                        result += self.eval_ast(operand)?.unwrap();
+                        result += self.eval_ast(operand)?.unwrap().as_number().unwrap();
                     }
-                    Ok(Some(result))
+                    Ok(Some(VariableValue::Number(result)))
                 }
                 "sub" => {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty subtraction".to_string()));
                     }
-                    let mut result: f64 = self.eval_ast(&operands[0])?.unwrap();
+                    let mut result: f64 = match self.eval_ast(&operands[0])? {
+                        Some(val) => val.as_number().unwrap(),
+                        None => 0.0,
+                    };
                     for operand in &operands[1..] {
-                        result -= self.eval_ast(operand)?.unwrap();
+                        result -= match self.eval_ast(operand)? {
+                            Some(val) => val.as_number().unwrap(),
+                            None => 0.0,
+                        };
                     }
-                    Ok(Some(result))
+                    Ok(Some(VariableValue::Number(result)))
                 }
                 "mul" => {
                     let mut result: f64 = 1.0;
                     for operand in operands {
-                        result *= self.eval_ast(operand)?.unwrap();
+                        result *= self.eval_ast(operand)?.unwrap().as_number().unwrap();
                     }
-                    Ok(Some(result))
+                    Ok(Some(VariableValue::Number(result)))
                 }
                 "div" => {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty division".to_string()));
                     }
-                    let mut result: f64 = self.eval_ast(&operands[0])?.unwrap();
+                    let mut result: f64 = match self.eval_ast(&operands[0])? {
+                        Some(val) => val.as_number().unwrap(),
+                        None => 0.0,
+                    };
                     for operand in &operands[1..] {
-                        let divisor: f64 = self.eval_ast(operand)?.unwrap();
+                        let divisor: f64 = match self.eval_ast(operand)? {
+                            Some(val) => val.as_number().unwrap(),
+                            None => 0.0,
+                        };
                         if divisor == 0.0 {
                             return Err(ErrorHandler::DivisionByZero);
                         }
                         result /= divisor;
                     }
-                    Ok(Some(result))
+                    Ok(Some(VariableValue::Number(result)))
                 }
                 "mod" => {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty modulo".to_string()));
                     }
-                    let mut result: f64 = self.eval_ast(&operands[0])?.unwrap();
+                    let mut result: f64 = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
                     for operand in &operands[1..] {
-                        let divisor: f64 = self.eval_ast(operand)?.unwrap();
+                        let divisor: f64 = self.eval_ast(operand)?.unwrap().as_number().unwrap();
                         if divisor == 0.0 {
                             return Err(ErrorHandler::DivisionByZero);
                         }
                         result %= divisor;
                     }
-                    Ok(Some(result))
+                    Ok(Some(VariableValue::Number(result)))
                 }
                 /*
                 Other math operators:
@@ -133,22 +150,22 @@ impl Interpreter {
                 "max" => {
                     let mut max_val: f64 = f64::MIN;
                     for operand in operands {
-                        let val: f64 = self.eval_ast(operand)?.unwrap();
+                        let val: f64 = self.eval_ast(operand)?.unwrap().as_number().unwrap();
                         if val > max_val {
                             max_val = val;
                         }
                     }
-                    Ok(Some(max_val))
+                    Ok(Some(VariableValue::Number(max_val)))
                 }
                 "min" => {
                     let mut min_val: f64 = f64::MAX;
                     for operand in operands {
-                        let val: f64 = self.eval_ast(operand)?.unwrap();
+                        let val: f64 = self.eval_ast(operand)?.unwrap().as_number().unwrap();
                         if val < min_val {
                             min_val = val;
                         }
                     }
-                    Ok(Some(min_val))
+                    Ok(Some(VariableValue::Number(min_val)))
                 }
                 "pow" => {
                     if operands.len() != 2 {
@@ -156,9 +173,9 @@ impl Interpreter {
                             "Invalid number of operands for 'pow'".to_string(),
                         ));
                     }
-                    let base: f64 = self.eval_ast(&operands[0])?.unwrap();
-                    let exp: f64 = self.eval_ast(&operands[1])?.unwrap();
-                    Ok(Some(base.powf(exp)))
+                    let base: f64 = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
+                    let exp: f64 = self.eval_ast(&operands[1])?.unwrap().as_number().unwrap();
+                    Ok(Some(VariableValue::Number(base.powf(exp))))
                 }
                 "sqrt" => {
                     if operands.len() != 1 {
@@ -166,11 +183,11 @@ impl Interpreter {
                             "Invalid number of operands for 'sqrt'".to_string(),
                         ));
                     }
-                    let val: f64 = self.eval_ast(&operands[0])?.unwrap();
+                    let val: f64 = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
                     if val < 0.0 {
                         return Err(ErrorHandler::ParseError("Square root of negative number".to_string()));
                     }
-                    Ok(Some(val.sqrt()))
+                    Ok(Some(VariableValue::Number(val.sqrt())))
                 }
                 "sin" => {
                     if operands.len() != 1 {
@@ -178,7 +195,8 @@ impl Interpreter {
                             "Invalid number of operands for 'sin'".to_string(),
                         ));
                     }
-                    Ok(Some(self.eval_ast(&operands[0])?.unwrap().sin()))
+
+                    Ok(Some(VariableValue::Number(self.eval_ast(&operands[0])?.unwrap().as_number().unwrap().sin())))
                 }
                 "cos" => {
                     if operands.len() != 1 {
@@ -186,7 +204,7 @@ impl Interpreter {
                             "Invalid number of operands for 'cos'".to_string(),
                         ));
                     }
-                    Ok(Some(self.eval_ast(&operands[0])?.unwrap().cos()))
+                    Ok(Some(VariableValue::Number(self.eval_ast(&operands[0])?.unwrap().as_number().unwrap().cos())))
                 }
                 "tan" => {
                     if operands.len() != 1 {
@@ -194,7 +212,7 @@ impl Interpreter {
                             "Invalid number of operands for 'tan'".to_string(),
                         ));
                     }
-                    Ok(Some(self.eval_ast(&operands[0])?.unwrap().tan()))
+                    Ok(Some(VariableValue::Number(self.eval_ast(&operands[0])?.unwrap().as_number().unwrap().tan())))
                 }
                 "abs" => {
                     if operands.len() != 1 {
@@ -202,7 +220,7 @@ impl Interpreter {
                             "Invalid number of operands for 'abs'".to_string(),
                         ));
                     }
-                    Ok(Some(self.eval_ast(&operands[0])?.unwrap().abs()))
+                    Ok(Some(VariableValue::Number(self.eval_ast(&operands[0])?.unwrap().as_number().unwrap().abs())))
                 }
                 /*
                 Control flow and logic operators:
@@ -211,7 +229,10 @@ impl Interpreter {
                     if operands.len() < 2 {
                         return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
                     }
-                    let condition: f64 = self.eval_ast(&operands[0])?.unwrap();
+                    let condition: f64 = match self.eval_ast(&operands[0])? {
+                        Some(val) => val.as_number().unwrap(),
+                        None => return Err(ErrorHandler::ParseError("Invalid if syntax".to_string())),
+                    };
                     if condition != 0.0 {
                         self.eval_ast(&operands[1])
                     } else {
@@ -240,7 +261,7 @@ impl Interpreter {
                             "Invalid number of operands for 'zero?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])? == Some(0.0)) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() == 0.0) as i32 as f64)))
                 }
                 "even?" => {
                     if operands.len() != 1 {
@@ -248,7 +269,7 @@ impl Interpreter {
                             "Invalid number of operands for 'even?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])?.unwrap() % 2.0 == 0.0) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() % 2.0 == 0.0) as i32 as f64)))
                 }
                 "odd?" => {
                     if operands.len() != 1 {
@@ -256,7 +277,7 @@ impl Interpreter {
                             "Invalid number of operands for 'odd?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])?.unwrap() % 2.0 != 0.0) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() % 2.0 != 0.0) as i32 as f64)))
                 }
                 "pos?" => {
                     if operands.len() != 1 {
@@ -264,7 +285,7 @@ impl Interpreter {
                             "Invalid number of operands for 'pos?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])?.unwrap() > 0.0) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() > 0.0) as i32 as f64)))
                 }
                 "neg?" => {
                     if operands.len() != 1 {
@@ -272,7 +293,7 @@ impl Interpreter {
                             "Invalid number of operands for 'neg?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])?.unwrap() < 0.0) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() < 0.0) as i32 as f64)))
                 }
                 "eq?" => {
                     if operands.len() != 2 {
@@ -280,7 +301,7 @@ impl Interpreter {
                             "Invalid number of operands for 'eq?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])? == self.eval_ast(&operands[1])?) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() == self.eval_ast(&operands[1])?.unwrap().as_number().unwrap()) as i32 as f64)))
                 }
                 "neq?" => {
                     if operands.len() != 2 {
@@ -288,7 +309,7 @@ impl Interpreter {
                             "Invalid number of operands for 'neq?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])? != self.eval_ast(&operands[1])?) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() != self.eval_ast(&operands[1])?.unwrap().as_number().unwrap()) as i32 as f64)))
                 }
                 "lt?" => {
                     if operands.len() != 2 {
@@ -296,7 +317,7 @@ impl Interpreter {
                             "Invalid number of operands for 'lt?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])? < self.eval_ast(&operands[1])?) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() < self.eval_ast(&operands[1])?.unwrap().as_number().unwrap()) as i32 as f64)))
                 }
                 "lte?" => {
                     if operands.len() != 2 {
@@ -304,7 +325,7 @@ impl Interpreter {
                             "Invalid number of operands for 'le?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])? <= self.eval_ast(&operands[1])?) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() <= self.eval_ast(&operands[1])?.unwrap().as_number().unwrap()) as i32 as f64)))
                 }
                 "gt?" => {
                     if operands.len() != 2 {
@@ -312,7 +333,7 @@ impl Interpreter {
                             "Invalid number of operands for 'gt?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])? > self.eval_ast(&operands[1])?) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() > self.eval_ast(&operands[1])?.unwrap().as_number().unwrap()) as i32 as f64)))
                 }
                 "gte?" => {
                     if operands.len() != 2 {
@@ -320,7 +341,7 @@ impl Interpreter {
                             "Invalid number of operands for 'ge?'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])? >= self.eval_ast(&operands[1])?) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() >= self.eval_ast(&operands[1])?.unwrap().as_number().unwrap()) as i32 as f64)))
                 }
                 "and" => {
                     if operands.len() < 2 {
@@ -330,16 +351,13 @@ impl Interpreter {
                     }
                     let mut result: f64 = 1.0;
                     for operand in operands {
-                        let val: f64 = match self.eval_ast(operand)? {
-                            Some(val) => val,
-                            None => return Err(ErrorHandler::ParseError("Invalid and syntax".to_string())),
-                        };
+                        let val: f64 = self.eval_ast(operand)?.unwrap().as_number().unwrap();
                         if val == 0.0 {
                             result = 0.0;
                             break;
                         }
                     }
-                    Ok(Some(result))
+                    Ok(Some(VariableValue::Number(result)))
                 }
                 "or" => {
                     if operands.len() < 2 {
@@ -349,16 +367,13 @@ impl Interpreter {
                     }
                     let mut result: f64 = 0.0;
                     for operand in operands {
-                        let val: f64 = match self.eval_ast(operand)? {
-                            Some(val) => val,
-                            None => return Err(ErrorHandler::ParseError("Invalid or syntax".to_string())),
-                        };
+                        let val: f64 = self.eval_ast(operand)?.unwrap().as_number().unwrap();
                         if val != 0.0 {
                             result = 1.0;
                             break;
                         }
                     }
-                    Ok(Some(result))
+                    Ok(Some(VariableValue::Number(result)))
                 }
                 "not" => {
                     if operands.len() != 1 {
@@ -366,54 +381,37 @@ impl Interpreter {
                             "Invalid number of operands for 'not'".to_string(),
                         ));
                     }
-                    Ok(Some((self.eval_ast(&operands[0])? == Some(0.0)) as i32 as f64))
+                    Ok(Some(VariableValue::Number((self.eval_ast(&operands[0])?.unwrap().as_number().unwrap() == 0.0) as i32 as f64)))
                 }
                 /*
                 Variable operators:
                 */
                 "let" => {
                     if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
+                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
                     }
                     if let ASTNode::Value(var) = &operands[0] {
-                        let value: f64 = match self.eval_ast(&operands[1])? {
-                            Some(val) => val,
-                            None => return Err(ErrorHandler::ParseError("Invalid let syntax".to_string())),
-                        };
+                        let value = self.eval_ast(&operands[1])?;
                         if self.variables.contains_key(var) {
-                            return Err(ErrorHandler::ParseError(format!(
-                                "Variable '{}' already exists",
-                                var
-                            )));
+                            return Err(ErrorHandler::ParseError(format!("Variable '{}' already exists", var)));
                         }
-                        self.variables.insert(var.clone(), value);
+                        self.variables.insert(var.clone(), value.unwrap());
                         Ok(None)
                     } else {
                         Err(ErrorHandler::ParseError("Invalid let syntax".to_string()))
                     }
                 }
+
                 "set" => {
                     if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
+                        return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
                     }
                     if let ASTNode::Value(var) = &operands[0] {
-                        let value: f64 = match self.eval_ast(&operands[1])? {
-                            Some(val) => val,
-                            None => return Err(ErrorHandler::ParseError("Invalid set syntax".to_string())),
-                        };
+                        let value = self.eval_ast(&operands[1])?;
                         if !self.variables.contains_key(var) {
-                            return Err(ErrorHandler::ParseError(format!(
-                                "Variable '{}' not found",
-                                var
-                            )));
+                            return Err(ErrorHandler::ParseError(format!("Variable '{}' not found", var)));
                         }
-                        self.variables.insert(var.clone(), value);
+                        self.variables.insert(var.clone(), value.unwrap());
                         Ok(None)
                     } else {
                         Err(ErrorHandler::ParseError("Invalid set syntax".to_string()))
@@ -421,7 +419,7 @@ impl Interpreter {
                 }
                 "get" => {
                     if let ASTNode::Value(var) = &operands[0] {
-                        if let Some(&val) = self.variables.get(var) {
+                        if let Some(val) = self.variables.get(var).cloned() {
                             Ok(Some(val))
                         } else {
                             Err(ErrorHandler::VariableNotFound(var.clone()))
@@ -454,25 +452,67 @@ impl Interpreter {
     
                     if let ASTNode::Value(var) = &operands[0] {
                         let start: f64 = match self.eval_ast(&operands[1])? {
-                            Some(val) => val,
-                            None => return Err(ErrorHandler::ParseError("Invalid for syntax".to_string())),
+                            Some(VariableValue::Number(val)) => val,
+                            _ => return Err(ErrorHandler::ParseError("Invalid for syntax".to_string())),
                         };
                         let end: f64 = match self.eval_ast(&operands[2])? {
-                            Some(val) => val,
-                            None => return Err(ErrorHandler::ParseError("Invalid for syntax".to_string())),
+                            Some(VariableValue::Number(val)) => val,
+                            _ => return Err(ErrorHandler::ParseError("Invalid for syntax".to_string())),
                         };
                         let body: &ASTNode = &operands[3];
-    
-                        let mut result: Option<f64> = None;
+
+                        let mut _result: Option<f64> = None;
                         for i in (start as i32)..(end as i32) {
-                            self.variables.insert(var.clone(), i as f64);
-                            result = self.eval_ast(body)?;
+                            self.variables.insert(var.clone(), VariableValue::Number(i as f64));
+                            _result = self.eval_ast(body)?.map(|val| val.as_number().unwrap());
                         }
     
-                        Ok(result)
+                        // Ok(result.map(VariableValue::Number))
+                        Ok(None)
                     } else {
                         Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
                     }
+                }
+                /*
+                String operators:
+                */
+                "concat" => {
+                    let mut result: String = String::new();
+                    for operand in operands {
+                        match self.eval_ast(operand)? {
+                            Some(VariableValue::Text(val)) => result.push_str(&val),
+                            Some(VariableValue::Number(val)) => result.push_str(&val.to_string()),
+                            _ => return Err(ErrorHandler::ParseError("Invalid concat syntax".to_string())),
+                        };
+                    }
+                    Ok(Some(VariableValue::Text(result)))
+                }
+                "len" => {
+                    if operands.len() != 1 {
+                        return Err(ErrorHandler::ParseError("Invalid number of operands for 'len'".to_string()));
+                    }
+                    match self.eval_ast(&operands[0])? {
+                        Some(VariableValue::Text(val)) => Ok(Some(VariableValue::Number(val.len() as f64))),
+                        _ => Err(ErrorHandler::ParseError("Invalid len syntax".to_string())),
+                    }
+                }
+                "substring" => {
+                    if operands.len() != 3 {
+                        return Err(ErrorHandler::ParseError("Invalid number of operands for 'substring'".to_string()));
+                    }
+                    let text: String = match self.eval_ast(&operands[0])? {
+                        Some(VariableValue::Text(val)) => val,
+                        _ => return Err(ErrorHandler::ParseError("Invalid substring syntax".to_string())),
+                    };
+                    let start: f64 = match self.eval_ast(&operands[1])? {
+                        Some(VariableValue::Number(val)) => val,
+                        _ => return Err(ErrorHandler::ParseError("Invalid substring syntax".to_string())),
+                    };
+                    let end: f64 = match self.eval_ast(&operands[2])? {
+                        Some(VariableValue::Number(val)) => val,
+                        _ => return Err(ErrorHandler::ParseError("Invalid substring syntax".to_string())),
+                    };
+                    Ok(Some(VariableValue::Text(text.chars().skip(start as usize).take((end - start + 1.0) as usize).collect())))
                 }
                 /*
                 Extraneous operators:
@@ -480,11 +520,11 @@ impl Interpreter {
                 "print" => {
                     let mut output = String::new();
                     for operand in operands {
-                        let result: f64 = match self.eval_ast(operand)? {
-                            Some(val) => val,
+                        match self.eval_ast(operand)? {
+                            Some(VariableValue::Number(val)) => output.push_str(&format!("{} ", val)),
+                            Some(VariableValue::Text(val)) => output.push_str(&format!("{} ", val)),
                             None => return Err(ErrorHandler::ParseError("Invalid print syntax".to_string())),
                         };
-                        output.push_str(&format!("{} ", result));
                     }
                     self.output.push(output.trim_end().to_string());
                     Ok(None)
@@ -496,8 +536,8 @@ impl Interpreter {
                         ));
                     }
                     let code: f64 = match self.eval_ast(&operands[0])? {
-                        Some(val) => val,
-                        None => return Err(ErrorHandler::ParseError("Invalid exit syntax".to_string())),
+                        Some(VariableValue::Number(val)) => val,
+                        _ => return Err(ErrorHandler::ParseError("Invalid exit syntax".to_string())),
                     };
                     std::process::exit(code as i32);
                 }
@@ -505,14 +545,14 @@ impl Interpreter {
                     if !self.variables.is_empty() {
                         println!("Variables:");
                         for (var, val) in &self.variables {
-                            println!("{}: {}", var, val);
+                            println!("{:?}: {:?}", var, val);
                         }
                     }
-    
+
                     if !self.functions.is_empty() {
                         println!("Functions:");
                         for (func, f) in &self.functions {
-                            println!("{}: {:?}", func, f);
+                            println!("{:?}: {:?}", func, f);
                         }
                     }
     
@@ -582,12 +622,14 @@ impl Interpreter {
     
                         for arg in operands {
                             if let Some(val) = local_interpreter.eval_ast(arg)? {
-                                results.push(val);
+                                if let VariableValue::Number(num) = val {
+                                    results.push(num);
+                                }
                             }
                         }
     
                         for (param, result) in func.params.iter().zip(results) {
-                            local_interpreter.variables.insert(param.clone(), result);
+                            local_interpreter.variables.insert(param.clone(), VariableValue::Number(result));
                         }
     
                         let result = local_interpreter.eval_ast(&func.body)?;
@@ -662,6 +704,7 @@ impl Interpreter {
 enum ASTNode {
     Operator(String, Vec<ASTNode>),
     Value(String),
+    StringValue(String),
     NoOp,
 }
 
@@ -679,12 +722,19 @@ fn tokenize(expr: &str) -> Vec<String> {
                 }
                 tokens.push(c.to_string());
             }
-            '"' => {
-                token.push(c);
-                in_string = !in_string;
-                if !in_string {
+            '\'' => {
+                if in_string {
+                    token.push(c);
                     tokens.push(token.clone());
                     token.clear();
+                    in_string = false;
+                } else {
+                    if !token.is_empty() {
+                        tokens.push(token.clone());
+                        token.clear();
+                    }
+                    token.push(c);
+                    in_string = true;
                 }
             }
             ' ' | '\n' | '\t' if !in_string => {  // treat newlines and tabs as spaces
@@ -734,6 +784,10 @@ fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
             let (node, consumed) = parse(&tokens[index..])?;
             operands.push(node);
             index += consumed;
+        } else if tokens[index].starts_with('\'') && tokens[index].ends_with('\'') {
+            let string_value = tokens[index][1..tokens[index].len() - 1].to_string();
+            operands.push(ASTNode::StringValue(string_value));
+            index += 1;
         } else {
             operands.push(ASTNode::Value(tokens[index].clone()));
             index += 1;

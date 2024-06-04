@@ -40,12 +40,15 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Debug function (prints the current state of the interpreter (variables and functions)) syntax: (debug)
 - [x] Exit function (exits the interpreter) syntax: (exit num)
 - [x] Code can span multiple lines
+- [x] String type for variables
+- [x] String literals (for printing)
+- [x] String functions (concat, len, substring (inclusive on both ends))
+
 
 ## Todo
 - [ ] While loops
 - [ ] Put print statement output after the output for the line being interpreted
-- [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)
-- [ ] Maybe Type checking
+- [ ] Maybe Type checking (after strings)
 
 ## Notes
 - Empty parenthesis '()' are evaluated to None

@@ -6,3 +6,6 @@
 (print x)
 (set x 15)
 (print x)
+(print 'hello world' 5)
+(set x 'hello world')
+(print x)
