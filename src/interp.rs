@@ -3,6 +3,8 @@ use std::fmt;
 use std::fs::read_to_string;
 use std::path::PathBuf;
 
+const debug: bool = false;
+
 #[derive(Debug)]
 pub enum ErrorHandler {
     DivisionByZero,
@@ -115,12 +117,19 @@ impl Interpreter {
                                 })
                                 .collect::<Result<Vec<_>, _>>()?;
 
-                            let params_clone = params.clone();
-                            let body = &operands[2]; // Add this line to fix the issue
-                            println!("{}: {:?} {:?}", name, params_clone, body);
+                            if debug {
+                                let params_clone = params.clone();
+                                let body = &operands[2];
+                                println!("{}: {:?} {:?}", name, params_clone, body);
+                            }
 
-                            let func: Function = Function { params: params_clone, body: body.clone() };
-                            self.functions.insert(name.clone(), func);
+                            self.functions.insert(
+                                name.clone(),
+                                Function {
+                                    params,
+                                    body: operands[2].clone(),
+                                },
+                            );
                             Ok(None)
                         } else {
                             Err(ErrorHandler::ParseError(

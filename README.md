@@ -41,7 +41,6 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Exit function (exits the interpreter) syntax: (exit num)
 
 ## Todo
-- [ ] Fix parser by adding a special parse case to fix how functions are parsed
 - [ ] While loops
 - [ ] Put print statement output after the output for the line being interpreted, and dont print a 0 for every successful line
 - [ ] Support for code spanning multiple lines
@@ -49,7 +48,6 @@ The file should have the extension `.rss`. You can find some example files in th
 - [ ] Maybe Type checking
 
 ## Notes
-- Not going to implement while loops
 - Empty parenthesis '()' are evaluated to 0.0
 - Functions: (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything but (), but it must be there (or everything breaks) (fix this eventually)
 - Recursive Functions: Base case must be prepended by "base" keyword. Look in the examples directory for an example of a recursive function
