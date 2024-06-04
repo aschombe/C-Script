@@ -42,8 +42,10 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Debug function (prints the current state of the interpreter (variables and functions)) syntax: (debug)
 - [x] For loops
 - [x] Exit function (exits the interpreter) syntax: (exit num)
-- [x] Stack overflow errors for resursive function calls
+- [x] Stack overflow errors for recursive function calls
+
 ## Todo
+- [ ] Make it so that statements aren't required to return a value (might fix printing formatting)
 - [ ] Put print statement output after the output for the line being interpreted, and dont print a 0 for every successful line
 - [ ] Support for code spanning multiple lines
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)

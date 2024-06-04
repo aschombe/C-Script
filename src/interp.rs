@@ -72,7 +72,10 @@ impl Tape {
             self.pc = pos;
             Ok(())
         } else {
-            Err(ErrorHandler::ParseError(format!("Label '{}' not found", label)))
+            Err(ErrorHandler::ParseError(format!(
+                "Label '{}' not found",
+                label
+            )))
         }
     }
 }
@@ -112,7 +115,11 @@ impl Interpreter {
         self.tape.add_node(ast);
 
         while self.tape.pc < self.tape.nodes.len() {
-            let node = self.tape.current_node().cloned().ok_or(ErrorHandler::ParseError("No current node".to_string()))?;
+            let node = self
+                .tape
+                .current_node()
+                .cloned()
+                .ok_or(ErrorHandler::ParseError("No current node".to_string()))?;
             match self.eval_ast(&node, 0) {
                 Ok(result) => {
                     println!("{}", result);
@@ -142,557 +149,563 @@ impl Interpreter {
                 }
             }
 
-            ASTNode::Operator(op, operands) => match op.as_str() {
-                "label" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-                    if let ASTNode::Value(label) = &operands[0] {
-                        self.tape.labels.insert(label.clone(), self.tape.pc);
-                        Ok(0.0)
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid label syntax".to_string()))
-                    }
-                }
-                "jump" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-                    if let ASTNode::Value(label) = &operands[0] {
-                        self.tape.jump_to_label(label)?;
-                        Ok(0.0)
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid jump syntax".to_string()))
-                    }
-                }
-                "base" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-                    self.eval_ast(&operands[0], depth)
-                }
-                "func" => {
-                    if operands.len() != 3 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-
-                    if let ASTNode::Value(name) = &operands[0] {
-                        if let ASTNode::Operator(_, param_nodes) = &operands[1] {
-                            let params: Vec<String> = param_nodes
-                                .iter()
-                                .map(|param| match param {
-                                    ASTNode::Value(val) => Ok(val.clone()),
-                                    _ => Err(ErrorHandler::ParseError(
-                                        "Invalid parameter".to_string(),
-                                    )),
-                                })
-                                .collect::<Result<Vec<_>, _>>()?;
-
-                            let body: ASTNode = operands[2].clone();
-                            let func: Function = Function { params, body };
-
-                            self.functions.insert(name.clone(), func);
+            ASTNode::Operator(op, operands) => {
+                match op.as_str() {
+                    "label" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Invalid syntax for '{}'",
+                                op
+                            )));
+                        }
+                        if let ASTNode::Value(label) = &operands[0] {
+                            self.tape.labels.insert(label.clone(), self.tape.pc);
                             Ok(0.0)
+                        } else {
+                            Err(ErrorHandler::ParseError("Invalid label syntax".to_string()))
+                        }
+                    }
+                    "jump" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Invalid syntax for '{}'",
+                                op
+                            )));
+                        }
+                        if let ASTNode::Value(label) = &operands[0] {
+                            self.tape.jump_to_label(label)?;
+                            Ok(0.0)
+                        } else {
+                            Err(ErrorHandler::ParseError("Invalid jump syntax".to_string()))
+                        }
+                    }
+                    "base" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Invalid syntax for '{}'",
+                                op
+                            )));
+                        }
+                        self.eval_ast(&operands[0], depth)
+                    }
+                    "func" => {
+                        if operands.len() != 3 {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Invalid syntax for '{}'",
+                                op
+                            )));
+                        }
+
+                        if let ASTNode::Value(name) = &operands[0] {
+                            if let ASTNode::Operator(_, param_nodes) = &operands[1] {
+                                let params: Vec<String> = param_nodes
+                                    .iter()
+                                    .map(|param| match param {
+                                        ASTNode::Value(val) => Ok(val.clone()),
+                                        _ => Err(ErrorHandler::ParseError(
+                                            "Invalid parameter".to_string(),
+                                        )),
+                                    })
+                                    .collect::<Result<Vec<_>, _>>()?;
+
+                                let body: ASTNode = operands[2].clone();
+                                let func: Function = Function { params, body };
+
+                                self.functions.insert(name.clone(), func);
+                                Ok(0.0)
+                            } else {
+                                Err(ErrorHandler::ParseError(
+                                    "Invalid function parameters".to_string(),
+                                ))
+                            }
                         } else {
                             Err(ErrorHandler::ParseError(
-                                "Invalid function parameters".to_string(),
+                                "Invalid function name".to_string(),
                             ))
                         }
-                    } else {
-                        Err(ErrorHandler::ParseError(
-                            "Invalid function name".to_string(),
-                        ))
                     }
-                }
-                "call" => {
-                    if depth >= self.max_recusion_depth {
-                        return Err(ErrorHandler::StackOverflow);
-                    }
+                    "call" => {
+                        if depth >= self.max_recusion_depth {
+                            return Err(ErrorHandler::StackOverflow);
+                        }
 
-                    if operands.len() < 1 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
+                        if operands.len() < 1 {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Invalid syntax for '{}'",
+                                op
+                            )));
+                        }
 
-                    if let ASTNode::Value(name) = &operands[0] {
-                        if let Some(func) = self.functions.get(name) {
-                            if operands.len() - 1 != func.params.len() {
+                        if let ASTNode::Value(name) = &operands[0] {
+                            if let Some(func) = self.functions.get(name) {
+                                if operands.len() - 1 != func.params.len() {
+                                    return Err(ErrorHandler::ParseError(format!(
+                                        "Invalid number of arguments for function '{}'",
+                                        name
+                                    )));
+                                }
+
+                                let mut local_interpreter: Interpreter = Interpreter {
+                                    variables: self.variables.clone(),
+                                    functions: self.functions.clone(),
+                                    tape: Tape::new(),
+                                    max_recusion_depth: self.max_recusion_depth - 1,
+                                };
+
+                                let mut local_vars: HashMap<String, f64> =
+                                    local_interpreter.variables.clone();
+                                let local_funcs: HashMap<String, Function> =
+                                    local_interpreter.functions.clone();
+
+                                let mut results: Vec<f64> = Vec::new();
+                                for arg in &operands[1..] {
+                                    results.push(local_interpreter.eval_ast(arg, depth + 1)?);
+                                }
+
+                                for (param, result) in func.params.iter().zip(results) {
+                                    local_vars.insert(param.clone(), result);
+                                }
+
+                                local_interpreter.variables = local_vars;
+                                local_interpreter.functions = local_funcs;
+
+                                local_interpreter.eval_ast(&func.body, depth + 1)
+                            } else {
+                                Err(ErrorHandler::FunctionNotFound(name.clone()))
+                            }
+                        } else {
+                            Err(ErrorHandler::ParseError(
+                                "Invalid function name".to_string(),
+                            ))
+                        }
+                    }
+                    "let" => {
+                        if operands.len() != 2 {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Invalid syntax for '{}'",
+                                op
+                            )));
+                        }
+                        if let ASTNode::Value(var) = &operands[0] {
+                            let value: f64 = self.eval_ast(&operands[1], depth)?;
+                            if self.variables.contains_key(var) {
                                 return Err(ErrorHandler::ParseError(format!(
-                                    "Invalid number of arguments for function '{}'",
-                                    name
+                                    "Variable '{}' already exists",
+                                    var
                                 )));
                             }
-
-                            let mut local_interpreter: Interpreter = Interpreter {
-                                variables: self.variables.clone(),
-                                functions: self.functions.clone(),
-                                tape: Tape::new(),
-                                max_recusion_depth: self.max_recusion_depth - 1,
-                            };
-
-                            let mut local_vars: HashMap<String, f64> =
-                                local_interpreter.variables.clone();
-                            let local_funcs: HashMap<String, Function> =
-                                local_interpreter.functions.clone();
-
-                            let mut results: Vec<f64> = Vec::new();
-                            for arg in &operands[1..] {
-                                results.push(local_interpreter.eval_ast(arg, depth + 1)?);
-                            }
-
-                            for (param, result) in func.params.iter().zip(results) {
-                                local_vars.insert(param.clone(), result);
-                            }
-
-                            local_interpreter.variables = local_vars;
-                            local_interpreter.functions = local_funcs;
-
-                            local_interpreter.eval_ast(&func.body, depth + 1)
+                            self.variables.insert(var.clone(), value);
+                            Ok(value)
                         } else {
-                            Err(ErrorHandler::FunctionNotFound(name.clone()))
+                            Err(ErrorHandler::ParseError("Invalid let syntax".to_string()))
                         }
-                    } else {
-                        Err(ErrorHandler::ParseError(
-                            "Invalid function name".to_string(),
-                        ))
                     }
-                }
-                "let" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-                    if let ASTNode::Value(var) = &operands[0] {
-                        let value: f64 = self.eval_ast(&operands[1], depth)?;
-                        if self.variables.contains_key(var) {
+                    "set" => {
+                        if operands.len() != 2 {
                             return Err(ErrorHandler::ParseError(format!(
-                                "Variable '{}' already exists",
-                                var
+                                "Invalid syntax for '{}'",
+                                op
                             )));
                         }
-                        self.variables.insert(var.clone(), value);
-                        Ok(value)
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid let syntax".to_string()))
-                    }
-                }
-                "set" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-                    if let ASTNode::Value(var) = &operands[0] {
-                        let value: f64 = self.eval_ast(&operands[1], depth)?;
-                        if !self.variables.contains_key(var) {
-                            return Err(ErrorHandler::ParseError(format!(
-                                "Variable '{}' not found",
-                                var
-                            )));
-                        }
-                        self.variables.insert(var.clone(), value);
-                        Ok(value)
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid set syntax".to_string()))
-                    }
-                }
-                "get" => {
-                    if let ASTNode::Value(var) = &operands[0] {
-                        if let Some(&val) = self.variables.get(var) {
-                            Ok(val)
+                        if let ASTNode::Value(var) = &operands[0] {
+                            let value: f64 = self.eval_ast(&operands[1], depth)?;
+                            if !self.variables.contains_key(var) {
+                                return Err(ErrorHandler::ParseError(format!(
+                                    "Variable '{}' not found",
+                                    var
+                                )));
+                            }
+                            self.variables.insert(var.clone(), value);
+                            Ok(value)
                         } else {
-                            Err(ErrorHandler::VariableNotFound(var.clone()))
+                            Err(ErrorHandler::ParseError("Invalid set syntax".to_string()))
                         }
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid get syntax".to_string()))
                     }
-                }
-                "del" => {
-                    if let ASTNode::Value(var) = &operands[0] {
-                        if self.variables.contains_key(var) {
-                            self.variables.remove(var);
-                            Ok(0.0)
-                        } else {
-                            Err(ErrorHandler::VariableNotFound(var.clone()))
-                        }
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid del syntax".to_string()))
-                    }
-                }
-                "if" => {
-                    if operands.len() < 2 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-                    let condition: f64 = self.eval_ast(&operands[0], depth)?;
-                    if condition != 0.0 {
-                        self.eval_ast(&operands[1], depth)
-                    } else {
-                        let i = 2;
-                        while i < operands.len() {
-                            if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i] {
-                                match cond_op.as_str() {
-                                    "else" => {
-                                        if cond_operands.len() != 1 {
-                                            return Err(ErrorHandler::ParseError(format!(
-                                                "Invalid syntax for '{}'",
-                                                cond_op
-                                            )));
-                                        }
-                                        return self.eval_ast(&cond_operands[0], depth);
-                                    }
-                                    _ => return Err(ErrorHandler::ParseError(
-                                        "Invalid conditional syntax".to_string(),
-                                    )),
-                                }
+                    "get" => {
+                        if let ASTNode::Value(var) = &operands[0] {
+                            if let Some(&val) = self.variables.get(var) {
+                                Ok(val)
                             } else {
-                                return Err(ErrorHandler::ParseError(
-                                    "Invalid conditional syntax".to_string(),
-                                ));
+                                Err(ErrorHandler::VariableNotFound(var.clone()))
                             }
+                        } else {
+                            Err(ErrorHandler::ParseError("Invalid get syntax".to_string()))
+                        }
+                    }
+                    "del" => {
+                        if let ASTNode::Value(var) = &operands[0] {
+                            if self.variables.contains_key(var) {
+                                self.variables.remove(var);
+                                Ok(0.0)
+                            } else {
+                                Err(ErrorHandler::VariableNotFound(var.clone()))
+                            }
+                        } else {
+                            Err(ErrorHandler::ParseError("Invalid del syntax".to_string()))
+                        }
+                    }
+                    "if" => {
+                        if operands.len() < 2 {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Invalid syntax for '{}'",
+                                op
+                            )));
+                        }
+                        let condition: f64 = self.eval_ast(&operands[0], depth)?;
+                        if condition != 0.0 {
+                            self.eval_ast(&operands[1], depth)
+                        } else {
+                            let i = 2;
+                            while i < operands.len() {
+                                if let ASTNode::Operator(ref cond_op, ref cond_operands) =
+                                    &operands[i]
+                                {
+                                    match cond_op.as_str() {
+                                        "else" => {
+                                            if cond_operands.len() != 1 {
+                                                return Err(ErrorHandler::ParseError(format!(
+                                                    "Invalid syntax for '{}'",
+                                                    cond_op
+                                                )));
+                                            }
+                                            return self.eval_ast(&cond_operands[0], depth);
+                                        }
+                                        _ => {
+                                            return Err(ErrorHandler::ParseError(
+                                                "Invalid conditional syntax".to_string(),
+                                            ))
+                                        }
+                                    }
+                                } else {
+                                    return Err(ErrorHandler::ParseError(
+                                        "Invalid conditional syntax".to_string(),
+                                    ));
+                                }
+                            }
+                            Ok(0.0)
+                        }
+                    }
+                    "print" => {
+                        for operand in operands {
+                            let result: f64 = self.eval_ast(operand, depth)?;
+                            println!("{}", result);
                         }
                         Ok(0.0)
                     }
-                }
-                "print" => {
-                    for operand in operands {
-                        let result: f64 = self.eval_ast(operand, depth)?;
-                        println!("{}", result);
-                    }
-                    Ok(0.0)
-                }
-                "+" | "add" => {
-                    let mut result: f64 = 0.0;
-                    for operand in operands {
-                        result += self.eval_ast(operand, depth)?;
-                    }
-                    Ok(result)
-                }
-                "-" | "subtract" | "sub" => {
-                    if operands.is_empty() {
-                        return Err(ErrorHandler::ParseError("Empty subtraction".to_string()));
-                    }
-                    let mut result: f64 = self.eval_ast(&operands[0], depth)?;
-                    for operand in &operands[1..] {
-                        result -= self.eval_ast(operand, depth)?;
-                    }
-                    Ok(result)
-                }
-                "*" | "multiply" | "mul" => {
-                    let mut result: f64 = 1.0;
-                    for operand in operands {
-                        result *= self.eval_ast(operand, depth)?;
-                    }
-                    Ok(result)
-                }
-                "/" | "divide" | "div" => {
-                    if operands.is_empty() {
-                        return Err(ErrorHandler::ParseError("Empty division".to_string()));
-                    }
-                    let mut result: f64 = self.eval_ast(&operands[0], depth)?;
-                    for operand in &operands[1..] {
-                        let divisor: f64 = self.eval_ast(operand, depth)?;
-                        if divisor == 0.0 {
-                            return Err(ErrorHandler::DivisionByZero);
-                        }
-                        result /= divisor;
-                    }
-                    Ok(result)
-                }
-                "%" | "modulo" | "mod" => {
-                    if operands.is_empty() {
-                        return Err(ErrorHandler::ParseError("Empty modulo".to_string()));
-                    }
-                    let mut result: f64 = self.eval_ast(&operands[0], depth)?;
-                    for operand in &operands[1..] {
-                        let divisor: f64 = self.eval_ast(operand, depth)?;
-                        if divisor == 0.0 {
-                            return Err(ErrorHandler::DivisionByZero);
-                        }
-                        result %= divisor;
-                    }
-                    Ok(result)
-                }
-                "max" => {
-                    let mut max_val: f64 = f64::MIN;
-                    for operand in operands {
-                        let val: f64 = self.eval_ast(operand, depth)?;
-                        if val > max_val {
-                            max_val = val;
-                        }
-                    }
-                    Ok(max_val)
-                }
-                "min" => {
-                    let mut min_val: f64 = f64::MAX;
-                    for operand in operands {
-                        let val: f64 = self.eval_ast(operand, depth)?;
-                        if val < min_val {
-                            min_val = val;
-                        }
-                    }
-                    Ok(min_val)
-                }
-                "pow" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'pow'".to_string(),
-                        ));
-                    }
-                    let base: f64 = self.eval_ast(&operands[0], depth)?;
-                    let exp: f64 = self.eval_ast(&operands[1], depth)?;
-                    Ok(base.powf(exp))
-                }
-                "sqrt" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'sqrt'".to_string(),
-                        ));
-                    }
-                    Ok(self.eval_ast(&operands[0], depth)?.sqrt())
-                }
-                "sin" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'sin'".to_string(),
-                        ));
-                    }
-                    Ok(self.eval_ast(&operands[0], depth)?.sin())
-                }
-                "cos" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'cos'".to_string(),
-                        ));
-                    }
-                    Ok(self.eval_ast(&operands[0], depth)?.cos())
-                }
-                "tan" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'tan'".to_string(),
-                        ));
-                    }
-                    Ok(self.eval_ast(&operands[0], depth)?.tan())
-                }
-                "abs" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'abs'".to_string(),
-                        ));
-                    }
-                    Ok(self.eval_ast(&operands[0], depth)?.abs())
-                }
-                "zero?" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'zero?'".to_string(),
-                        ));
-                    }
-                    Ok((self.eval_ast(&operands[0], depth)? == 0.0) as i32 as f64)
-                }
-                "even?" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'even?'".to_string(),
-                        ));
-                    }
-                    Ok((self.eval_ast(&operands[0], depth)? % 2.0 == 0.0) as i32 as f64)
-                }
-                "odd?" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'odd?'".to_string(),
-                        ));
-                    }
-                    Ok((self.eval_ast(&operands[0], depth)? % 2.0 != 0.0) as i32 as f64)
-                }
-                "pos?" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'pos?'".to_string(),
-                        ));
-                    }
-                    Ok((self.eval_ast(&operands[0], depth)? > 0.0) as i32 as f64)
-                }
-                "neg?" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'neg?'".to_string(),
-                        ));
-                    }
-                    Ok((self.eval_ast(&operands[0], depth)? < 0.0) as i32 as f64)
-                }
-                "eq?" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'eq?'".to_string(),
-                        ));
-                    }
-                    Ok(
-                        (self.eval_ast(&operands[0], depth)? == self.eval_ast(&operands[1], depth)?) as i32
-                            as f64,
-                    )
-                }
-                "neq?" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'neq?'".to_string(),
-                        ));
-                    }
-                    Ok(
-                        (self.eval_ast(&operands[0], depth)? != self.eval_ast(&operands[1], depth)?) as i32
-                            as f64,
-                    )
-                }
-                "lt?" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'lt?'".to_string(),
-                        ));
-                    }
-                    Ok((self.eval_ast(&operands[0], depth)? < self.eval_ast(&operands[1], depth)?) as i32 as f64)
-                }
-                "lte?" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'le?'".to_string(),
-                        ));
-                    }
-                    Ok(
-                        (self.eval_ast(&operands[0], depth)? <= self.eval_ast(&operands[1], depth)?) as i32
-                            as f64,
-                    )
-                }
-                "gt?" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'gt?'".to_string(),
-                        ));
-                    }
-                    Ok((self.eval_ast(&operands[0], depth)? > self.eval_ast(&operands[1], depth)?) as i32 as f64)
-                }
-                "gte?" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'ge?'".to_string(),
-                        ));
-                    }
-                    Ok(
-                        (self.eval_ast(&operands[0], depth)? >= self.eval_ast(&operands[1], depth)?) as i32
-                            as f64,
-                    )
-                }
-                "and" => {
-                    if operands.len() < 2 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'and'".to_string(),
-                        ));
-                    }
-                    let mut result: f64 = 1.0;
-                    for operand in operands {
-                        let val: f64 = self.eval_ast(operand, depth)?;
-                        if val == 0.0 {
-                            result = 0.0;
-                            break;
-                        }
-                    }
-                    Ok(result)
-                }
-                "or" => {
-                    if operands.len() < 2 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'or'".to_string(),
-                        ));
-                    }
-                    let mut result: f64 = 0.0;
-                    for operand in operands {
-                        let val: f64 = self.eval_ast(operand, depth)?;
-                        if val != 0.0 {
-                            result = 1.0;
-                            break;
-                        }
-                    }
-                    Ok(result)
-                }
-                "not" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'not'".to_string(),
-                        ));
-                    }
-                    Ok((self.eval_ast(&operands[0], depth)? == 0.0) as i32 as f64)
-                }
-                "for" => {
-                    if operands.len() != 4 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'for'".to_string(),
-                        ));
-                    }
-
-                    if let ASTNode::Value(var) = &operands[0] {
-                        let start: f64 = self.eval_ast(&operands[1], depth)?;
-                        let end: f64 = self.eval_ast(&operands[2], depth)?;
-                        let body: &ASTNode = &operands[3];
-
+                    "+" | "add" => {
                         let mut result: f64 = 0.0;
-                        for i in (start as i32)..(end as i32) {
-                            self.variables.insert(var.clone(), i as f64);
-                            result = self.eval_ast(body, depth)?;
+                        for operand in operands {
+                            result += self.eval_ast(operand, depth)?;
                         }
-
                         Ok(result)
-                    } else {
-                        Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
                     }
-                }
-                "exit" => {
-                    if operands.len() != 1 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'exit'".to_string(),
-                        ));
+                    "-" | "subtract" | "sub" => {
+                        if operands.is_empty() {
+                            return Err(ErrorHandler::ParseError("Empty subtraction".to_string()));
+                        }
+                        let mut result: f64 = self.eval_ast(&operands[0], depth)?;
+                        for operand in &operands[1..] {
+                            result -= self.eval_ast(operand, depth)?;
+                        }
+                        Ok(result)
                     }
-                    let code: f64 = self.eval_ast(&operands[0], depth)?;
-                    std::process::exit(code as i32);
-                }
-                "debug" => {
-                    if !self.variables.is_empty() {
-                        println!("Variables:");
-                        for (var, val) in &self.variables {
-                            println!("{}: {}", var, val);
+                    "*" | "multiply" | "mul" => {
+                        let mut result: f64 = 1.0;
+                        for operand in operands {
+                            result *= self.eval_ast(operand, depth)?;
+                        }
+                        Ok(result)
+                    }
+                    "/" | "divide" | "div" => {
+                        if operands.is_empty() {
+                            return Err(ErrorHandler::ParseError("Empty division".to_string()));
+                        }
+                        let mut result: f64 = self.eval_ast(&operands[0], depth)?;
+                        for operand in &operands[1..] {
+                            let divisor: f64 = self.eval_ast(operand, depth)?;
+                            if divisor == 0.0 {
+                                return Err(ErrorHandler::DivisionByZero);
+                            }
+                            result /= divisor;
+                        }
+                        Ok(result)
+                    }
+                    "%" | "modulo" | "mod" => {
+                        if operands.is_empty() {
+                            return Err(ErrorHandler::ParseError("Empty modulo".to_string()));
+                        }
+                        let mut result: f64 = self.eval_ast(&operands[0], depth)?;
+                        for operand in &operands[1..] {
+                            let divisor: f64 = self.eval_ast(operand, depth)?;
+                            if divisor == 0.0 {
+                                return Err(ErrorHandler::DivisionByZero);
+                            }
+                            result %= divisor;
+                        }
+                        Ok(result)
+                    }
+                    "max" => {
+                        let mut max_val: f64 = f64::MIN;
+                        for operand in operands {
+                            let val: f64 = self.eval_ast(operand, depth)?;
+                            if val > max_val {
+                                max_val = val;
+                            }
+                        }
+                        Ok(max_val)
+                    }
+                    "min" => {
+                        let mut min_val: f64 = f64::MAX;
+                        for operand in operands {
+                            let val: f64 = self.eval_ast(operand, depth)?;
+                            if val < min_val {
+                                min_val = val;
+                            }
+                        }
+                        Ok(min_val)
+                    }
+                    "pow" => {
+                        if operands.len() != 2 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'pow'".to_string(),
+                            ));
+                        }
+                        let base: f64 = self.eval_ast(&operands[0], depth)?;
+                        let exp: f64 = self.eval_ast(&operands[1], depth)?;
+                        Ok(base.powf(exp))
+                    }
+                    "sqrt" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'sqrt'".to_string(),
+                            ));
+                        }
+                        Ok(self.eval_ast(&operands[0], depth)?.sqrt())
+                    }
+                    "sin" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'sin'".to_string(),
+                            ));
+                        }
+                        Ok(self.eval_ast(&operands[0], depth)?.sin())
+                    }
+                    "cos" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'cos'".to_string(),
+                            ));
+                        }
+                        Ok(self.eval_ast(&operands[0], depth)?.cos())
+                    }
+                    "tan" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'tan'".to_string(),
+                            ));
+                        }
+                        Ok(self.eval_ast(&operands[0], depth)?.tan())
+                    }
+                    "abs" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'abs'".to_string(),
+                            ));
+                        }
+                        Ok(self.eval_ast(&operands[0], depth)?.abs())
+                    }
+                    "zero?" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'zero?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)? == 0.0) as i32 as f64)
+                    }
+                    "even?" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'even?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)? % 2.0 == 0.0) as i32 as f64)
+                    }
+                    "odd?" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'odd?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)? % 2.0 != 0.0) as i32 as f64)
+                    }
+                    "pos?" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'pos?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)? > 0.0) as i32 as f64)
+                    }
+                    "neg?" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'neg?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)? < 0.0) as i32 as f64)
+                    }
+                    "eq?" => {
+                        if operands.len() != 2 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'eq?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)?
+                            == self.eval_ast(&operands[1], depth)?)
+                            as i32 as f64)
+                    }
+                    "neq?" => {
+                        if operands.len() != 2 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'neq?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)?
+                            != self.eval_ast(&operands[1], depth)?)
+                            as i32 as f64)
+                    }
+                    "lt?" => {
+                        if operands.len() != 2 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'lt?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)?
+                            < self.eval_ast(&operands[1], depth)?) as i32
+                            as f64)
+                    }
+                    "lte?" => {
+                        if operands.len() != 2 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'le?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)?
+                            <= self.eval_ast(&operands[1], depth)?)
+                            as i32 as f64)
+                    }
+                    "gt?" => {
+                        if operands.len() != 2 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'gt?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)?
+                            > self.eval_ast(&operands[1], depth)?) as i32
+                            as f64)
+                    }
+                    "gte?" => {
+                        if operands.len() != 2 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'ge?'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)?
+                            >= self.eval_ast(&operands[1], depth)?)
+                            as i32 as f64)
+                    }
+                    "and" => {
+                        if operands.len() < 2 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'and'".to_string(),
+                            ));
+                        }
+                        let mut result: f64 = 1.0;
+                        for operand in operands {
+                            let val: f64 = self.eval_ast(operand, depth)?;
+                            if val == 0.0 {
+                                result = 0.0;
+                                break;
+                            }
+                        }
+                        Ok(result)
+                    }
+                    "or" => {
+                        if operands.len() < 2 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'or'".to_string(),
+                            ));
+                        }
+                        let mut result: f64 = 0.0;
+                        for operand in operands {
+                            let val: f64 = self.eval_ast(operand, depth)?;
+                            if val != 0.0 {
+                                result = 1.0;
+                                break;
+                            }
+                        }
+                        Ok(result)
+                    }
+                    "not" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'not'".to_string(),
+                            ));
+                        }
+                        Ok((self.eval_ast(&operands[0], depth)? == 0.0) as i32 as f64)
+                    }
+                    "for" => {
+                        if operands.len() != 4 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'for'".to_string(),
+                            ));
+                        }
+
+                        if let ASTNode::Value(var) = &operands[0] {
+                            let start: f64 = self.eval_ast(&operands[1], depth)?;
+                            let end: f64 = self.eval_ast(&operands[2], depth)?;
+                            let body: &ASTNode = &operands[3];
+
+                            let mut result: f64 = 0.0;
+                            for i in (start as i32)..(end as i32) {
+                                self.variables.insert(var.clone(), i as f64);
+                                result = self.eval_ast(body, depth)?;
+                            }
+
+                            Ok(result)
+                        } else {
+                            Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
                         }
                     }
-
-                    if !self.functions.is_empty() {
-                        println!("Functions:");
-                        for (func, f) in &self.functions {
-                            println!("{}: {:?}", func, f);
+                    "exit" => {
+                        if operands.len() != 1 {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid number of operands for 'exit'".to_string(),
+                            ));
                         }
+                        let code: f64 = self.eval_ast(&operands[0], depth)?;
+                        std::process::exit(code as i32);
                     }
+                    "debug" => {
+                        if !self.variables.is_empty() {
+                            println!("Variables:");
+                            for (var, val) in &self.variables {
+                                println!("{}: {}", var, val);
+                            }
+                        }
 
-                    Ok(0.0)
+                        if !self.functions.is_empty() {
+                            println!("Functions:");
+                            for (func, f) in &self.functions {
+                                println!("{}: {:?}", func, f);
+                            }
+                        }
+
+                        Ok(0.0)
+                    }
+                    _ => Err(ErrorHandler::UnknownOperator(op.clone())),
                 }
-                _ => Err(ErrorHandler::UnknownOperator(op.clone())),
-            },
+            }
             ASTNode::Label(_) => Ok(0.0), // Labels are no-ops during evaluation
             ASTNode::Jump(label) => {
                 self.tape.jump_to_label(label)?;
@@ -793,7 +806,9 @@ fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
     let mut index: usize = 0;
 
     if tokens[index] != "(" {
-        return Err(ErrorHandler::ParseError("Expected '('. Good luck!".to_string()));
+        return Err(ErrorHandler::ParseError(
+            "Expected '('. Good luck!".to_string(),
+        ));
     }
 
     index += 1;
@@ -820,7 +835,9 @@ fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
     }
 
     if index >= tokens.len() || tokens[index] != ")" {
-        return Err(ErrorHandler::ParseError("Expected ')'. Good luck!".to_string()));
+        return Err(ErrorHandler::ParseError(
+            "Expected ')'. Good luck!".to_string(),
+        ));
     }
 
     Ok((ASTNode::Operator(operator, operands), index + 1))
