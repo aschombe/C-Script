@@ -24,7 +24,6 @@ Run the interpreter by running the following command:
 The file should have the extension `.rss`. You can find some example files in the `examples` directory.
 
 ## Features
-- [x] Tape based interpreter
 - [x] Print Statements
 - [x] Comments (single line comments)
 - [x] Arithmetic Operations (addition, subtraction, multiplication, division, modulo)
@@ -34,6 +33,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Nested Expressions
 - [x] Variables (let, set, get, del)
 - [x] Floating point numbers
+<!-- - [x] For loops -->
 - [x] Control Flow (if, else)
 - [x] Add boolean keywords (0 is False, 1 is True)
 - [x] Expansive Examples in the examples directory
@@ -41,14 +41,14 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Exit function (exits the interpreter) syntax: (exit num)
 
 ## Todo
-- [ ] Remove functions and implement BL and RET instructions (search for labels before interpreting) (come back to this later)
+- [ ] Loops cause rust to panic (Called unwrap on none value), need to fix this
 - [ ] Put print statement output after the output for the line being interpreted, and dont print a 0 for every successful line
 - [ ] Support for code spanning multiple lines
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)
 - [ ] Maybe Type checking
 
 ## Notes
-- Not going to implement while loops, because you can do so with recursion or for loops or labels and jumps
+- Not going to implement while loops
 - Empty parenthesis '()' are evaluated to 0.0
 - Functions: (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything but (), but it must be there (or everything breaks) (fix this eventually)
 - Recursive Functions: Base case must be prepended by "base" keyword. Look in the examples directory for an example of a recursive function
