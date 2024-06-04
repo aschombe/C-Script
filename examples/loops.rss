@@ -1,0 +1,12 @@
+// basic count up loop
+(for i 0 5 (print i))
+
+// Summation
+(let sum 0)
+(for i 0 5 (set sum (add sum i)))
+(print sum)
+
+// double for loop
+(set sum 0)
+(for i 0 5 (for j 0 5 (set sum (add sum (mul i j)))))
+(print sum)

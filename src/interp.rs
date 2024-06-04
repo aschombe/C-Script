@@ -67,6 +67,7 @@ impl Interpreter {
 
     fn eval_ast(&mut self, node: &ASTNode) -> Result<f64, ErrorHandler> {
         match node {
+            ASTNode::NoOp => Ok(0.0),
             ASTNode::Value(val) => {
                 if val == "True" {
                     Ok(1.0)
@@ -550,8 +551,56 @@ impl Interpreter {
                     }
                     Ok((self.eval_ast(&operands[0])? == 0.0) as i32 as f64)
                 }
-                // called as (debug), prints all variables and functions in the environment, along
-                // with their values and 1bodies and memory addresses
+                "for" => {
+                    if operands.len() != 4 {
+                        return Err(ErrorHandler::ParseError(
+                            "Invalid number of operands for 'for'".to_string(),
+                        ));
+                    }
+
+                    if let ASTNode::Value(var) = &operands[0] {
+                        let start: f64 = self.eval_ast(&operands[1])?;
+                        let end: f64 = self.eval_ast(&operands[2])?;
+                        let body: &ASTNode = &operands[3];
+
+                        let mut result: f64 = 0.0;
+                        for i in (start as i32)..(end as i32) {
+                            self.variables.insert(var.clone(), i as f64);
+                            result = self.eval_ast(body)?;
+                        }
+
+                        Ok(result)
+                    } else {
+                        Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
+                    }
+                }
+                // (while <condition> <body>)
+                // "while" => {
+                //     if operands.len() != 2 {
+                //         return Err(ErrorHandler::ParseError(
+                //             "Invalid number of operands for 'while'".to_string(),
+                //         ));
+                //     }
+
+                //     let condition: &ASTNode = &operands[0];
+                //     let body: &ASTNode = &operands[1];
+
+                //     let mut result: f64 = 0.0;
+                //     while self.eval_ast(condition)? != 0.0 {
+                //         result = self.eval_ast(body)?;
+                //     }
+
+                //     Ok(result)
+                // }
+                "exit" => {
+                    if operands.len() != 1 {
+                        return Err(ErrorHandler::ParseError(
+                            "Invalid number of operands for 'exit'".to_string(),
+                        ));
+                    }
+                    let code: f64 = self.eval_ast(&operands[0])?;
+                    std::process::exit(code as i32);
+                }
                 "debug" => {
                     if !self.variables.is_empty() {
                         println!("Variables:");
@@ -612,6 +661,7 @@ impl Interpreter {
 enum ASTNode {
     Operator(String, Vec<ASTNode>),
     Value(String),
+    NoOp,
 }
 
 fn tokenize(expr: &str) -> Vec<String> {
@@ -663,10 +713,16 @@ fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
     let mut index: usize = 0;
 
     if tokens[index] != "(" {
-        return Err(ErrorHandler::ParseError("Expected '('".to_string()));
+        return Err(ErrorHandler::ParseError("Expected '('. Good luck!".to_string()));
     }
 
     index += 1;
+
+    // Handle the case of empty parentheses
+    if index < tokens.len() && tokens[index] == ")" {
+        return Ok((ASTNode::NoOp, index + 1));
+    }
+
     let operator: String = tokens[index].clone();
     index += 1;
 
@@ -684,7 +740,7 @@ fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
     }
 
     if index >= tokens.len() || tokens[index] != ")" {
-        return Err(ErrorHandler::ParseError("Expected ')'".to_string()));
+        return Err(ErrorHandler::ParseError("Expected ')'. Good luck!".to_string()));
     }
 
     Ok((ASTNode::Operator(operator, operands), index + 1))
