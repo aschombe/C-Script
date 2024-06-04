@@ -12,5 +12,5 @@
 (print sum)
 
 // (while <condition> <body>)
-//(let i 0)
-//(while (lt i 5) ((print i) (set i (add i 1))))
+//(let k 0)
+//(while (lt k 5) ((print k) (set k (add k 1))))

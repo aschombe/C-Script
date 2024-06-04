@@ -77,14 +77,14 @@ impl Interpreter {
                 /*
                 Arithmetic operators:
                 */
-                "+" | "add" => {
+                "add" => {
                     let mut result: f64 = 0.0;
                     for operand in operands {
                         result += self.eval_ast(operand)?.unwrap();
                     }
                     Ok(Some(result))
                 }
-                "-" | "subtract" | "sub" => {
+                "sub" => {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty subtraction".to_string()));
                     }
@@ -94,14 +94,14 @@ impl Interpreter {
                     }
                     Ok(Some(result))
                 }
-                "*" | "multiply" | "mul" => {
+                "mul" => {
                     let mut result: f64 = 1.0;
                     for operand in operands {
                         result *= self.eval_ast(operand)?.unwrap();
                     }
                     Ok(Some(result))
                 }
-                "/" | "divide" | "div" => {
+                "div" => {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty division".to_string()));
                     }
@@ -115,7 +115,7 @@ impl Interpreter {
                     }
                     Ok(Some(result))
                 }
-                "%" | "modulo" | "mod" => {
+                "mod" => {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty modulo".to_string()));
                     }

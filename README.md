@@ -26,7 +26,7 @@ The file should have the extension `.rss`. You can find some example files in th
 ## Features
 - [x] Print Statements
 - [x] Comments (single line comments)
-- [x] Arithmetic Operations (addition, subtraction, multiplication, division, modulo)
+- [x] Arithmetic Operations (add, sub, mul, div, mod)
 - [x] Math Functions (min, max, pow, sqrt, sin, cos, tan, abs, zero?, even?, odd?, pos?, neg?)
 - [x] Comparison Operations (eq?, neq?, gt?, lt?, gte?, lte?)
 - [x] And, Or, Not
