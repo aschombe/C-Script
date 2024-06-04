@@ -81,7 +81,6 @@ impl Interpreter {
                     Err(ErrorHandler::VariableNotFound(val.clone()))
                 }
             }
-
             ASTNode::Operator(op, operands) => match op.as_str() {
                 "base" => {
                     if operands.len() != 1 {
@@ -99,7 +98,7 @@ impl Interpreter {
                             op
                         )));
                     }
-
+    
                     if let ASTNode::Value(name) = &operands[0] {
                         if let ASTNode::Operator(_, param_nodes) = &operands[1] {
                             let params: Vec<String> = param_nodes
@@ -111,10 +110,10 @@ impl Interpreter {
                                     )),
                                 })
                                 .collect::<Result<Vec<_>, _>>()?;
-
+    
                             let body: ASTNode = operands[2].clone();
                             let func: Function = Function { params, body };
-
+    
                             self.functions.insert(name.clone(), func);
                             Ok(None)
                         } else {
@@ -135,7 +134,7 @@ impl Interpreter {
                             op
                         )));
                     }
-
+    
                     if let ASTNode::Value(name) = &operands[0] {
                         if let Some(func) = self.functions.get(name) {
                             if operands.len() - 1 != func.params.len() {
@@ -144,31 +143,31 @@ impl Interpreter {
                                     name
                                 )));
                             }
-
+    
                             let mut local_interpreter: Interpreter = Interpreter {
                                 variables: self.variables.clone(),
                                 functions: self.functions.clone(),
                             };
-
+    
                             let mut local_vars: HashMap<String, f64> =
                                 local_interpreter.variables.clone();
                             let local_funcs: HashMap<String, Function> =
                                 local_interpreter.functions.clone();
-
+    
                             let mut results: Vec<f64> = Vec::new();
                             for arg in &operands[1..] {
                                 if let Some(val) = local_interpreter.eval_ast(arg)? {
                                     results.push(val);
                                 }
                             }
-
+    
                             for (param, result) in func.params.iter().zip(results) {
                                 local_vars.insert(param.clone(), result);
                             }
-
+    
                             local_interpreter.variables = local_vars;
                             local_interpreter.functions = local_funcs;
-
+    
                             local_interpreter.eval_ast(&func.body)
                         } else {
                             Err(ErrorHandler::FunctionNotFound(name.clone()))
@@ -266,8 +265,7 @@ impl Interpreter {
                     } else {
                         let i: usize = 2;
                         while i < operands.len() {
-                            if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i]
-                            {
+                            if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i] {
                                 match cond_op.as_str() {
                                     "else" => {
                                         if cond_operands.len() != 1 {
@@ -569,7 +567,7 @@ impl Interpreter {
                             "Invalid number of operands for 'for'".to_string(),
                         ));
                     }
-
+    
                     if let ASTNode::Value(var) = &operands[0] {
                         let start: f64 = match self.eval_ast(&operands[1])? {
                             Some(val) => val,
@@ -580,36 +578,18 @@ impl Interpreter {
                             None => return Err(ErrorHandler::ParseError("Invalid for syntax".to_string())),
                         };
                         let body: &ASTNode = &operands[3];
-
-                        let mut result: f64 = 0.0;
+    
+                        let mut result: Option<f64> = None;
                         for i in (start as i32)..(end as i32) {
                             self.variables.insert(var.clone(), i as f64);
-                            result = self.eval_ast(body)?.unwrap();
+                            result = self.eval_ast(body)?;
                         }
-
-                        Ok(Some(result))
+    
+                        Ok(result)
                     } else {
                         Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
                     }
                 }
-                // (while <condition> <body>)
-                // "while" => {
-                //     if operands.len() != 2 {
-                //         return Err(ErrorHandler::ParseError(
-                //             "Invalid number of operands for 'while'".to_string(),
-                //         ));
-                //     }
-
-                //     let condition: &ASTNode = &operands[0];
-                //     let body: &ASTNode = &operands[1];
-
-                //     let mut result: f64 = 0.0;
-                //     while self.eval_ast(condition)? != 0.0 {
-                //         result = self.eval_ast(body)?;
-                //     }
-
-                //     Ok(result)
-                // }
                 "exit" => {
                     if operands.len() != 1 {
                         return Err(ErrorHandler::ParseError(
@@ -629,14 +609,14 @@ impl Interpreter {
                             println!("{}: {}", var, val);
                         }
                     }
-
+    
                     if !self.functions.is_empty() {
                         println!("Functions:");
                         for (func, f) in &self.functions {
                             println!("{}: {:?}", func, f);
                         }
                     }
-
+    
                     Ok(None)
                 }
                 _ => Err(ErrorHandler::UnknownOperator(op.clone())),

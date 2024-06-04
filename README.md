@@ -33,7 +33,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Nested Expressions
 - [x] Variables (let, set, get, del)
 - [x] Floating point numbers
-<!-- - [x] For loops -->
+- [x] For loops
 - [x] Control Flow (if, else)
 - [x] Add boolean keywords (0 is False, 1 is True)
 - [x] Expansive Examples in the examples directory
@@ -41,7 +41,6 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Exit function (exits the interpreter) syntax: (exit num)
 
 ## Todo
-- [ ] Loops cause rust to panic (Called unwrap on none value), need to fix this
 - [ ] Put print statement output after the output for the line being interpreted, and dont print a 0 for every successful line
 - [ ] Support for code spanning multiple lines
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)
