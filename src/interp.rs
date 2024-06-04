@@ -10,6 +10,7 @@ pub enum ErrorHandler {
     ParseError(String),
     VariableNotFound(String),
     FunctionNotFound(String),
+    StackOverflow,
 }
 
 impl fmt::Display for ErrorHandler {
@@ -22,6 +23,7 @@ impl fmt::Display for ErrorHandler {
             ErrorHandler::FunctionNotFound(func) => {
                 write!(f, "Error: Function '{}' not found", func)
             }
+            ErrorHandler::StackOverflow => write!(f, "Error: Stack overflow"),
         }
     }
 }
@@ -78,6 +80,7 @@ pub struct Interpreter {
     variables: HashMap<String, f64>,
     functions: HashMap<String, Function>,
     tape: Tape,
+    max_recusion_depth: usize,
 }
 
 impl Clone for Tape {
@@ -96,6 +99,7 @@ impl Interpreter {
             variables: HashMap::new(),
             functions: HashMap::new(),
             tape: Tape::new(),
+            max_recusion_depth: 1000,
         }
     }
 
@@ -107,7 +111,7 @@ impl Interpreter {
 
         while self.tape.pc < self.tape.nodes.len() {
             let node = self.tape.current_node().cloned().ok_or(ErrorHandler::ParseError("No current node".to_string()))?;
-            match self.eval_ast(&node) {
+            match self.eval_ast(&node, 0) {
                 Ok(result) => {
                     println!("{}", result);
                     self.tape.advance();
@@ -119,7 +123,8 @@ impl Interpreter {
         Ok(())
     }
 
-    fn eval_ast(&mut self, node: &ASTNode) -> Result<f64, ErrorHandler> {
+    // fn eval_ast(&mut self, node: &ASTNode) -> Result<f64, ErrorHandler> {
+    fn eval_ast(&mut self, node: &ASTNode, depth: usize) -> Result<f64, ErrorHandler> {
         match node {
             ASTNode::NoOp => Ok(0.0),
             ASTNode::Value(val) => {
@@ -172,7 +177,7 @@ impl Interpreter {
                             op
                         )));
                     }
-                    self.eval_ast(&operands[0])
+                    self.eval_ast(&operands[0], depth)
                 }
                 "func" => {
                     if operands.len() != 3 {
@@ -211,6 +216,10 @@ impl Interpreter {
                     }
                 }
                 "call" => {
+                    if depth >= self.max_recusion_depth {
+                        return Err(ErrorHandler::StackOverflow);
+                    }
+
                     if operands.len() < 1 {
                         return Err(ErrorHandler::ParseError(format!(
                             "Invalid syntax for '{}'",
@@ -231,6 +240,7 @@ impl Interpreter {
                                 variables: self.variables.clone(),
                                 functions: self.functions.clone(),
                                 tape: Tape::new(),
+                                max_recusion_depth: self.max_recusion_depth - 1,
                             };
 
                             let mut local_vars: HashMap<String, f64> =
@@ -240,7 +250,7 @@ impl Interpreter {
 
                             let mut results: Vec<f64> = Vec::new();
                             for arg in &operands[1..] {
-                                results.push(local_interpreter.eval_ast(arg)?);
+                                results.push(local_interpreter.eval_ast(arg, depth + 1)?);
                             }
 
                             for (param, result) in func.params.iter().zip(results) {
@@ -250,7 +260,7 @@ impl Interpreter {
                             local_interpreter.variables = local_vars;
                             local_interpreter.functions = local_funcs;
 
-                            local_interpreter.eval_ast(&func.body)
+                            local_interpreter.eval_ast(&func.body, depth + 1)
                         } else {
                             Err(ErrorHandler::FunctionNotFound(name.clone()))
                         }
@@ -268,7 +278,7 @@ impl Interpreter {
                         )));
                     }
                     if let ASTNode::Value(var) = &operands[0] {
-                        let value: f64 = self.eval_ast(&operands[1])?;
+                        let value: f64 = self.eval_ast(&operands[1], depth)?;
                         if self.variables.contains_key(var) {
                             return Err(ErrorHandler::ParseError(format!(
                                 "Variable '{}' already exists",
@@ -289,7 +299,7 @@ impl Interpreter {
                         )));
                     }
                     if let ASTNode::Value(var) = &operands[0] {
-                        let value: f64 = self.eval_ast(&operands[1])?;
+                        let value: f64 = self.eval_ast(&operands[1], depth)?;
                         if !self.variables.contains_key(var) {
                             return Err(ErrorHandler::ParseError(format!(
                                 "Variable '{}' not found",
@@ -332,9 +342,9 @@ impl Interpreter {
                             op
                         )));
                     }
-                    let condition: f64 = self.eval_ast(&operands[0])?;
+                    let condition: f64 = self.eval_ast(&operands[0], depth)?;
                     if condition != 0.0 {
-                        self.eval_ast(&operands[1])
+                        self.eval_ast(&operands[1], depth)
                     } else {
                         let i = 2;
                         while i < operands.len() {
@@ -347,7 +357,7 @@ impl Interpreter {
                                                 cond_op
                                             )));
                                         }
-                                        return self.eval_ast(&cond_operands[0]);
+                                        return self.eval_ast(&cond_operands[0], depth);
                                     }
                                     _ => return Err(ErrorHandler::ParseError(
                                         "Invalid conditional syntax".to_string(),
@@ -364,7 +374,7 @@ impl Interpreter {
                 }
                 "print" => {
                     for operand in operands {
-                        let result: f64 = self.eval_ast(operand)?;
+                        let result: f64 = self.eval_ast(operand, depth)?;
                         println!("{}", result);
                     }
                     Ok(0.0)
@@ -372,7 +382,7 @@ impl Interpreter {
                 "+" | "add" => {
                     let mut result: f64 = 0.0;
                     for operand in operands {
-                        result += self.eval_ast(operand)?;
+                        result += self.eval_ast(operand, depth)?;
                     }
                     Ok(result)
                 }
@@ -380,16 +390,16 @@ impl Interpreter {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty subtraction".to_string()));
                     }
-                    let mut result: f64 = self.eval_ast(&operands[0])?;
+                    let mut result: f64 = self.eval_ast(&operands[0], depth)?;
                     for operand in &operands[1..] {
-                        result -= self.eval_ast(operand)?;
+                        result -= self.eval_ast(operand, depth)?;
                     }
                     Ok(result)
                 }
                 "*" | "multiply" | "mul" => {
                     let mut result: f64 = 1.0;
                     for operand in operands {
-                        result *= self.eval_ast(operand)?;
+                        result *= self.eval_ast(operand, depth)?;
                     }
                     Ok(result)
                 }
@@ -397,9 +407,9 @@ impl Interpreter {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty division".to_string()));
                     }
-                    let mut result: f64 = self.eval_ast(&operands[0])?;
+                    let mut result: f64 = self.eval_ast(&operands[0], depth)?;
                     for operand in &operands[1..] {
-                        let divisor: f64 = self.eval_ast(operand)?;
+                        let divisor: f64 = self.eval_ast(operand, depth)?;
                         if divisor == 0.0 {
                             return Err(ErrorHandler::DivisionByZero);
                         }
@@ -411,9 +421,9 @@ impl Interpreter {
                     if operands.is_empty() {
                         return Err(ErrorHandler::ParseError("Empty modulo".to_string()));
                     }
-                    let mut result: f64 = self.eval_ast(&operands[0])?;
+                    let mut result: f64 = self.eval_ast(&operands[0], depth)?;
                     for operand in &operands[1..] {
-                        let divisor: f64 = self.eval_ast(operand)?;
+                        let divisor: f64 = self.eval_ast(operand, depth)?;
                         if divisor == 0.0 {
                             return Err(ErrorHandler::DivisionByZero);
                         }
@@ -424,7 +434,7 @@ impl Interpreter {
                 "max" => {
                     let mut max_val: f64 = f64::MIN;
                     for operand in operands {
-                        let val: f64 = self.eval_ast(operand)?;
+                        let val: f64 = self.eval_ast(operand, depth)?;
                         if val > max_val {
                             max_val = val;
                         }
@@ -434,7 +444,7 @@ impl Interpreter {
                 "min" => {
                     let mut min_val: f64 = f64::MAX;
                     for operand in operands {
-                        let val: f64 = self.eval_ast(operand)?;
+                        let val: f64 = self.eval_ast(operand, depth)?;
                         if val < min_val {
                             min_val = val;
                         }
@@ -447,8 +457,8 @@ impl Interpreter {
                             "Invalid number of operands for 'pow'".to_string(),
                         ));
                     }
-                    let base: f64 = self.eval_ast(&operands[0])?;
-                    let exp: f64 = self.eval_ast(&operands[1])?;
+                    let base: f64 = self.eval_ast(&operands[0], depth)?;
+                    let exp: f64 = self.eval_ast(&operands[1], depth)?;
                     Ok(base.powf(exp))
                 }
                 "sqrt" => {
@@ -457,7 +467,7 @@ impl Interpreter {
                             "Invalid number of operands for 'sqrt'".to_string(),
                         ));
                     }
-                    Ok(self.eval_ast(&operands[0])?.sqrt())
+                    Ok(self.eval_ast(&operands[0], depth)?.sqrt())
                 }
                 "sin" => {
                     if operands.len() != 1 {
@@ -465,7 +475,7 @@ impl Interpreter {
                             "Invalid number of operands for 'sin'".to_string(),
                         ));
                     }
-                    Ok(self.eval_ast(&operands[0])?.sin())
+                    Ok(self.eval_ast(&operands[0], depth)?.sin())
                 }
                 "cos" => {
                     if operands.len() != 1 {
@@ -473,7 +483,7 @@ impl Interpreter {
                             "Invalid number of operands for 'cos'".to_string(),
                         ));
                     }
-                    Ok(self.eval_ast(&operands[0])?.cos())
+                    Ok(self.eval_ast(&operands[0], depth)?.cos())
                 }
                 "tan" => {
                     if operands.len() != 1 {
@@ -481,7 +491,7 @@ impl Interpreter {
                             "Invalid number of operands for 'tan'".to_string(),
                         ));
                     }
-                    Ok(self.eval_ast(&operands[0])?.tan())
+                    Ok(self.eval_ast(&operands[0], depth)?.tan())
                 }
                 "abs" => {
                     if operands.len() != 1 {
@@ -489,7 +499,7 @@ impl Interpreter {
                             "Invalid number of operands for 'abs'".to_string(),
                         ));
                     }
-                    Ok(self.eval_ast(&operands[0])?.abs())
+                    Ok(self.eval_ast(&operands[0], depth)?.abs())
                 }
                 "zero?" => {
                     if operands.len() != 1 {
@@ -497,7 +507,7 @@ impl Interpreter {
                             "Invalid number of operands for 'zero?'".to_string(),
                         ));
                     }
-                    Ok((self.eval_ast(&operands[0])? == 0.0) as i32 as f64)
+                    Ok((self.eval_ast(&operands[0], depth)? == 0.0) as i32 as f64)
                 }
                 "even?" => {
                     if operands.len() != 1 {
@@ -505,7 +515,7 @@ impl Interpreter {
                             "Invalid number of operands for 'even?'".to_string(),
                         ));
                     }
-                    Ok((self.eval_ast(&operands[0])? % 2.0 == 0.0) as i32 as f64)
+                    Ok((self.eval_ast(&operands[0], depth)? % 2.0 == 0.0) as i32 as f64)
                 }
                 "odd?" => {
                     if operands.len() != 1 {
@@ -513,7 +523,7 @@ impl Interpreter {
                             "Invalid number of operands for 'odd?'".to_string(),
                         ));
                     }
-                    Ok((self.eval_ast(&operands[0])? % 2.0 != 0.0) as i32 as f64)
+                    Ok((self.eval_ast(&operands[0], depth)? % 2.0 != 0.0) as i32 as f64)
                 }
                 "pos?" => {
                     if operands.len() != 1 {
@@ -521,7 +531,7 @@ impl Interpreter {
                             "Invalid number of operands for 'pos?'".to_string(),
                         ));
                     }
-                    Ok((self.eval_ast(&operands[0])? > 0.0) as i32 as f64)
+                    Ok((self.eval_ast(&operands[0], depth)? > 0.0) as i32 as f64)
                 }
                 "neg?" => {
                     if operands.len() != 1 {
@@ -529,7 +539,7 @@ impl Interpreter {
                             "Invalid number of operands for 'neg?'".to_string(),
                         ));
                     }
-                    Ok((self.eval_ast(&operands[0])? < 0.0) as i32 as f64)
+                    Ok((self.eval_ast(&operands[0], depth)? < 0.0) as i32 as f64)
                 }
                 "eq?" => {
                     if operands.len() != 2 {
@@ -538,7 +548,7 @@ impl Interpreter {
                         ));
                     }
                     Ok(
-                        (self.eval_ast(&operands[0])? == self.eval_ast(&operands[1])?) as i32
+                        (self.eval_ast(&operands[0], depth)? == self.eval_ast(&operands[1], depth)?) as i32
                             as f64,
                     )
                 }
@@ -549,7 +559,7 @@ impl Interpreter {
                         ));
                     }
                     Ok(
-                        (self.eval_ast(&operands[0])? != self.eval_ast(&operands[1])?) as i32
+                        (self.eval_ast(&operands[0], depth)? != self.eval_ast(&operands[1], depth)?) as i32
                             as f64,
                     )
                 }
@@ -559,7 +569,7 @@ impl Interpreter {
                             "Invalid number of operands for 'lt?'".to_string(),
                         ));
                     }
-                    Ok((self.eval_ast(&operands[0])? < self.eval_ast(&operands[1])?) as i32 as f64)
+                    Ok((self.eval_ast(&operands[0], depth)? < self.eval_ast(&operands[1], depth)?) as i32 as f64)
                 }
                 "lte?" => {
                     if operands.len() != 2 {
@@ -568,7 +578,7 @@ impl Interpreter {
                         ));
                     }
                     Ok(
-                        (self.eval_ast(&operands[0])? <= self.eval_ast(&operands[1])?) as i32
+                        (self.eval_ast(&operands[0], depth)? <= self.eval_ast(&operands[1], depth)?) as i32
                             as f64,
                     )
                 }
@@ -578,7 +588,7 @@ impl Interpreter {
                             "Invalid number of operands for 'gt?'".to_string(),
                         ));
                     }
-                    Ok((self.eval_ast(&operands[0])? > self.eval_ast(&operands[1])?) as i32 as f64)
+                    Ok((self.eval_ast(&operands[0], depth)? > self.eval_ast(&operands[1], depth)?) as i32 as f64)
                 }
                 "gte?" => {
                     if operands.len() != 2 {
@@ -587,7 +597,7 @@ impl Interpreter {
                         ));
                     }
                     Ok(
-                        (self.eval_ast(&operands[0])? >= self.eval_ast(&operands[1])?) as i32
+                        (self.eval_ast(&operands[0], depth)? >= self.eval_ast(&operands[1], depth)?) as i32
                             as f64,
                     )
                 }
@@ -599,7 +609,7 @@ impl Interpreter {
                     }
                     let mut result: f64 = 1.0;
                     for operand in operands {
-                        let val: f64 = self.eval_ast(operand)?;
+                        let val: f64 = self.eval_ast(operand, depth)?;
                         if val == 0.0 {
                             result = 0.0;
                             break;
@@ -615,7 +625,7 @@ impl Interpreter {
                     }
                     let mut result: f64 = 0.0;
                     for operand in operands {
-                        let val: f64 = self.eval_ast(operand)?;
+                        let val: f64 = self.eval_ast(operand, depth)?;
                         if val != 0.0 {
                             result = 1.0;
                             break;
@@ -629,7 +639,7 @@ impl Interpreter {
                             "Invalid number of operands for 'not'".to_string(),
                         ));
                     }
-                    Ok((self.eval_ast(&operands[0])? == 0.0) as i32 as f64)
+                    Ok((self.eval_ast(&operands[0], depth)? == 0.0) as i32 as f64)
                 }
                 "for" => {
                     if operands.len() != 4 {
@@ -639,14 +649,14 @@ impl Interpreter {
                     }
 
                     if let ASTNode::Value(var) = &operands[0] {
-                        let start: f64 = self.eval_ast(&operands[1])?;
-                        let end: f64 = self.eval_ast(&operands[2])?;
+                        let start: f64 = self.eval_ast(&operands[1], depth)?;
+                        let end: f64 = self.eval_ast(&operands[2], depth)?;
                         let body: &ASTNode = &operands[3];
 
                         let mut result: f64 = 0.0;
                         for i in (start as i32)..(end as i32) {
                             self.variables.insert(var.clone(), i as f64);
-                            result = self.eval_ast(body)?;
+                            result = self.eval_ast(body, depth)?;
                         }
 
                         Ok(result)
@@ -657,35 +667,35 @@ impl Interpreter {
                 // (while <condition> <body>)
                 // condition can be a variable or an expression
                 // body is a list of expressions to be evaluated sequentially
-                "while" => {
-                    if operands.len() != 2 {
-                        return Err(ErrorHandler::ParseError(
-                            "Invalid number of operands for 'while'".to_string(),
-                        ));
-                    }
+                // "while" => {
+                //     if operands.len() != 2 {
+                //         return Err(ErrorHandler::ParseError(
+                //             "Invalid number of operands for 'while'".to_string(),
+                //         ));
+                //     }
 
-                    let condition = &operands[0];
-                    let body = &operands[1];
+                //     let condition = &operands[0];
+                //     let body = &operands[1];
 
-                    while self.eval_ast(condition)? != 0.0 {
-                        if let ASTNode::Operator(_, body_exprs) = body {
-                            for expr in body_exprs {
-                                self.eval_ast(expr)?;
-                            }
-                        } else {
-                            self.eval_ast(body)?;
-                        }
-                    }
+                //     while self.eval_ast(condition)? != 0.0 {
+                //         if let ASTNode::Operator(_, body_exprs) = body {
+                //             for expr in body_exprs {
+                //                 self.eval_ast(expr)?;
+                //             }
+                //         } else {
+                //             self.eval_ast(body)?;
+                //         }
+                //     }
 
-                    Ok(0.0)
-                }
+                //     Ok(0.0)
+                // }
                 "exit" => {
                     if operands.len() != 1 {
                         return Err(ErrorHandler::ParseError(
                             "Invalid number of operands for 'exit'".to_string(),
                         ));
                     }
-                    let code: f64 = self.eval_ast(&operands[0])?;
+                    let code: f64 = self.eval_ast(&operands[0], depth)?;
                     std::process::exit(code as i32);
                 }
                 "debug" => {

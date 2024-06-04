@@ -15,5 +15,5 @@
 // Fibonacci
 (func fib ("" x) (if (or (eq? x 0) (eq? x 1)) (base x) (else (add (call fib (sub x 1)) (call fib (sub x 2))))))
 (call fib 10)
-
+(call fib 25)
 // Pascal's Triangle nth row using the (print x y z) function

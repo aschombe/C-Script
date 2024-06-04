@@ -1,7 +1,5 @@
 # Rust Explorer
 
-# NOTE: THIS IS GOING TO BE REBUILT FROM THE GROUND UP, THE CURRENT IMPLEMENTATION IS A MESS AND I WANT TO REBUILD IT WITH A BETTER UNDERSTANDING OF HOW TO STRUCTURE AN INTERPRETER
-
 ## Description
 This is an interpreter written in rust.
 
@@ -26,6 +24,7 @@ Run the interpreter by running the following command:
 The file should have the extension `.rss`. You can find some example files in the `examples` directory.
 
 ## Features
+- [x] Tape based interpreter
 - [x] Print Statements
 - [x] Comments (single line comments)
 - [x] Arithmetic Operations (addition, subtraction, multiplication, division, modulo)
@@ -45,14 +44,12 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Exit function (exits the interpreter) syntax: (exit num)
 
 ## Todo
-- [ ] REBIULD FROM THE GROUND UP WITH BETTER SEPARATION OF COMPONENTS AND TAPE BASED INTERPRETATION
 - [ ] Stack overflow errors for recursion and variable stack
-- [ ] Put print statement output after the output for the line being interpreted
+- [ ] Put print statement output after the output for the line being interpreted, and dont print a 0 for every successful line
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while (giving me a headache))
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)
 - [ ] Maybe Type checking
-- [ ] Potentially convert the entire language over to tape based to make certain things easier (like labels and jumps)
 
 ## Notes
 - Empty parenthesis '()' are evaluated to 0.0
