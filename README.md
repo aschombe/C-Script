@@ -44,7 +44,7 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Stack overflow errors for recursive function calls
 
 ## Todo
-- [ ] Functions are broken, fix them (or just add a return similarly to BL and RET in assembly, completely get rid of functions and base and call and just use labels and jumps)
+- [ ] Remove functions and implement BL and RET instructions
 - [ ] Put print statement output after the output for the line being interpreted, and dont print a 0 for every successful line
 - [ ] Support for code spanning multiple lines
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)
