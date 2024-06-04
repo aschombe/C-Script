@@ -42,9 +42,8 @@ The file should have the extension `.rss`. You can find some example files in th
 - [x] Debug function (prints the current state of the interpreter (variables and functions)) syntax: (debug)
 - [x] For loops
 - [x] Exit function (exits the interpreter) syntax: (exit num)
-
+- [x] Stack overflow errors for resursive function calls
 ## Todo
-- [ ] Stack overflow errors for recursion and variable stack
 - [ ] Put print statement output after the output for the line being interpreted, and dont print a 0 for every successful line
 - [ ] Support for code spanning multiple lines
 - [ ] Loops (while (giving me a headache))
