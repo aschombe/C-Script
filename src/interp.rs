@@ -255,12 +255,6 @@ impl Interpreter {
                         Ok(None)
                     }
                 }
-                // switch syntax:
-                // (switch (variable)
-                //    (case (expression) (body))
-                //    (case (expression) (body))
-                //    (default (body)))
-                // )
                 "switch" => {
                     if operands.len() < 2 {
                         return Err(ErrorHandler::ParseError(format!("Invalid syntax for '{}'", op)));
