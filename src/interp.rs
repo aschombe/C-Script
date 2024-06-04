@@ -6,21 +6,25 @@ use std::path::PathBuf;
 #[derive(Debug)]
 pub enum ErrorHandler {
     DivisionByZero,
-    UnknownOperator(String),
+    // UnknownOperator(String),
     ParseError(String),
     VariableNotFound(String),
-    FunctionNotFound(String),
+    // FunctionOrVariableNotFound(String),
+    FunctionOrOperatorNotFound(String),
 }
 
 impl fmt::Display for ErrorHandler {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             ErrorHandler::DivisionByZero => write!(f, "Error: Division by zero"),
-            ErrorHandler::UnknownOperator(op) => write!(f, "Error: Unknown operator '{}'", op),
+            // ErrorHandler::UnknownOperator(op) => write!(f, "Error: Unknown operator '{}'", op),
             ErrorHandler::ParseError(err) => write!(f, "Error: Parse error - {}", err),
             ErrorHandler::VariableNotFound(var) => write!(f, "Error: Variable '{}' not found", var),
-            ErrorHandler::FunctionNotFound(func) => {
-                write!(f, "Error: Function '{}' not found", func)
+            // ErrorHandler::FunctionOrVariableNotFound(name) => {
+                // write!(f, "Error: Function or variable '{}' not found", name)
+            // }
+            ErrorHandler::FunctionOrOperatorNotFound(name) => {
+                write!(f, "Error: Function or operator '{}' not found", name)
             }
         }
     }
@@ -98,7 +102,7 @@ impl Interpreter {
                             op
                         )));
                     }
-    
+
                     if let ASTNode::Value(name) = &operands[0] {
                         if let ASTNode::Operator(_, param_nodes) = &operands[1] {
                             let params: Vec<String> = param_nodes
@@ -110,10 +114,12 @@ impl Interpreter {
                                     )),
                                 })
                                 .collect::<Result<Vec<_>, _>>()?;
-    
-                            let body: ASTNode = operands[2].clone();
-                            let func: Function = Function { params, body };
-    
+
+                            let params_clone = params.clone();
+                            let body = &operands[2]; // Add this line to fix the issue
+                            println!("{}: {:?} {:?}", name, params_clone, body);
+
+                            let func: Function = Function { params: params_clone, body: body.clone() };
                             self.functions.insert(name.clone(), func);
                             Ok(None)
                         } else {
@@ -127,57 +133,57 @@ impl Interpreter {
                         ))
                     }
                 }
-                "call" => {
-                    if operands.len() < 1 {
-                        return Err(ErrorHandler::ParseError(format!(
-                            "Invalid syntax for '{}'",
-                            op
-                        )));
-                    }
-    
-                    if let ASTNode::Value(name) = &operands[0] {
-                        if let Some(func) = self.functions.get(name) {
-                            if operands.len() - 1 != func.params.len() {
-                                return Err(ErrorHandler::ParseError(format!(
-                                    "Invalid number of arguments for function '{}'",
-                                    name
-                                )));
-                            }
-    
-                            let mut local_interpreter: Interpreter = Interpreter {
-                                variables: self.variables.clone(),
-                                functions: self.functions.clone(),
-                            };
-    
-                            let mut local_vars: HashMap<String, f64> =
-                                local_interpreter.variables.clone();
-                            let local_funcs: HashMap<String, Function> =
-                                local_interpreter.functions.clone();
-    
-                            let mut results: Vec<f64> = Vec::new();
-                            for arg in &operands[1..] {
-                                if let Some(val) = local_interpreter.eval_ast(arg)? {
-                                    results.push(val);
-                                }
-                            }
-    
-                            for (param, result) in func.params.iter().zip(results) {
-                                local_vars.insert(param.clone(), result);
-                            }
-    
-                            local_interpreter.variables = local_vars;
-                            local_interpreter.functions = local_funcs;
-    
-                            local_interpreter.eval_ast(&func.body)
-                        } else {
-                            Err(ErrorHandler::FunctionNotFound(name.clone()))
-                        }
-                    } else {
-                        Err(ErrorHandler::ParseError(
-                            "Invalid function name".to_string(),
-                        ))
-                    }
-                }
+                // "call" => {
+                //     if operands.len() < 1 {
+                //         return Err(ErrorHandler::ParseError(format!(
+                //             "Invalid syntax for '{}'",
+                //             op
+                //         )));
+                //     }
+
+                //     if let ASTNode::Value(name) = &operands[0] {
+                //         if let Some(func) = self.functions.get(name) {
+                //             if operands.len() - 1 != func.params.len() {
+                //                 return Err(ErrorHandler::ParseError(format!(
+                //                     "Invalid number of arguments for function '{}'",
+                //                     name
+                //                 )));
+                //             }
+
+                //             let mut local_interpreter: Interpreter = Interpreter {
+                //                 variables: self.variables.clone(),
+                //                 functions: self.functions.clone(),
+                //             };
+
+                //             let mut local_vars: HashMap<String, f64> =
+                //                 local_interpreter.variables.clone();
+                //             let local_funcs: HashMap<String, Function> =
+                //                 local_interpreter.functions.clone();
+
+                //             let mut results: Vec<f64> = Vec::new();
+                //             for arg in &operands[1..] {
+                //                 if let Some(val) = local_interpreter.eval_ast(arg)? {
+                //                     results.push(val);
+                //                 }
+                //             }
+
+                //             for (param, result) in func.params.iter().zip(results) {
+                //                 local_vars.insert(param.clone(), result);
+                //             }
+
+                //             local_interpreter.variables = local_vars;
+                //             local_interpreter.functions = local_funcs;
+
+                //             local_interpreter.eval_ast(&func.body)
+                //         } else {
+                //             Err(ErrorHandler::FunctionNotFound(name.clone()))
+                //         }
+                //     } else {
+                //         Err(ErrorHandler::ParseError(
+                //             "Invalid function name".to_string(),
+                //         ))
+                //     }
+                // }
                 "let" => {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError(format!(
@@ -619,7 +625,45 @@ impl Interpreter {
     
                     Ok(None)
                 }
-                _ => Err(ErrorHandler::UnknownOperator(op.clone())),
+                _ => {
+                    // Handle function calls directly in the operator case
+                    if let Some(func) = self.functions.get(op) {
+                        if operands.len() != func.params.len() {
+                            return Err(ErrorHandler::ParseError(format!(
+                                "Invalid number of arguments for function '{}'",
+                                op
+                            )));
+                        }
+
+                        let mut local_interpreter: Interpreter = Interpreter {
+                            variables: self.variables.clone(),
+                            functions: self.functions.clone(),
+                        };
+
+                        let mut local_vars: HashMap<String, f64> =
+                            local_interpreter.variables.clone();
+                        let local_funcs: HashMap<String, Function> =
+                            local_interpreter.functions.clone();
+
+                        let mut results: Vec<f64> = Vec::new();
+                        for arg in operands {
+                            if let Some(val) = local_interpreter.eval_ast(arg)? {
+                                results.push(val);
+                            }
+                        }
+
+                        for (param, result) in func.params.iter().zip(results) {
+                            local_vars.insert(param.clone(), result);
+                        }
+
+                        local_interpreter.variables = local_vars;
+                        local_interpreter.functions = local_funcs;
+
+                        local_interpreter.eval_ast(&func.body)
+                    } else {
+                        Err(ErrorHandler::FunctionOrOperatorNotFound(op.clone()))
+                    }
+                }
             },
         }
     }
