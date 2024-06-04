@@ -1,7 +1,7 @@
 # Rust Explorer
 
 ## Description
-This is an interpreter written in rust.
+This is an interpreter written in rust. Open to feature suggestions.
 
 ## Table of Contents
 - [Rust Explorer](#rust-explorer)
