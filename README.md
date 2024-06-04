@@ -48,7 +48,7 @@ The file should have the extension `.rss`. You can find some example files in th
 ## Todo
 - [ ] While loops
 - [ ] Put print statement output after the output for the line being interpreted
-- [ ] Maybe Type checking (after strings)
+- [ ] Maybe Type checking
 
 ## Notes
 - Empty parenthesis '()' are evaluated to None
