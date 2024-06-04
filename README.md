@@ -44,7 +44,7 @@ The file should have the extension `.rss`. You can find some example files in th
 
 ## Todo
 - [ ] Support for code spanning multiple lines
-- [ ] Loops (while)
+- [ ] Loops (while (giving me a headache))
 - [ ] String Literals (for printing) (will probably need single quotes, to differentiate in the parser)
 - [ ] Lists denoted by []
 - [ ] Type checking
