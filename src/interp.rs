@@ -9,9 +9,7 @@ pub enum ErrorHandler {
     UnknownOperator(String),
     ParseError(String),
     VariableNotFound(String),
-    // FunctionNotFound(String),
-    // LabelNotFound(String),
-    // StackOverflow,
+    LabelNotFound(String),
 }
 
 impl fmt::Display for ErrorHandler {
@@ -21,20 +19,10 @@ impl fmt::Display for ErrorHandler {
             ErrorHandler::UnknownOperator(op) => write!(f, "Error: Unknown operator '{}'", op),
             ErrorHandler::ParseError(err) => write!(f, "Error: Parse error - {}", err),
             ErrorHandler::VariableNotFound(var) => write!(f, "Error: Variable '{}' not found", var),
-            // ErrorHandler::FunctionNotFound(func) => {
-            //     write!(f, "Error: Function '{}' not found", func)
-            // }
-            // ErrorHandler::LabelNotFound(label) => write!(f, "Error: Label '{}' not found", label),
-            // ErrorHandler::StackOverflow => write!(f, "Error: Stack overflow"),
+            ErrorHandler::LabelNotFound(label) => write!(f, "Error: Label '{}' not found", label),
         }
     }
 }
-
-// #[derive(Debug, Clone)]
-// struct Function {
-//     params: Vec<String>,
-//     body: ASTNode,
-// }
 
 #[derive(Debug)]
 pub struct Tape {
@@ -85,9 +73,7 @@ impl Tape {
 #[derive(Debug)]
 pub struct Interpreter {
     variables: HashMap<String, f64>,
-    // functions: HashMap<String, Function>,
     tape: Tape,
-    // max_recusion_depth: usize,
 }
 
 impl Clone for Tape {
@@ -105,9 +91,7 @@ impl Interpreter {
     pub fn new() -> Self {
         Interpreter {
             variables: HashMap::new(),
-            // functions: HashMap::new(),
             tape: Tape::new(),
-            // max_recusion_depth: 1000,
         }
     }
 
@@ -599,7 +583,7 @@ impl Interpreter {
                     /*
                     Function-ish related operators:
                     */
-                    "call" => {
+                    "proc" => {
                         if operands.len() != 1 {
                             return Err(ErrorHandler::ParseError(format!(
                                 "Invalid syntax for '{}'",
@@ -628,42 +612,6 @@ impl Interpreter {
                             Err(ErrorHandler::ParseError("No return address".to_string()))
                         }
                     }
-                    // "func" => {
-                    //     if operands.len() != 3 {
-                    //         return Err(ErrorHandler::ParseError(format!(
-                    //             "Invalid syntax for '{}'",
-                    //             op
-                    //         )));
-                    //     }
-
-                    //     if let ASTNode::Value(name) = &operands[0] {
-                    //         if let ASTNode::Operator(_, param_nodes) = &operands[1] {
-                    //             let params: Vec<String> = param_nodes
-                    //                 .iter()
-                    //                 .map(|param| match param {
-                    //                     ASTNode::Value(val) => Ok(val.clone()),
-                    //                     _ => Err(ErrorHandler::ParseError(
-                    //                         "Invalid parameter".to_string(),
-                    //                     )),
-                    //                 })
-                    //                 .collect::<Result<Vec<_>, _>>()?;
-
-                    //             let body: ASTNode = operands[2].clone();
-                    //             let func: Function = Function { params, body };
-
-                    //             self.functions.insert(name.clone(), func);
-                    //             Ok(None)
-                    //         } else {
-                    //             Err(ErrorHandler::ParseError(
-                    //                 "Invalid function parameters".to_string(),
-                    //             ))
-                    //         }
-                    //     } else {
-                    //         Err(ErrorHandler::ParseError(
-                    //             "Invalid function name".to_string(),
-                    //         ))
-                    //     }
-                    // }
                     "base" => {
                         if operands.len() != 1 {
                             return Err(ErrorHandler::ParseError(format!(
@@ -673,55 +621,6 @@ impl Interpreter {
                         }
                         self.eval_ast(&operands[0], depth)
                     }
-                    // "call" => {
-                    //     if depth >= self.max_recusion_depth {
-                    //         return Err(ErrorHandler::StackOverflow);
-                    //     }
-
-                    //     if operands.len() < 1 {
-                    //         return Err(ErrorHandler::ParseError(format!(
-                    //             "Invalid syntax for '{}'",
-                    //             op
-                    //         )));
-                    //     }
-
-                    //     if let ASTNode::Value(name) = &operands[0] {
-                    //         if let Some(func) = self.functions.get(name) {
-                    //             if operands.len() - 1 != func.params.len() {
-                    //                 return Err(ErrorHandler::ParseError(format!(
-                    //                     "Invalid number of arguments for function '{}'",
-                    //                     name
-                    //                 )));
-                    //             }
-
-                    //             let mut local_interpreter: Interpreter = Interpreter {
-                    //                 variables: self.variables.clone(),
-                    //                 functions: self.functions.clone(),
-                    //                 tape: Tape::new(),
-                    //                 max_recusion_depth: self.max_recusion_depth - 1,
-                    //             };
-
-                    //             // let _local_vars: HashMap<String, f64> =
-                    //             //     local_interpreter.variables.clone();
-                    //             let mut results: Vec<f64> = Vec::new();
-                    //             for arg in &operands[1..] {
-                    //                 if let Some(result) = local_interpreter.eval_ast(arg, depth + 1)? {
-                    //                     results.push(result);
-                    //                 } else {
-                    //                     return Err(ErrorHandler::ParseError("Invalid result".to_string()));
-                    //                 }
-                    //             }
-
-                    //             local_interpreter.eval_ast(&func.body, depth + 1)
-                    //         } else {
-                    //             Err(ErrorHandler::FunctionNotFound(name.clone()))
-                    //         }
-                    //     } else {
-                    //         Err(ErrorHandler::ParseError(
-                    //             "Invalid function name".to_string(),
-                    //         ))
-                    //     }
-                    // }
                     /*
                     Label and jump operators:
                     */
@@ -752,39 +651,7 @@ impl Interpreter {
                         } else {
                             Err(ErrorHandler::ParseError("Invalid jump syntax".to_string()))
                         }
-                    }
-                    /*
-                    Loop operators:
-                    */
-                    // "for" => {
-                    //     if operands.len() != 4 {
-                    //         return Err(ErrorHandler::ParseError(
-                    //             "Invalid number of operands for 'for'".to_string(),
-                    //         ));
-                    //     }
-
-                    //     if let ASTNode::Value(var) = &operands[0] {
-                    //         let start: f64 = match self.eval_ast(&operands[1], depth)? {
-                    //             Some(value) => value,
-                    //             None => return Err(ErrorHandler::ParseError("Invalid start value".to_string())),
-                    //         };
-                    //         let end: f64 = match self.eval_ast(&operands[2], depth)? {
-                    //             Some(value) => value,
-                    //             None => return Err(ErrorHandler::ParseError("Invalid end value".to_string())),
-                    //         };
-                    //         let body: &ASTNode = &operands[3];
-
-                    //         let mut result: f64 = 0.0;
-                    //         for i in (start as i32)..(end as i32) {
-                    //             self.variables.insert(var.clone(), i as f64);
-                    //             result = self.eval_ast(body, depth)?.unwrap();
-                    //         }
-
-                    //         Ok(Some(result))
-                    //     } else {
-                    //         Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
-                    //     }
-                    // }
+                    }                    
                     /*
                     Other operators:
                     */
@@ -815,13 +682,6 @@ impl Interpreter {
                                 println!("{}: {}", var, val);
                             }
                         }
-
-                        // if !self.functions.is_empty() {
-                        //     println!("Functions:");
-                        //     for (func, f) in &self.functions {
-                        //         println!("{}: {:?}", func, f);
-                        //     }
-                        // }
 
                         if !self.tape.labels.is_empty() {
                             println!("Labels:");
