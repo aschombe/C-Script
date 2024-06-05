@@ -7,6 +7,7 @@
 - [Examples](#examples)
 
 # Features
+- [x] [rss command line tool](rss.md)
 - [x] [Comments (single line comments)](comments.md)
 - [x] [Arithmetic Operations](arithmetic.md)
 - [x] [Math Functions](math_functions.md)
