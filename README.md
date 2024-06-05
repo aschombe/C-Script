@@ -52,7 +52,8 @@ The file should have the extension `.rss`. You can find some example files in th
 ## Todo
 - [ ] While loops
 - [ ] Put print statement output after the output for the line being interpreted
-
+- [ ] Create a bytecode for the language, and make a virtual machine to run the bytecode
+ 
 ## Notes
 - Empty parenthesis '()' are evaluated to None
 <!-- - Functions: (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything but (), but it must be there (or everything breaks) (fix this eventually)
