@@ -23,9 +23,10 @@ cargo run
 
 Run the interpreter by running the following command:
 ```bash
-./rss <path-to-file>
+./rss <flag> <path-to-file>
 ```
-The file should have the extension `.rss`. You can find some example files in the `examples` directory.
+The file should have the extension `.rss` or `rssc`. You can find some example files in the `examples` directory.
+More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 ## Features
 - [x] Print Statements
