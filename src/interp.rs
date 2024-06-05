@@ -560,7 +560,6 @@ impl Interpreter {
                         Err(ErrorHandler::ParseError("Invalid let syntax".to_string()))
                     }
                 }
-
                 "set" => {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError(format!(
@@ -711,6 +710,77 @@ impl Interpreter {
                         text.chars()
                             .skip(start as usize)
                             .take((end - start + 1.0) as usize)
+                            .collect(),
+                    )))
+                }
+                // (strip 'text' 'chars')
+                "strip" => {
+                    if operands.len() != 2 {
+                        return Err(ErrorHandler::ParseError(
+                            "Invalid number of operands for 'strip'".to_string(),
+                        ));
+                    }
+                    let text: String = match self.eval_ast(&operands[0])? {
+                        Some(VariableValue::Text(val)) => val,
+                        _ => {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid strip syntax".to_string(),
+                            ))
+                        }
+                    };
+                    let chars: String = match self.eval_ast(&operands[1])? {
+                        Some(VariableValue::Text(val)) => val,
+                        _ => {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid strip syntax".to_string(),
+                            ))
+                        }
+                    };
+                    Ok(Some(VariableValue::Text(
+                        text.chars().filter(|c| !chars.contains(*c)).collect(),
+                    )))
+                }
+                // (replace 'text' 'old_char' 'new_char')
+                "replace" => {
+                    if operands.len() != 3 {
+                        return Err(ErrorHandler::ParseError(
+                            "Invalid number of operands for 'replace'".to_string(),
+                        ));
+                    }
+                    let text: String = match self.eval_ast(&operands[0])? {
+                        Some(VariableValue::Text(val)) => val,
+                        _ => {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid replace syntax".to_string(),
+                            ))
+                        }
+                    };
+                    let old_char: String = match self.eval_ast(&operands[1])? {
+                        Some(VariableValue::Text(val)) => val,
+                        _ => {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid replace syntax".to_string(),
+                            ))
+                        }
+                    };
+                    let new_char: String = match self.eval_ast(&operands[2])? {
+                        Some(VariableValue::Text(val)) => val,
+                        _ => {
+                            return Err(ErrorHandler::ParseError(
+                                "Invalid replace syntax".to_string(),
+                            ))
+                        }
+                    };
+
+                    Ok(Some(VariableValue::Text(
+                        text.chars()
+                            .map(|c| {
+                                if c == old_char.chars().next().unwrap() {
+                                    new_char.chars().next().unwrap()
+                                } else {
+                                    c
+                                }
+                            })
                             .collect(),
                     )))
                 }

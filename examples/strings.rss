@@ -11,3 +11,5 @@
 (print (neq? 'hello' 'hello'))
 (let name 'John')
 (eq? name 'John')
+(strip 'john' 'j')
+(replace 'john' 'j' 'p')

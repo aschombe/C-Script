@@ -47,10 +47,12 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 - [x] Code can span multiple lines
 - [x] String type for variables
 - [x] String literals (for printing)
-- [x] String functions (concat, len, substring (inclusive on both ends), eq?, neq?)
+- [x] String functions (concat, len, substring (inclusive on both ends), eq?, neq?, strip, replace)
 
 
 ## Todo
+- [ ] Change how flags work. if .rss and no flag, interp, if .rss and -c flag, compile, if rssc run
+- [ ] Add string documentation for "strip" and "replace"
 - [ ] Put print statement output after the output for the line being interpreted
 - [ ] Create a bytecode for the language, and make a virtual machine to run the bytecode
  
