@@ -9,6 +9,7 @@
   - [Function Calling](#function-calling)
   - [Function Return](#function-return)
   - [Function Scope](#function-scope)
+  - [Base Keyword](#base-keyword)
 
 ## Function Declaration
 Functions are declared using the 'func' keyword. The syntax is as follows:
@@ -70,3 +71,22 @@ Functions are globally defined and can be called from anywhere in the script. Th
 (func fact ("" x) (if (lte? x 1) (base 1) (else (mul x (fact (sub x 1)))))): OK
 (fact 5): 120
 ```
+
+## Base Keyword
+The base keyword's intention is to denote the base case of a recursive function as demonstrated above. It can also be used in other contexts, but it is not recommended. All it does is take whatever you give it, and evaluates it to the result, of hopefully an expression (number or string).
+
+## Examples:
+```lisp
+(base 5)
+(base 'hello')
+(base (add 2 3))
+```
+
+## Output:
+```
+(base 5): 5
+(base 'hello'): hello
+(base (add 2 3)): 5
+```
+
+
