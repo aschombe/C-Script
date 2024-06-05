@@ -1,8 +1,9 @@
-(func fact ("" x) (if (lte? x 1) (base 1) (else (mul x (fact (sub x 1))))))
-(fact 5)
-
-//(func hello (1) (print 100))
-//(hello)
+(func hello (1) (print 100))
+(hello)
 
 (func mult (0 x y) (mul x y))
 (mult 2 3)
+
+(func fact ("" x) (if (lte? x 1) (base 1) (else (mul x (fact (sub x 1))))))
+(fact 5)
+
