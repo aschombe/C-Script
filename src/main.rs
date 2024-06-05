@@ -5,7 +5,7 @@ use std::{env::args, path::PathBuf};
 
 fn main() {
     let mut args = args();
-    args.next(); // skip the first argument, which is the name of the program
+    let program_name = args.next().unwrap();
 
     let mut path: Option<PathBuf> = None;
     let mut compile: bool = false;
@@ -38,6 +38,6 @@ fn main() {
             println!("No file extension");
         }
     } else {
-        println!("Usage: ./rss <file> [-c]");
+        println!("Usage: {} <file> [-c]", program_name);
     }
 }
