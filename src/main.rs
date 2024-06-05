@@ -1,93 +1,49 @@
 mod interp;
 use interp::error_handler::ErrorHandler;
 
-use std::{
-    env::args,
-    path::{Path, PathBuf},
-};
+use std::{env::args, path::PathBuf};
+
+// if someone passes a file with a .rss extension, interpret it
+// if someone passes a file with a .rssc extension, run it
+// if someone passes a file with a .rss extension and a -c flag, compile it
+// so this will have a single flag for compiling, and the rest will be inferred from the file extension
+
+//let mut interpreter: interp::Interpreter = interp::Interpreter::new();
+//let _res: Result<(), ErrorHandler> = interpreter.interp(PathBuf::from(path));
 
 fn main() {
-    let mut args = args().skip(1);
-    let flag = args.next().unwrap_or_else(|| {
-        println!("Usage: ./rss <flag> <filename>.rss");
-        std::process::exit(1);
-    });
+    let mut args = args();
+    args.next(); // skip the first argument, which is the name of the program
 
-    match flag.as_str() {
-        "-i" => {
-            let filename = args.next().unwrap_or_else(|| {
-                println!("Usage: ./rss -i <filename>.rss");
-                std::process::exit(1);
-            });
+    let mut path: Option<PathBuf> = None;
+    let mut compile: bool = false;
 
-            if !Path::new(&filename).exists() {
-                println!("File not found: {}", filename);
-                return;
-            }
-
-            if !filename.ends_with(".rss") {
-                println!("Not an rss file: {}", filename);
-                return;
-            }
-
-            let mut interpreter: interp::Interpreter = interp::Interpreter::new();
-            let _res: Result<(), ErrorHandler> = interpreter.interp(PathBuf::from(filename));
+    for arg in args {
+        if arg == "-c" {
+            compile = true;
+        } else {
+            path = Some(PathBuf::from(arg));
         }
-        "-c" => {
-            let filename = args.next().unwrap_or_else(|| {
-                println!("Usage: ./rss -c <filename>.rss");
-                std::process::exit(1);
-            });
+    }
 
-            if !Path::new(&filename).exists() {
-                println!("File not found: {}", filename);
-                return;
+    if let Some(path) = path {
+        if let Some(extension) = path.extension() {
+            if extension == "rss" {
+                if compile {
+                    println!("Compiling is not yet implemented");
+                } else {
+                    let mut interpreter: interp::Interpreter = interp::Interpreter::new();
+                    let _res: Result<(), ErrorHandler> = interpreter.interp(path);
+                }
+            } else if extension == "rssc" {
+                println!("Running is not yet implemented");
+            } else {
+                println!("Invalid file extension");
             }
-
-            if !filename.ends_with(".rss") {
-                println!("Not an rss file: {}", filename);
-                return;
-            }
-
-            // let mut compiler: interp::Compiler = interp::Compiler::new();
-            // let _res: Result<(), ErrorHandler> = compiler.compile(PathBuf::from(filename));
-            println!("Not implemented yet");
-            std::process::exit(1);
+        } else {
+            println!("No file extension");
         }
-        "-r" => {
-            let filename = args.next().unwrap_or_else(|| {
-                println!("Usage: ./rss -r <filename>.rssc");
-                std::process::exit(1);
-            });
-
-            if !Path::new(&filename).exists() {
-                println!("File not found: {}", filename);
-                return;
-            }
-
-            if !filename.ends_with(".rssc") {
-                println!("Not an rssc file: {}", filename);
-                return;
-            }
-
-            // let mut interpreter: interp::Interpreter = interp::Interpreter::new();
-            // let _res: Result<(), ErrorHandler> = interpreter.interp(PathBuf::from(filename));
-            println!("Not implemented yet");
-            std::process::exit(1);
-        }
-        "-h" => {
-            println!("Usage: ./rss <flag> <filename>.rss");
-            println!("-i for interpret mode (expects an rss file)");
-            println!("-c to compile an rss file to rssc (expects an rss file)");
-            println!("-r to run an rssc file (expects an rssc file)");
-            println!("-h for help");
-        }
-        _ => {
-            println!("Usage: ./rss <flag> <filename>.rss");
-            println!("-i for interpret mode (expects an rss file)");
-            println!("-c to compile an rss file to rssc (expects an rss file)");
-            println!("-r to run an rssc file (expects an rssc file)");
-            println!("-h for help");
-        }
+    } else {
+        println!("Usage: ./rss <file> [-c]");
     }
 }

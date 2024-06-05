@@ -19,14 +19,13 @@ cargo run
 
 ### Flags
 The different flags are:
-- '-h': Display the help message
-- '-i': Interprets an RSS file
 - '-c': Compiles an RSS file to bytecode with the extension '.rssc'
-- '-r': Runs a compiled RSS file with the extension '.rssc'
 
 ## Examples
 ```bash
-./rss -i funcs.rss
+./rss funcs.rss // This interprets the file
+./rss funcs.rss -c // This compiles the file to bytecode (funcs.rssc)
+./rss func.rssc // This runs the compiled file
 ```
 
 # More Examples to come once I have implemented bytecode and compilation

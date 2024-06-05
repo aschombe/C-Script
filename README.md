@@ -23,7 +23,7 @@ cargo run
 
 Run the command line tool by running the following command:
 ```bash
-./rss <flag> <path-to-file>
+./rss <path-to-file> <flag>
 ```
 The file should have the extension `.rss` or `rssc`. You can find some example files in the `examples` directory.
 More about the rss tool can be found in the [rss.md](docs/rss.md) file.
