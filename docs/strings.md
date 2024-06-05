@@ -30,6 +30,8 @@ Strings have the following functions:
 - `len`: Returns the length of the string. Syntax: `(len str)`
 - `substring`: Returns a substring of the string. Syntax: `(substring str start end)`
     - `start` and `end` are inclusive on both ends
+- eq?: Compares two strings. Syntax: `(eq? str1 str2)`
+- neq?: Compares two strings. Syntax: `(neq? str1 str2)`
 
 ## Examples:
 ```lisp
@@ -37,6 +39,8 @@ Strings have the following functions:
 (print (concat name ' Doe'))
 (print (len name))
 (print (substring name 1 2))
+(eq? name 'John')
+(neq? name 'Doe')
 ```
 
 ## Output:
@@ -45,6 +49,8 @@ Strings have the following functions:
 (print (concat name ' Doe')): John Doe
 (print (len name)): 4
 (print (substring name 1 2)): oh
+(eq? name 'John'): 1
+(neq? name 'Doe'): 1
 ```
 
 ## Notes

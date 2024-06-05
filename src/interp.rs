@@ -411,11 +411,19 @@ impl Interpreter {
                             "Invalid number of operands for 'eq?'".to_string(),
                         ));
                     }
-                    Ok(Some(VariableValue::Number(
-                        (self.eval_ast(&operands[0])?.unwrap().as_number().unwrap()
-                            == self.eval_ast(&operands[1])?.unwrap().as_number().unwrap())
-                            as i32 as f64,
-                    )))
+                    let val1 = self.eval_ast(&operands[0])?;
+                    let val2 = self.eval_ast(&operands[1])?;
+                    match (val1, val2) {
+                        (Some(VariableValue::Number(num1)), Some(VariableValue::Number(num2))) => {
+                            Ok(Some(VariableValue::Number((num1 == num2) as i32 as f64)))
+                        }
+                        (Some(VariableValue::Text(text1)), Some(VariableValue::Text(text2))) => {
+                            Ok(Some(VariableValue::Number((text1 == text2) as i32 as f64)))
+                        }
+                        _ => {
+                            return Err(ErrorHandler::ParseError("Invalid eq? syntax".to_string()))
+                        }
+                    }
                 }
                 "neq?" => {
                     if operands.len() != 2 {
@@ -423,11 +431,19 @@ impl Interpreter {
                             "Invalid number of operands for 'neq?'".to_string(),
                         ));
                     }
-                    Ok(Some(VariableValue::Number(
-                        (self.eval_ast(&operands[0])?.unwrap().as_number().unwrap()
-                            != self.eval_ast(&operands[1])?.unwrap().as_number().unwrap())
-                            as i32 as f64,
-                    )))
+                    let val1 = self.eval_ast(&operands[0])?;
+                    let val2 = self.eval_ast(&operands[1])?;
+                    match (val1, val2) {
+                        (Some(VariableValue::Number(num1)), Some(VariableValue::Number(num2))) => {
+                            Ok(Some(VariableValue::Number((num1 != num2) as i32 as f64)))
+                        }
+                        (Some(VariableValue::Text(text1)), Some(VariableValue::Text(text2))) => {
+                            Ok(Some(VariableValue::Number((text1 != text2) as i32 as f64)))
+                        }
+                        _ => {
+                            return Err(ErrorHandler::ParseError("Invalid neq? syntax".to_string()))
+                        }
+                    }
                 }
                 "lt?" => {
                     if operands.len() != 2 {

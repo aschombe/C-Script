@@ -17,6 +17,4 @@
 (neg? (sub 2 1))
 (eq? (sub 1 1) 0)
 (eq? (sub 1 2) 0)
-(div (var x 5))
-(div (get x))
 (div (print (add 1 2 3)))
