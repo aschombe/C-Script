@@ -51,7 +51,6 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 
 ## Todo
-- [ ] While loops
 - [ ] Put print statement output after the output for the line being interpreted
 - [ ] Create a bytecode for the language, and make a virtual machine to run the bytecode
  
