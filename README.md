@@ -1,7 +1,7 @@
 # Rust Explorer
 
 ## Description
-This is an interpreter written in rust. Open to feature suggestions. Check [main.md](docs/main.md) for more information.
+This is an interpreter (soon to have compiler feature) written in rust. Open to feature suggestions. Check [main.md](docs/main.md) for more information.
 
 ## Table of Contents
 - [Rust Explorer](#rust-explorer)
@@ -13,15 +13,15 @@ This is an interpreter written in rust. Open to feature suggestions. Check [main
   - [Notes](#notes)
 
 ## Documentation
-- Check out the [documentation](docs/main.md) for more information on the features of the interpreter.
+- Check out the [documentation](docs/main.md) for more information on the features of the language.
 
 ## Usage
-To run the project, you need to have Rust installed. You can install Rust by following the instructions on the [official website](https://www.rust-lang.org/tools/install). After installing Rust, you can generate the interpreter by running the following in the project directory:
+To run the project, you need to have Rust installed. You can install Rust by following the instructions on the [official website](https://www.rust-lang.org/tools/install). After installing Rust, you can generate the `rss` tool by running the following in the project directory:
 ```bash
 cargo run
 ```
 
-Run the interpreter by running the following command:
+Run the command line tool by running the following command:
 ```bash
 ./rss <flag> <path-to-file>
 ```
