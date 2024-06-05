@@ -9,7 +9,6 @@ use std::{
     }
 };
 
-
 fn main() {
     if args().len() == 1 {
         println!("Usage: ./rss <filename>.rss");

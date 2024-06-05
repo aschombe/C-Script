@@ -20,7 +20,7 @@ pub(crate) mod parser;
 pub struct Interpreter {
     variables: HashMap<String, VariableValue>,
     functions: HashMap<String, Function>,
-    output: Vec<String>, // Store output to print later
+    output: Vec<String>,
 }
 
 impl Clone for Interpreter {
@@ -48,7 +48,6 @@ impl Interpreter {
 
         match self.eval_ast(&ast) {
             Ok(result) => {
-                // Print collected output after evaluating the entire line
                 for line in &self.output {
                     println!("{}", line);
                 }
@@ -76,7 +75,6 @@ impl Interpreter {
                 }
             }
 
-            // ASTNode::StringValue(_val) => Ok(None),
             ASTNode::StringValue(val) => Ok(Some(VariableValue::Text(val.clone()))),
             ASTNode::Operator(op, operands) => match op.as_str() {
                 /*
@@ -507,7 +505,6 @@ impl Interpreter {
                             _result = self.eval_ast(body)?.map(|val| val.as_number().unwrap());
                         }
     
-                        // Ok(result.map(VariableValue::Number))
                         Ok(None)
                     } else {
                         Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
@@ -652,7 +649,6 @@ impl Interpreter {
                 }
                 // This falls under function operators (also handles unknown keywords)
                 _ => {
-                    // Handle function calls directly in the operator case
                     if let Some(func) = self.functions.get(op) {
                         if operands.len() != func.params.len() {
                             return Err(ErrorHandler::ParseError(format!("Invalid number of arguments for function '{}'", op)));
@@ -675,7 +671,6 @@ impl Interpreter {
     
                         let result = local_interpreter.eval_ast(&func.body)?;
     
-                        // Collect the output from the local interpreter
                         self.output.extend(local_interpreter.output);
     
                         Ok(result)
@@ -713,7 +708,7 @@ impl Interpreter {
             }
     
             expression.push_str(line);
-            expression.push(' '); // Add a space to separate lines
+            expression.push(' ');
     
             if open_parens == 0 && !expression.is_empty() {
                 match self.eval(&expression) {
@@ -732,7 +727,6 @@ impl Interpreter {
             line_num += 1;
         }
     
-        // Check for unclosed expressions at the end of the file
         if !expression.is_empty() {
             return Err(ErrorHandler::ParseError("Unclosed expression at the end of the file".to_string()));
         }
