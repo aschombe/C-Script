@@ -3,7 +3,7 @@
 
 // Summation
 (let sum 0)
-(for i 0 5 (set sum (add sum i)))
+(for i 0 5 (set sum (add sum i))) //test
 (print sum)
 
 // double for loop

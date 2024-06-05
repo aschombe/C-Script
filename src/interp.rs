@@ -579,6 +579,7 @@ impl Interpreter {
                         Some(VariableValue::Number(val)) => val,
                         _ => return Err(ErrorHandler::ParseError("Invalid exit syntax".to_string())),
                     };
+                    println!("Exiting with code {}", code as i32);
                     exit(code as i32)
                 }
                 "debug" => {
