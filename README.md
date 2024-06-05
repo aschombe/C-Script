@@ -51,8 +51,6 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 
 ## Todo
-- [ ] Change how flags work. if .rss and no flag, interp, if .rss and -c flag, compile, if rssc run
-- [ ] Add string documentation for "strip" and "replace"
 - [ ] Put print statement output after the output for the line being interpreted
 - [ ] Create a bytecode for the language, and make a virtual machine to run the bytecode
  

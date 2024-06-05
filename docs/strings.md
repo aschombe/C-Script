@@ -41,6 +41,8 @@ Strings have the following functions:
 (print (substring name 1 2))
 (eq? name 'John')
 (neq? name 'Doe')
+(strip 'john' 'n')
+(replace 'john' 'n' 'm')
 ```
 
 ## Output:
@@ -51,6 +53,8 @@ Strings have the following functions:
 (print (substring name 1 2)): oh
 (eq? name 'John'): 1
 (neq? name 'Doe'): 1
+(strip 'john' 'n'): joh
+(replace 'john' 'n' 'm'): johm
 ```
 
 ## Notes
