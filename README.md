@@ -31,7 +31,7 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 ## Features
 - [x] Print Statements
 - [x] Comments (single line comments)
-- [x] Arithmetic Operations (add, sub, mul, div, mod)
+- [x] Arithmetic Operations (add, sub, mul, div, mod, neg)
 - [x] Math Functions (min, max, pow, sqrt, sin, cos, tan, abs, zero?, even?, odd?, pos?, neg?)
 - [x] Comparison Operations (eq?, neq?, gt?, lt?, gte?, lte?)
 - [x] And, Or, Not

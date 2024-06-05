@@ -141,6 +141,14 @@ impl Interpreter {
                     }
                     Ok(Some(VariableValue::Number(result)))
                 }
+                "neg" => {
+                    if operands.is_empty() {
+                        return Err(ErrorHandler::ParseError("Empty negation".to_string()));
+                    }
+
+                    let result: f64 = -self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
+                    Ok(Some(VariableValue::Number(result)))
+                }
                 /*
                 Other math operators:
                 */

@@ -8,6 +8,7 @@
   - [Multiplication](#multiplication)
   - [Division](#division)
   - [Modulus](#modulus)
+  - [Negation](#negation)
 
 ## Addition
 Addition is done using the 'add' keyword. The syntax is as follows:
@@ -82,4 +83,20 @@ Modulus is done using the 'mod' keyword. The syntax is as follows:
 Output:
 ```
 (mod 10 3): 1
+```
+
+## Negation
+
+Negation is done using the 'neg' keyword. The syntax is as follows:
+```lisp
+(neg num)
+```
+
+## Example:
+```lisp
+(neg 10)
+```
+Output:
+```
+(neg 10): -10
 ```
