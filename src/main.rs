@@ -3,14 +3,6 @@ use interp::error_handler::ErrorHandler;
 
 use std::{env::args, path::PathBuf};
 
-// if someone passes a file with a .rss extension, interpret it
-// if someone passes a file with a .rssc extension, run it
-// if someone passes a file with a .rss extension and a -c flag, compile it
-// so this will have a single flag for compiling, and the rest will be inferred from the file extension
-
-//let mut interpreter: interp::Interpreter = interp::Interpreter::new();
-//let _res: Result<(), ErrorHandler> = interpreter.interp(PathBuf::from(path));
-
 fn main() {
     let mut args = args();
     args.next(); // skip the first argument, which is the name of the program
@@ -30,13 +22,15 @@ fn main() {
         if let Some(extension) = path.extension() {
             if extension == "rss" {
                 if compile {
-                    println!("Compiling is not yet implemented");
+                    println!("Compiling is not yet implemented, but it will probably invoke a compiler or something");
                 } else {
                     let mut interpreter: interp::Interpreter = interp::Interpreter::new();
                     let _res: Result<(), ErrorHandler> = interpreter.interp(path);
                 }
             } else if extension == "rssc" {
-                println!("Running is not yet implemented");
+                println!(
+                    "Running is not yet implemented, but it will probably invoke a VM or something"
+                );
             } else {
                 println!("Invalid file extension");
             }
