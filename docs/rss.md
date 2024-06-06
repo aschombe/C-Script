@@ -14,7 +14,7 @@ cargo run
 
 ## Usage
 ```bash
-./rss <flag> <file_path>
+./rss ./<flag> <file_path>
 ```
 
 ### Flags
@@ -23,9 +23,9 @@ The different flags are:
 
 ## Examples
 ```bash
-./rss funcs.rss // This interprets the file
-./rss funcs.rss -c // This compiles the file to bytecode (funcs.rssc)
-./rss func.rssc // This runs the compiled file
+./rss ./funcs.rss // This interprets the file
+./rss ./funcs.rss -c // This compiles the file to bytecode (funcs.rssc)
+./rss ./func.rssc // This runs the compiled file
 ```
 
 # More Examples to come once I have implemented bytecode and compilation

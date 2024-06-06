@@ -24,7 +24,7 @@ fn main() {
         if let Some(extension) = path.extension() {
             if extension == "rss" {
                 if compile {
-                    let compiler: Compiler = Compiler::new(path.to_str().unwrap());
+                    let compiler: Compiler = Compiler::new(path);
                     compiler.compile();
                 } else {
                     let mut interpreter: interp::Interpreter = interp::Interpreter::new();
