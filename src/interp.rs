@@ -290,6 +290,13 @@ impl Interpreter {
                     }
                     let min: f64 = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
                     let max: f64 = self.eval_ast(&operands[1])?.unwrap().as_number().unwrap();
+
+                    if min > max {
+                        return Err(ErrorHandler::ParseError(
+                            "Minimum value is greater than maximum value".to_string(),
+                        ));
+                    }
+
                     Ok(Some(VariableValue::Number(
                         min + (max - min) * rand::random::<f64>(),
                     )))
@@ -838,7 +845,9 @@ impl Interpreter {
                         ));
                     }
                     match self.eval_ast(&operands[0])? {
-                        Some(VariableValue::Text(val)) => Ok(Some(VariableValue::Text(val.to_uppercase()))),
+                        Some(VariableValue::Text(val)) => {
+                            Ok(Some(VariableValue::Text(val.to_uppercase())))
+                        }
                         _ => Err(ErrorHandler::ParseError("Invalid upper syntax".to_string())),
                     }
                 }
@@ -849,7 +858,9 @@ impl Interpreter {
                         ));
                     }
                     match self.eval_ast(&operands[0])? {
-                        Some(VariableValue::Text(val)) => Ok(Some(VariableValue::Text(val.to_lowercase()))),
+                        Some(VariableValue::Text(val)) => {
+                            Ok(Some(VariableValue::Text(val.to_lowercase())))
+                        }
                         _ => Err(ErrorHandler::ParseError("Invalid lower syntax".to_string())),
                     }
                 }
