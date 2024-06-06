@@ -20,3 +20,4 @@
 (neg -1)
 (floor 0.5)
 (ceil 0.5)
+(rand 1 10)

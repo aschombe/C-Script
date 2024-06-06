@@ -13,6 +13,7 @@
   - [Absolute Value](#absolute-value)
   - [Floor](#floor)
   - [Ceiling](#ceiling)
+  - [Random](#random)
 
 ## Minimum
 Minimum is done using the 'min' keyword. The syntax is as follows:
@@ -162,4 +163,19 @@ Ceiling is done using the 'ceil' keyword. The syntax is as follows:
 Output:
 ```
 (ceil 5.5): 6
+```
+
+## Random
+Random is done using the 'rand' keyword. The syntax is as follows:
+```lisp
+(rand min max)
+```
+
+## Example:
+```lisp
+(rand 1 10)
+```
+Output:
+```
+(rand 1 10): 5
 ```

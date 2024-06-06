@@ -281,6 +281,19 @@ impl Interpreter {
                             .ceil(),
                     )))
                 }
+                // (rand <min-inclusive> <max-inclusive>)
+                "rand" => {
+                    if operands.len() != 2 {
+                        return Err(ErrorHandler::ParseError(
+                            "Invalid number of operands for 'rand'".to_string(),
+                        ));
+                    }
+                    let min: f64 = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
+                    let max: f64 = self.eval_ast(&operands[1])?.unwrap().as_number().unwrap();
+                    Ok(Some(VariableValue::Number(
+                        min + (max - min) * rand::random::<f64>(),
+                    )))
+                }
                 /*
                 Control flow and logic operators:
                 */
@@ -681,6 +694,8 @@ impl Interpreter {
                         Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
                     }
                 }
+                "break" => Ok(None),
+                "continue" => Ok(None),
                 /*
                 String operators:
                 */
