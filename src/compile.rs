@@ -62,7 +62,7 @@ impl Compiler {
             .collect::<Vec<&str>>()
             .join("\n");
 
-        // generate bytcode for every token possible
+        // generate bytecode for every token possible
         let mut bytecode: String = String::new();
         for line in contents.lines() {
             bytecode.push_str(&format!("{}\n", line));
