@@ -73,9 +73,7 @@ impl Interpreter {
 
             ASTNode::StringValue(val) => Ok(Some(VariableValue::Text(val.clone()))),
             ASTNode::Operator(op, operands) => match op.as_str() {
-                /*
-                Arithmetic operators:
-                */
+                // Arithmetic operators:
                 "add" => {
                     let mut result: f64 = 0.0;
                     for operand in operands {
@@ -149,9 +147,7 @@ impl Interpreter {
                     let result: f64 = -self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
                     Ok(Some(VariableValue::Number(result)))
                 }
-                /*
-                Other math operators:
-                */
+                // Other math operators:
                 "max" => {
                     let mut max_val: f64 = f64::MIN;
                     for operand in operands {
@@ -281,7 +277,6 @@ impl Interpreter {
                             .ceil(),
                     )))
                 }
-                // (rand <min-inclusive> <max-inclusive>)
                 "rand" => {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError(
@@ -301,9 +296,7 @@ impl Interpreter {
                         min + (max - min) * rand::random::<f64>(),
                     )))
                 }
-                /*
-                Control flow and logic operators:
-                */
+                // Control flow and logic operators:
                 "if" => {
                     if operands.len() < 2 {
                         return Err(ErrorHandler::ParseError(format!(
@@ -320,7 +313,7 @@ impl Interpreter {
                     if condition != 0.0 {
                         self.eval_ast(&operands[1])
                     } else {
-                        let i = 2;
+                        let i: usize = 2;
                         while i < operands.len() {
                             if let ASTNode::Operator(ref cond_op, ref cond_operands) = &operands[i]
                             {
@@ -356,8 +349,8 @@ impl Interpreter {
                             op
                         )));
                     }
-                    let variable = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
-                    let mut i = 1;
+                    let variable: f64 = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
+                    let mut i: usize = 1;
                     let mut default_body: Option<&ASTNode> = None;
                     while i < operands.len() {
                         if let ASTNode::Operator(ref case_op, ref case_operands) = &operands[i] {
@@ -369,7 +362,7 @@ impl Interpreter {
                                             case_op
                                         )));
                                     }
-                                    let case_val = self
+                                    let case_val: f64 = self
                                         .eval_ast(&case_operands[0])?
                                         .unwrap()
                                         .as_number()
@@ -467,8 +460,8 @@ impl Interpreter {
                             "Invalid number of operands for 'eq?'".to_string(),
                         ));
                     }
-                    let val1 = self.eval_ast(&operands[0])?;
-                    let val2 = self.eval_ast(&operands[1])?;
+                    let val1: Option<VariableValue> = self.eval_ast(&operands[0])?;
+                    let val2: Option<VariableValue> = self.eval_ast(&operands[1])?;
                     match (val1, val2) {
                         (Some(VariableValue::Number(num1)), Some(VariableValue::Number(num2))) => {
                             Ok(Some(VariableValue::Number((num1 == num2) as i32 as f64)))
@@ -487,8 +480,8 @@ impl Interpreter {
                             "Invalid number of operands for 'neq?'".to_string(),
                         ));
                     }
-                    let val1 = self.eval_ast(&operands[0])?;
-                    let val2 = self.eval_ast(&operands[1])?;
+                    let val1: Option<VariableValue> = self.eval_ast(&operands[0])?;
+                    let val2: Option<VariableValue> = self.eval_ast(&operands[1])?;
                     match (val1, val2) {
                         (Some(VariableValue::Number(num1)), Some(VariableValue::Number(num2))) => {
                             Ok(Some(VariableValue::Number((num1 != num2) as i32 as f64)))
@@ -592,9 +585,7 @@ impl Interpreter {
                             as f64,
                     )))
                 }
-                /*
-                Variable operators:
-                */
+                // Variable operators:
                 "let" => {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError(format!(
@@ -603,7 +594,7 @@ impl Interpreter {
                         )));
                     }
                     if let ASTNode::Value(var) = &operands[0] {
-                        let value = self.eval_ast(&operands[1])?;
+                        let value: Option<VariableValue> = self.eval_ast(&operands[1])?;
                         if self.variables.contains_key(var) {
                             return Err(ErrorHandler::ParseError(format!(
                                 "Variable '{}' already exists",
@@ -624,7 +615,7 @@ impl Interpreter {
                         )));
                     }
                     if let ASTNode::Value(var) = &operands[0] {
-                        let value = self.eval_ast(&operands[1])?;
+                        let value: Option<VariableValue> = self.eval_ast(&operands[1])?;
                         if !self.variables.contains_key(var) {
                             return Err(ErrorHandler::ParseError(format!(
                                 "Variable '{}' not found",
@@ -660,9 +651,7 @@ impl Interpreter {
                         Err(ErrorHandler::ParseError("Invalid del syntax".to_string()))
                     }
                 }
-                /*
-                Loop operators:
-                */
+                // Loop operators:
                 "for" => {
                     if operands.len() != 4 {
                         return Err(ErrorHandler::ParseError(
@@ -701,9 +690,7 @@ impl Interpreter {
                         Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
                     }
                 }
-                /*
-                String operators:
-                */
+                // String operators:
                 "concat" => {
                     let mut result: String = String::new();
                     for operand in operands {
@@ -864,11 +851,9 @@ impl Interpreter {
                         _ => Err(ErrorHandler::ParseError("Invalid lower syntax".to_string())),
                     }
                 }
-                /*
-                Extraneous operators:
-                */
+                // Extraneous operators:
                 "print" => {
-                    let mut output = String::new();
+                    let mut output: String = String::new();
                     for operand in operands {
                         match self.eval_ast(operand)? {
                             Some(VariableValue::Number(val)) => {
@@ -917,9 +902,7 @@ impl Interpreter {
 
                     Ok(None)
                 }
-                /*
-                Functions
-                */
+                // Functions
                 "base" => {
                     if operands.len() != 1 {
                         return Err(ErrorHandler::ParseError(format!(
@@ -995,7 +978,8 @@ impl Interpreter {
                                 .insert(param.clone(), VariableValue::Number(result));
                         }
 
-                        let result = local_interpreter.eval_ast(&func.body)?;
+                        let result: Option<VariableValue> =
+                            local_interpreter.eval_ast(&func.body)?;
 
                         self.output.extend(local_interpreter.output);
 
