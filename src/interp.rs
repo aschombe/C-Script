@@ -253,6 +253,34 @@ impl Interpreter {
                             .abs(),
                     )))
                 }
+                "floor" => {
+                    if operands.len() != 1 {
+                        return Err(ErrorHandler::ParseError(
+                            "Invalid number of operands for 'floor'".to_string(),
+                        ));
+                    }
+                    Ok(Some(VariableValue::Number(
+                        self.eval_ast(&operands[0])?
+                            .unwrap()
+                            .as_number()
+                            .unwrap()
+                            .floor(),
+                    )))
+                }
+                "ceil" => {
+                    if operands.len() != 1 {
+                        return Err(ErrorHandler::ParseError(
+                            "Invalid number of operands for 'ceil'".to_string(),
+                        ));
+                    }
+                    Ok(Some(VariableValue::Number(
+                        self.eval_ast(&operands[0])?
+                            .unwrap()
+                            .as_number()
+                            .unwrap()
+                            .ceil(),
+                    )))
+                }
                 /*
                 Control flow and logic operators:
                 */

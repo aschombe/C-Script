@@ -11,6 +11,8 @@
   - [Cosine](#cosine)
   - [Tangent](#tangent)
   - [Absolute Value](#absolute-value)
+  - [Floor](#floor)
+  - [Ceiling](#ceiling)
 
 ## Minimum
 Minimum is done using the 'min' keyword. The syntax is as follows:
@@ -130,4 +132,34 @@ Absolute Value is done using the 'abs' keyword. The syntax is as follows:
 Output:
 ```
 (abs -5): 5
+```
+
+## Floor
+Floor is done using the 'floor' keyword. The syntax is as follows:
+```lisp
+(floor num)
+```
+
+## Example:
+```lisp
+(floor 5.5)
+```
+Output:
+```
+(floor 5.5): 5
+```
+
+## Ceiling
+Ceiling is done using the 'ceil' keyword. The syntax is as follows:
+```lisp
+(ceil num)
+```
+
+## Example:
+```lisp
+(ceil 5.5)
+```
+Output:
+```
+(ceil 5.5): 6
 ```
