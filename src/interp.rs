@@ -694,8 +694,6 @@ impl Interpreter {
                         Err(ErrorHandler::ParseError("Invalid for syntax".to_string()))
                     }
                 }
-                "break" => Ok(None),
-                "continue" => Ok(None),
                 /*
                 String operators:
                 */
