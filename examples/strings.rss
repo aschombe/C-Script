@@ -13,3 +13,5 @@
 (eq? name 'John')
 (strip 'john' 'j')
 (replace 'john' 'j' 'p')
+(upper 'John')
+(lower 'John')

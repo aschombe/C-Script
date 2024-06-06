@@ -762,7 +762,6 @@ impl Interpreter {
                             .collect(),
                     )))
                 }
-                // (strip 'text' 'chars')
                 "strip" => {
                     if operands.len() != 2 {
                         return Err(ErrorHandler::ParseError(
@@ -789,7 +788,6 @@ impl Interpreter {
                         text.chars().filter(|c| !chars.contains(*c)).collect(),
                     )))
                 }
-                // (replace 'text' 'old_char' 'new_char')
                 "replace" => {
                     if operands.len() != 3 {
                         return Err(ErrorHandler::ParseError(
@@ -832,6 +830,28 @@ impl Interpreter {
                             })
                             .collect(),
                     )))
+                }
+                "upper" => {
+                    if operands.len() != 1 {
+                        return Err(ErrorHandler::ParseError(
+                            "Invalid number of operands for 'upper'".to_string(),
+                        ));
+                    }
+                    match self.eval_ast(&operands[0])? {
+                        Some(VariableValue::Text(val)) => Ok(Some(VariableValue::Text(val.to_uppercase()))),
+                        _ => Err(ErrorHandler::ParseError("Invalid upper syntax".to_string())),
+                    }
+                }
+                "lower" => {
+                    if operands.len() != 1 {
+                        return Err(ErrorHandler::ParseError(
+                            "Invalid number of operands for 'lower'".to_string(),
+                        ));
+                    }
+                    match self.eval_ast(&operands[0])? {
+                        Some(VariableValue::Text(val)) => Ok(Some(VariableValue::Text(val.to_lowercase()))),
+                        _ => Err(ErrorHandler::ParseError("Invalid lower syntax".to_string())),
+                    }
                 }
                 /*
                 Extraneous operators:

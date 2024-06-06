@@ -43,6 +43,8 @@ Strings have the following functions:
 (neq? name 'Doe')
 (strip 'john' 'n')
 (replace 'john' 'n' 'm')
+(upper 'john')
+(lower 'JOHN')
 ```
 
 ## Output:
@@ -55,6 +57,8 @@ Strings have the following functions:
 (neq? name 'Doe'): 1
 (strip 'john' 'n'): joh
 (replace 'john' 'n' 'm'): johm
+(upper 'john'): JOHN
+(lower 'JOHN'): john
 ```
 
 ## Notes
