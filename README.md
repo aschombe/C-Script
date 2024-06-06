@@ -51,6 +51,7 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 
 ## Todo
+- [ ] Fix the way the interpreter and compiler receives the file path
 - [ ] Fix print statements (the output is going before the line being interpreted)
 - [ ] Create a bytecode for the language, and make a virtual machine to run the bytecode
  

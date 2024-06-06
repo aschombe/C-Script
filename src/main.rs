@@ -1,3 +1,5 @@
+mod compile;
+use compile::Compiler;
 mod interp;
 use interp::error_handler::ErrorHandler;
 
@@ -22,7 +24,8 @@ fn main() {
         if let Some(extension) = path.extension() {
             if extension == "rss" {
                 if compile {
-                    println!("Compiling is not yet implemented, but it will probably invoke a compiler or something");
+                    let compiler: Compiler = Compiler::new(path.to_str().unwrap());
+                    compiler.compile();
                 } else {
                     let mut interpreter: interp::Interpreter = interp::Interpreter::new();
                     let _res: Result<(), ErrorHandler> = interpreter.interp(path);
