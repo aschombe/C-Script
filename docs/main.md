@@ -3,8 +3,12 @@
 # Table of Contents
 - [RS-Script Documentation](#rs-script-documentation)
 - [Table of Contents](#table-of-contents)
+- [Keywords](#keywords)
 - [Features](#features)
 - [Examples](#examples)
+
+# Keywords
+- To see every keyword in the language, check the [keywords.md](keywords.md) file.
 
 # Features
 - [x] [rss command line tool](rss.md)
