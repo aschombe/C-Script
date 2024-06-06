@@ -31,23 +31,23 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 ## Features
 - [x] Print Statements
 - [x] Comments (single line comments)
-- [x] Arithmetic Operations (add, sub, mul, div, mod, neg)
-- [x] Math Functions (min, max, pow, sqrt, sin, cos, tan, abs, zero?, even?, odd?, pos?, neg?)
-- [x] Comparison Operations (eq?, neq?, gt?, lt?, gte?, lte?)
+- [x] Arithmetic Operations
+- [x] Math Functions
+- [x] Comparison Operations
 - [x] And, Or, Not
 - [x] Nested Expressions
-- [x] Variables (let, set, get, del)
+- [x] Variables
 - [x] Floating point numbers
 - [x] For loops
-- [x] Control Flow (if, else, switch)
-- [x] Add boolean keywords (0 is False, 1 is True)
+- [x] Control Flow
+- [x] Add boolean keywords
 - [x] Expansive Examples in the examples directory
-- [x] Debug function (prints the current state of the interpreter (variables and functions)) syntax: (debug)
-- [x] Exit function (exits the interpreter) syntax: (exit num)
+- [x] Debug function (prints the current state of the interpreter (variables and functions))
+- [x] Exit function (exits the interpreter)
 - [x] Code can span multiple lines
 - [x] String type for variables
-- [x] String literals (for printing)
-- [x] String functions (concat, len, substring (inclusive on both ends), eq?, neq?, strip, replace)
+- [x] String literals
+- [x] String functions
 
 
 ## Todo
