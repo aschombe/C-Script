@@ -1,5 +1,6 @@
 # Keywords
 
+```plaintext
 `add`: `(add <operand1> <operand2> ...)`
 `sub`: `(sub <operand1> <operand2> ...)`
 `mul`: `(mul <operand1> <operand2> ...)`
@@ -51,6 +52,7 @@
 `base`: `(base <expression>)`
 `func`: `(func <name> (<placeholder> <param1> <param2> ...) <body>)`
 `<function>`: `(<function> <arg1> <arg2> ...)`
+```
 
 ### Notes:
 - The `base` operator is used to evaluate an expression and return the result.
