@@ -47,6 +47,7 @@ impl Compiler {
 
         let contents: String = fs::read_to_string(target_path).expect("Could not read file");
 
+
         // remove all comments
         let mut contents: String = contents
             .lines()
@@ -66,18 +67,50 @@ impl Compiler {
             .filter(|line| !line.is_empty())
             .collect::<Vec<&str>>()
             .join("\n");
-        
+
         // ast vec to be translated to LLVM IR
         let mut ast_vec: Vec<ASTNode> = Vec::new();
-
-        // parse and tokenize every line and push the ast to the bytecode
+        let mut expressions: String = String::new();
+        let mut open_parentheses: i32 = 0;
+        // parse through the contents and extract the AST
         for line in contents.lines() {
-            let tokens: Vec<String> = tokenize(&line);
-            let (ast, _) = parse(&tokens).expect("Could not parse tokens");
+            let line: &str = line.trim();
+            if line.is_empty() || line.starts_with("//") {
+                continue;
+            }
 
-            ast_vec.push(ast);
+            for char in line.chars() {
+                if char == '(' {
+                    open_parentheses += 1;
+                } else if char == ')' {
+                    open_parentheses -= 1;
+                }
+            }
+
+            expressions.push_str(line);
+            expressions.push_str(" ");
+
+            if open_parentheses == 0 {
+                let tokens: Vec<String> = tokenize(&expressions);
+                let (ast, _) = parse(&tokens).expect("Could not parse tokens");
+
+                ast_vec.push(ast);
+                expressions.clear();
+            }
         }
+        
+        println!("{:?}", ast_vec);
 
+        // // parse and tokenize every line and push the ast to the bytecode
+        // for line in contents.lines() {
+        //     println!("Parsing line: {}", line);
+        //     // condense the line before you tokenize it
+        //     let tokens: Vec<String> = tokenize(line);
+        //     let (ast, _) = parse(&tokens).expect("Could not parse tokens");
+
+        //     ast_vec.push(ast);
+        // }
+        
         // translate AST to LLVM IR
         let ir_builder: IrBuilder = IrBuilder::new(ast_vec);
         let bytecode: String = ir_builder.build_ir();
