@@ -49,20 +49,6 @@ impl Interpreter {
     pub fn eval(&mut self, expr: &str) -> Result<String, ErrorHandler> {
         let tokens: Vec<String> = tokenize(expr);
         let (ast, _) = parse(&tokens)?;
-
-        // match self.eval_ast(&ast) {
-        //     Ok(result) => {
-        //         for line in &self.output {
-        //             println!("{}", line);
-        //         }
-                
-        //         self.output.clear();
-        //         Ok(result
-        //             .map(|val| val.to_string())
-        //             .unwrap_or("OK".to_string()))
-        //     }
-        //     Err(e) => Err(e),
-        // }
         match self.eval_ast(&ast) {
             Ok(result) => {
                 let mut output: String = String::new();
