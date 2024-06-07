@@ -99,18 +99,6 @@ impl Compiler {
             }
         }
         
-        println!("{:?}", ast_vec);
-
-        // // parse and tokenize every line and push the ast to the bytecode
-        // for line in contents.lines() {
-        //     println!("Parsing line: {}", line);
-        //     // condense the line before you tokenize it
-        //     let tokens: Vec<String> = tokenize(line);
-        //     let (ast, _) = parse(&tokens).expect("Could not parse tokens");
-
-        //     ast_vec.push(ast);
-        // }
-        
         // translate AST to LLVM IR
         let ir_builder: IrBuilder = IrBuilder::new(ast_vec);
         let bytecode: String = ir_builder.build_ir();
