@@ -1,13 +1,23 @@
-use std::{collections::HashMap, fs::read_to_string, path::PathBuf, process::exit, str::Lines};
+use std::{
+    collections::HashMap, 
+    fs::read_to_string, 
+    path::PathBuf, 
+    process::exit, 
+    str::Lines
+};
 
+use parser::{
+    parse, 
+    tokenize, 
+    ASTNode
+};
 use error_handler::ErrorHandler;
 use function::Function;
-use parser::{parse, tokenize, ASTNode};
 use variable_value::VariableValue;
 
+pub(crate) mod parser;
 pub(crate) mod error_handler;
 pub(crate) mod function;
-pub(crate) mod parser;
 pub(crate) mod variable_value;
 
 #[derive(Debug)]
@@ -40,15 +50,33 @@ impl Interpreter {
         let tokens: Vec<String> = tokenize(expr);
         let (ast, _) = parse(&tokens)?;
 
+        // match self.eval_ast(&ast) {
+        //     Ok(result) => {
+        //         for line in &self.output {
+        //             println!("{}", line);
+        //         }
+                
+        //         self.output.clear();
+        //         Ok(result
+        //             .map(|val| val.to_string())
+        //             .unwrap_or("OK".to_string()))
+        //     }
+        //     Err(e) => Err(e),
+        // }
         match self.eval_ast(&ast) {
             Ok(result) => {
+                let mut output: String = String::new();
                 for line in &self.output {
-                    println!("{}", line);
+                    output.push_str(&format!("{}", line));
                 }
                 self.output.clear();
-                Ok(result
-                    .map(|val| val.to_string())
-                    .unwrap_or("OK".to_string()))
+                if output.is_empty() {
+                    Ok(result
+                        .map(|val| val.to_string())
+                        .unwrap_or("OK".to_string()))
+                } else {
+                    Ok(output)
+                }
             }
             Err(e) => Err(e),
         }
