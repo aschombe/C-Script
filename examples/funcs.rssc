@@ -1,0 +1,2 @@
+Operator("func", [Value("mult"), Operator("0", [Value("x"), Value("y")]), Operator("mul", [Value("x"), Value("y")])])
+Operator("mult", [Value("2"), Value("3")])

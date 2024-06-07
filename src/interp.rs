@@ -85,6 +85,9 @@ impl Interpreter {
             ASTNode::Operator(op, operands) => match op.as_str() {
                 // Arithmetic operators:
                 "add" => {
+                    if operands.is_empty() {
+                        return Err(ErrorHandler::ParseError("Empty addition".to_string()));
+                    }
                     let mut result: f64 = 0.0;
                     for operand in operands {
                         result += self.eval_ast(operand)?.unwrap().as_number().unwrap();
@@ -108,6 +111,9 @@ impl Interpreter {
                     Ok(Some(VariableValue::Number(result)))
                 }
                 "mul" => {
+                    if operands.is_empty() {
+                        return Err(ErrorHandler::ParseError("Empty multiplication".to_string()));
+                    }
                     let mut result: f64 = 1.0;
                     for operand in operands {
                         result *= self.eval_ast(operand)?.unwrap().as_number().unwrap();
@@ -159,6 +165,9 @@ impl Interpreter {
                 }
                 // Other math operators:
                 "max" => {
+                    if operands.is_empty() {
+                        return Err(ErrorHandler::ParseError("Empty max".to_string()));
+                    }
                     let mut max_val: f64 = f64::MIN;
                     for operand in operands {
                         let val: f64 = self.eval_ast(operand)?.unwrap().as_number().unwrap();
@@ -169,6 +178,9 @@ impl Interpreter {
                     Ok(Some(VariableValue::Number(max_val)))
                 }
                 "min" => {
+                    if operands.is_empty() {
+                        return Err(ErrorHandler::ParseError("Empty min".to_string()));
+                    }
                     let mut min_val: f64 = f64::MAX;
                     for operand in operands {
                         let val: f64 = self.eval_ast(operand)?.unwrap().as_number().unwrap();

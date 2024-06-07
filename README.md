@@ -53,9 +53,6 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 ## Todo
 - [ ] Add a compile feature that translates the code to LLVM IR
 - [ ] Create a VM that can run the LLVM IR
-<!-- - [ ] Create a bytecode for the language, and make a virtual machine to run the bytecode -->
  
 ## Notes
 - Empty parenthesis '()' are evaluated to None
-<!-- - Functions: (func "name" (placeholder arg1 arg2 ... argn) (body)), the placeholder can be anything but (), but it must be there (or everything breaks) (fix this eventually)
-- Recursive Functions: Base case must be prepended by the "base" keyword. Look in the examples directory for an example of a recursive function -->

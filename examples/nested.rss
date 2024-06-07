@@ -17,4 +17,5 @@
 (neg? (sub 2 1))
 (eq? (sub 1 1) 0)
 (eq? (sub 1 2) 0)
+(neq? (sub 1 1) 0)
 (div (print (add 1 2 3)))
