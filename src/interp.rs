@@ -6,11 +6,7 @@ use std::{
     str::Lines
 };
 
-use parser::{
-    parse, 
-    tokenize, 
-    ASTNode
-};
+use parser::*;
 use error_handler::ErrorHandler;
 use function::Function;
 use variable_value::VariableValue;

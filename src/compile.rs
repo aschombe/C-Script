@@ -2,6 +2,11 @@ use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 
+use crate::interp::parser::*;
+
+use crate::compile::ir_builder::IrBuilder;
+pub(crate) mod ir_builder;
+
 pub struct Compiler {
     pub target_name: String,
     pub output_dir: String,
@@ -64,15 +69,26 @@ impl Compiler {
 
         // generate bytecode for every token possible
         let mut bytecode: String = String::new();
+        
+        // ast vec to be translated to LLVM IR
+        let mut ast_vec: Vec<ASTNode> = Vec::new();
+
+        // parse and tokenize every line and push the ast to the bytecode
         for line in contents.lines() {
-            bytecode.push_str(&format!("{}\n", line));
+            let tokens: Vec<String> = tokenize(&line);
+            let (ast, _) = parse(&tokens).expect("Could not parse tokens");
+
+            ast_vec.push(ast);
         }
 
+        let ir_builder: IrBuilder = IrBuilder::new(ast_vec);
+        let bytecode: String = ir_builder.build_ir();
+
+        // translate AST to LLVM IR
+        
         let mut output_file: fs::File =
             fs::File::create(output_path).expect("Could not create file");
 
-        output_file
-            .write_all(bytecode.as_bytes())
-            .expect("Could not write to file");
+        output_file.write_all(bytecode.as_bytes()).expect("Could not write to file");
     }
 }
