@@ -78,10 +78,9 @@ impl Compiler {
             ast_vec.push(ast);
         }
 
+        // translate AST to LLVM IR
         let ir_builder: IrBuilder = IrBuilder::new(ast_vec);
         let bytecode: String = ir_builder.build_ir();
-
-        // translate AST to LLVM IR
         
         let mut output_file: fs::File =
             fs::File::create(output_path).expect("Could not create file");
