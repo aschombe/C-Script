@@ -66,9 +66,6 @@ impl Compiler {
             .filter(|line| !line.is_empty())
             .collect::<Vec<&str>>()
             .join("\n");
-
-        // generate bytecode for every token possible
-        let mut bytecode: String = String::new();
         
         // ast vec to be translated to LLVM IR
         let mut ast_vec: Vec<ASTNode> = Vec::new();
