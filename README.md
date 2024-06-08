@@ -51,7 +51,7 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 
 ## Todo
-- [ ] Exract keywords and arguments from input AST in the IR Builder
+- [ ] Extract keywords and arguments from input AST in the IR Builder
 - [ ] Make IR Builder work
 <!-- - [ ] Add a compile feature that translates the code to LLVM IR -->
 <!-- - [ ] Create a VM that can run the LLVM IR -->

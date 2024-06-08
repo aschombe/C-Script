@@ -1,7 +1,0 @@
-%nop = add i1 0, 0
-"func" Value("hello") Operator("1", []) Operator("print", [Value("100")]) 
-"hello" 
-"func" Value("mult") Operator("0", [Value("x"), Value("y")]) Operator("mul", [Value("x"), Value("y")]) 
-"mult" Value("2") Value("3") 
-"func" Value("fact") Operator("0", [Value("x")]) Operator("if", [Operator("lte?", [Value("x"), Value("1")]), Operator("base", [Value("1")]), Operator("else", [Operator("mul", [Value("x"), Operator("fact", [Operator("sub", [Value("x"), Value("1")])])])])]) 
-"fact" Value("5") 

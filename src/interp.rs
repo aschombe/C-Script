@@ -200,6 +200,25 @@ impl Interpreter {
                     let exp: f64 = self.eval_ast(&operands[1])?.unwrap().as_number().unwrap();
                     Ok(Some(VariableValue::Number(base.powf(exp))))
                 }
+                // "exp" => {
+                //     if operands.len() != 1 {
+                //         return Err(ErrorHandler::ParseError(
+                //             "Invalid number of operands for 'exp'".to_string(),
+                //         ));
+                //     }
+                //     let val: f64 = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
+                //     Ok(Some(VariableValue::Number(val.exp())))
+                // }
+                // "log" => {
+                //     if operands.len() != 2 {
+                //         return Err(ErrorHandler::ParseError(
+                //             "Invalid number of operands for 'log'".to_string(),
+                //         ));
+                //     }
+                //     let base: f64 = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
+                //     let val: f64 = self.eval_ast(&operands[1])?.unwrap().as_number().unwrap();
+                //     Ok(Some(VariableValue::Number(val.log(base))))
+                // }
                 "sqrt" => {
                     if operands.len() != 1 {
                         return Err(ErrorHandler::ParseError(

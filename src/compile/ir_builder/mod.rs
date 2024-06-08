@@ -1,7 +1,7 @@
 use crate::interp::parser::ASTNode;
 use crate::interp::error_handler::ErrorHandler;
 use std::collections::HashMap;
-use inkwell::*;
+
 pub struct IrBuilder {
     pub input_ast: Vec<ASTNode>,
     pub used_registers: Vec<String>,

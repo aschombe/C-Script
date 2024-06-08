@@ -13,4 +13,4 @@
 
 // (while <condition> <body>)
 (let k 0)
-(while (lt k 5) ((print k) (set k (add k 1))))
+(while (lt? k 5) (print (get k)) (set k (add k 1)))
