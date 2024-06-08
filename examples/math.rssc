@@ -1,0 +1,6 @@
+%nop = add i1 0, 0
+%op0 = alloca i32, align 4
+store i32 1, ptr %op0, align 4
+%op1 = alloca i32, align 4
+store i32 1, ptr %op1, align 4
+%result0 = add i32 %op0, %op1,

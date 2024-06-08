@@ -19,14 +19,15 @@ impl IrBuilder {
         }
     }
 
-    pub fn build_ir(self) -> Result<String, ErrorHandler> {
+    pub fn build_ir(mut self) -> Result<String, ErrorHandler> {
         let mut ir: String = String::new();
-        // iterate through the input AST and build the LLVM IR
-        println!("{:?}", self.input_ast);
-        // declare a noop string instruction to be %nop = add i1 0, 0
+        let mut next_register: u32 = 0;
+        let mut next_return_register: u32 = 0;
+
         ir.push_str("%nop = add i1 0, 0\n");
+        self.used_registers.push("nop".to_owned());
+
         for node in self.input_ast {
-            // ir.push_str(&format!("{:?}\n", node));
             match node {
                 ASTNode::NoOp => ir.push_str("%nop"),
                 ASTNode::Value(val) => {
@@ -49,115 +50,71 @@ impl IrBuilder {
                 }
 
                 ASTNode::Operator(op, operands) => {
-                    // inster op and operands into the IR
-                    ir.push_str(&format!("{} ", op));
-                    for operand in operands {
-                        ir.push_str(&format!("{:?}", operand));
-                    }
-                    ir.push_str("\n");
+                    // op is the correct keyword
+                    // operands is in AST form, have to extract them properly
+                    // example of AST form:
+                    // Value("fact")Operator("0", [Value("x")])Operator("if", [Operator("lte?", [Value("x"), Value("1")]), Operator("base", [Value("1")]), Operator("else", [Operator("mul", [Value("x"), Operator("fact", [Operator("sub", [Value("x"), Value("1")])])])])])
+                    // Value("mult")Operator("0", [Value("x"), Value("y")])Operator("mul", [Value("x"), Value("y")])
+                    // this extraction has to be done per operator, (its nested with other operators, so it will be difficult to turn into LLVM IR)
+                    // ir.push_str(&format!("{:?} ", op));
+                    // for operand in operands.clone() {
+                    //     ir.push_str(&format!("{:?} ", operand));
+                    // }
+                    // ir.push_str("\n");
                     match op.as_str() {
                         "add" => {
-                            // if operands.is_empty() {
-                                // return Err(ErrorHandler::ParseError(("Empty addition".to_string())));
-                            // }
+                            for operand in operands {
+                                match operand {
+                                    ASTNode::Value(val) => {
+                                        if let Ok(num) = val.parse::<f64>() {
+                                            ir.push_str(&format!("%op{} = alloca i32, align 4\n", next_register));
+                                            ir.push_str(&format!("store i32 {}, ptr %op{}, align 4\n", num, next_register));
+                                            self.used_registers.push(format!("op{}", next_register));
+                                            next_register += 1;
+                                        } else {
+                                            return Err(ErrorHandler::VariableNotFound(val));
+                                        }
+                                    }
+                                    ASTNode::Operator(op, operands) => {
+                                        // this is where it gets complicated
+                                        // need to recursively extract the operands
+                                        // and then store them in memory
+                                        // then perform the operation
+                                        // then store the result in memory
+                                        // then return the result
+                                        ir.push_str("TODO");
+                                    }
+                                    ASTNode::StringValue(_) => todo!(),
+                                    ASTNode::NoOp => ir.push_str("%nop"),
+                                }
+                            }
+
+                            // ir.push_str("%result = add i32 ");
+                            ir.push_str(format!("%result{} = add i32 ", next_return_register).as_str());
+                            next_return_register += 1;
+                            for i in 0..next_register {
+                                ir.push_str(&format!("%op{}, ", i));
+                            }
+                            ir.push_str("\n");
+                            ir.push_str("ret i32 %result\n");
                             String::from("ADD")
                         }
-                        "sub" => {
-                            // if operands.is_empty() {
-                                // return Err(ErrorHandler::ParseError(("Empty subtraction".to_string())));
-                            // // }
-                            String::from("SUB")
-                        },
-                        "mul" => {
-                            // if operands.is_empty() {
-                                // return Err(ErrorHandler::ParseError(("Empty multiplication".to_string())));
-                            // }
-                            String::from("MUL")
-                        },
-                        "div" => {
-                            // if operands.is_empty() {
-                                // return Err(ErrorHandler::ParseError(("Empty division".to_string())));
-                            // }
-                            String::from("DIV")
-                        },
-                        "mod" => {
-                            // if operands.is_empty() {
-                            //     return Err(ErrorHandler::ParseError(("Empty modulo".to_string())));
-                            // }
-                            String::from("MOD")
-                        },
-                        "neg" => {
-                            // if operands.is_empty() {
-                            //     return Err(ErrorHandler::ParseError(("Empty negation".to_string())));
-                            // }
-                            String::from("NEG")
-                        },
-                        "max" => {
-                            // if operands.is_empty() {
-                            //     return Err(ErrorHandler::ParseError(("Empty max".to_string())));
-                            // }
-                            String::from("MAX")
-                        },
-                        "min" => {
-                            // if operands.is_empty() {
-                            //     return Err(ErrorHandler::ParseError(("Empty min".to_string())));
-                            // }
-                            String::from("MIN")
-                        },
-                        "pow" => {
-                            // if operands.len() != 2 {
-                            //     return Err(ErrorHandler::ParseError(("Invalid number of operands for pow".to_string())));
-                            // }
-                            String::from("POW")
-                        }
-                        "sqrt" => {
-                            // if operands.len() != 1 {
-                            //     return Err(ErrorHandler::ParseError(("Invalid number of operands for sqrt".to_string())));
-                            // }
-                            String::from("SQRT")
-                        }
-                        "sin" => {
-                            // if operands.len() != 1 {
-                            //     return Err(ErrorHandler::ParseError(("Invalid number of operands for sin".to_string())));
-                            // }
-                            String::from("SIN")
-                        }
-                        "cos" => {
-                            // if operands.len() != 1 {
-                            //     return Err(ErrorHandler::ParseError(("Invalid number of operands for cos".to_string())));
-                            // }
-                            String::from("COS")
-                        }
-                        "tan" => {
-                            // if operands.len() != 1 {
-                            //     return Err(ErrorHandler::ParseError(("Invalid number of operands for tan".to_string())));
-                            // }
-                            String::from("TAN")
-                        }
-                        "abs" => {
-                            // if operands.len() != 1 {
-                            //     return Err(ErrorHandler::ParseError(("Invalid number of operands for cos".to_string())));
-                            // }
-                            String::from("COS")
-                        }
-                        "floor" => {
-                            // if operands.len() != 1 {
-                            //     return Err(ErrorHandler::ParseError(("Invalid number of operands for floor".to_string())));
-                            // }
-                            String::from("FLOOR")
-                        }
-                        "ceil" => {
-                            // if operands.len() != 1 {
-                            //     return Err(ErrorHandler::ParseError(("Invalid number of operands for ceil".to_string())));
-                            // }
-                            String::from("CEIL")
-                        }
-                        "rand" => {
-                            // if operands.len() != 2 {
-                            //     return Err(ErrorHandler::ParseError(("Invalid number of operands for rand".to_string())));
-                            // }
-                            String::from("RAND")
-                        }
+                        "sub" => String::from("SUB"),
+                        "mul" => String::from("MUL"),
+                        "div" => String::from("DIV"),
+                        "mod" => String::from("MOD"),
+                        "neg" => String::from("NEG"),
+                        "max" => String::from("MAX"),
+                        "min" => String::from("MIN"),
+                        "pow" => String::from("POW"),
+                        "sqrt" => String::from("SQRT"),
+                        "sin" => String::from("SIN"),
+                        "cos" => String::from("COS"),
+                        "tan" => String::from("TAN"),
+                        "abs" => String::from("ABS"),
+                        "floor" => String::from("FLOOR"),
+                        "ceil" => String::from("CEIL"),
+                        "rand" => String::from("RAND"),
                         "if" => String::from("IF"),
                         // similarly to the interpreter, else should fall into the if case, so remove later potentially
                         "else" => String::from("ELSE"),
