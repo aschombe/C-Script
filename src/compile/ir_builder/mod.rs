@@ -23,28 +23,38 @@ impl IrBuilder {
         let mut ir: String = String::new();
         // iterate through the input AST and build the LLVM IR
         println!("{:?}", self.input_ast);
+        // declare a noop string instruction to be %nop = add i1 0, 0
+        ir.push_str("%nop = add i1 0, 0\n");
         for node in self.input_ast {
+            // ir.push_str(&format!("{:?}\n", node));
             match node {
-                // ASTNode::NoOp => continue,
-                // ASTNode::Value(val) => {
-                //     if val == "True" {
-                //         ir.push_str("1");
-                //     } else if val == "False" {
-                //         ir.push_str("0");
-                //     } else if let Ok(num) = val.parse::<f64>() {
-                //         ir.push_str(&num.to_string());
-                //     } else if let Some(num) = self.variables.get(&val) {
-                //         ir.push_str(&num.to_string());
-                //     } else {
-                //         return Err(ErrorHandler::VariableNotFound(val));
-                //     }
-                // }
+                ASTNode::NoOp => ir.push_str("%nop"),
+                ASTNode::Value(val) => {
+                    if val == "True" {
+                        ir.push_str("1");
+                    } else if val == "False" {
+                        ir.push_str("0");
+                    } else if let Ok(num) = val.parse::<f64>() {
+                        ir.push_str(&num.to_string());
+                    } else if let Some(num) = self.variables.get(&val) {
+                        // ir.push_str(&num.to_string());
+                        ir.push_str("TODO");
+                    } else {
+                        return Err(ErrorHandler::VariableNotFound(val));
+                    }
+                }
                 
-                // ASTNode::StringValue(val) => {
-                //     ir.push_str(&val);
-                // }
+                ASTNode::StringValue(val) => {
+                    ir.push_str(&val);
+                }
 
                 ASTNode::Operator(op, operands) => {
+                    // inster op and operands into the IR
+                    ir.push_str(&format!("{} ", op));
+                    for operand in operands {
+                        ir.push_str(&format!("{:?}", operand));
+                    }
+                    ir.push_str("\n");
                     match op.as_str() {
                         "add" => {
                             // if operands.is_empty() {
