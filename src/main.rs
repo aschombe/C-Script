@@ -15,6 +15,11 @@ fn main() {
     for arg in args {
         if arg == "-c" {
             compile = true;
+            // #[cfg(windows)]
+            // {
+            //     println!("Cannot compile on Windows");
+            //     return;
+            // }
         } else {
             path = Some(PathBuf::from(arg));
         }
