@@ -1,6 +1,7 @@
 use crate::interp::parser::ASTNode;
 use crate::interp::error_handler::ErrorHandler;
 use std::collections::HashMap;
+use llvm_ir::*;
 
 pub struct IrBuilder {
     pub input_ast: Vec<ASTNode>,
@@ -31,15 +32,15 @@ impl IrBuilder {
             match node {
                 ASTNode::NoOp => ir.push_str("%nop"),
                 ASTNode::Value(val) => {
+                    // these should be emitted to IR
                     if val == "True" {
-                        ir.push_str("1");
+                        
                     } else if val == "False" {
-                        ir.push_str("0");
+                        
                     } else if let Ok(num) = val.parse::<f64>() {
-                        ir.push_str(&num.to_string());
+                        
                     } else if let Some(num) = self.variables.get(&val) {
-                        // ir.push_str(&num.to_string());
-                        ir.push_str("TODO");
+                        
                     } else {
                         return Err(ErrorHandler::VariableNotFound(val));
                     }
@@ -56,48 +57,21 @@ impl IrBuilder {
                     // Value("fact")Operator("0", [Value("x")])Operator("if", [Operator("lte?", [Value("x"), Value("1")]), Operator("base", [Value("1")]), Operator("else", [Operator("mul", [Value("x"), Operator("fact", [Operator("sub", [Value("x"), Value("1")])])])])])
                     // Value("mult")Operator("0", [Value("x"), Value("y")])Operator("mul", [Value("x"), Value("y")])
                     // this extraction has to be done per operator, (its nested with other operators, so it will be difficult to turn into LLVM IR)
-                    // ir.push_str(&format!("{:?} ", op));
-                    // for operand in operands.clone() {
-                    //     ir.push_str(&format!("{:?} ", operand));
-                    // }
-                    // ir.push_str("\n");
                     match op.as_str() {
                         "add" => {
-                            // for operand in operands {
-                            //     match operand {
-                            //         ASTNode::Value(val) => {
-                            //             if let Ok(num) = val.parse::<f64>() {
-                            //                 ir.push_str(&format!("%op{} = alloca i32, align 4\n", next_register));
-                            //                 ir.push_str(&format!("store i32 {}, ptr %op{}, align 4\n", num, next_register));
-                            //                 self.used_registers.push(format!("op{}", next_register));
-                            //                 next_register += 1;
-                            //             } else {
-                            //                 return Err(ErrorHandler::VariableNotFound(val));
-                            //             }
-                            //         }
-                            //         ASTNode::Operator(op, operands) => {
-                            //             // this is where it gets complicated
-                            //             // need to recursively extract the operands
-                            //             // and then store them in memory
-                            //             // then perform the operation
-                            //             // then store the result in memory
-                            //             // then return the result
-                            //             ir.push_str("TODO");
-                            //         }
-                            //         ASTNode::StringValue(_) => todo!(),
-                            //         ASTNode::NoOp => ir.push_str("%nop"),
-                            //     }
-                            // }
+                            for operand in operands {
+                                match operand {
+                                    ASTNode::Value(val) => {
+                                        
+                                    }
+                                    ASTNode::Operator(op, operands) => {
+                                        
+                                    }
+                                    ASTNode::StringValue(_) => todo!(),
+                                    ASTNode::NoOp => ir.push_str("%nop"),
+                                }
+                            }
 
-                            // // ir.push_str("%result = add i32 ");
-                            // ir.push_str(format!("%result{} = add i32 ", next_return_register).as_str());
-                            // next_return_register += 1;
-                            // for i in 0..next_register {
-                            //     ir.push_str(&format!("%op{}, ", i));
-                            // }
-                            // ir.push_str("\n");
-                            // ir.push_str("ret i32 %result\n");
-                            // String::from("ADD")
                             String::from("ADD")
                         }
                         "sub" => String::from("SUB"),
