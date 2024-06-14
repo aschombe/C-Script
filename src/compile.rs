@@ -28,7 +28,7 @@ impl Compiler {
 
         let output_dir: String = target_path.parent().unwrap().to_str().unwrap().to_string();
 
-        let output_name: String = target_name.replace(".rss", ".rssc");
+        let output_name: String = target_name.replace(".rss", ".ll");
 
         Compiler {
             target_name,
@@ -46,7 +46,6 @@ impl Compiler {
         let output_path: String = format!("{}/{}", self.output_dir, self.output_name);
 
         let contents: String = fs::read_to_string(target_path).expect("Could not read file");
-
 
         // remove all comments
         let mut contents: String = contents
@@ -98,7 +97,7 @@ impl Compiler {
                 expressions.clear();
             }
         }
-        
+
         // translate AST to LLVM IR
         let ir_builder: IrBuilder = IrBuilder::new(ast_vec);
         let bytecode: String = ir_builder.build_ir().unwrap();
@@ -112,6 +111,8 @@ impl Compiler {
         let mut output_file: fs::File =
             fs::File::create(output_path).expect("Could not create file");
 
-        output_file.write_all(bytecode.as_bytes()).expect("Could not write to file");
+        output_file
+            .write_all(bytecode.as_bytes())
+            .expect("Could not write to file");
     }
 }

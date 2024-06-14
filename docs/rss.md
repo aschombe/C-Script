@@ -19,13 +19,13 @@ cargo run
 
 ### Flags
 The different flags are:
-- '-c': Compiles an RSS file to bytecode with the extension '.rssc'
+- '-c': Compiles an RSS file to bytecode with the extension '.ll'
 
 ## Examples
 ```bash
-./rss ./funcs.rss // This interprets the file
-./rss ./funcs.rss -c // This compiles the file to bytecode (funcs.rssc)
-./rss ./func.rssc // This runs the compiled file
+./rss ./funcs.rss # This interprets the file
+./rss ./funcs.rss -c # This compiles the file to bytecode (funcs.ll)
+./rss ./func.ll # This runs the compiled file (invokes Clang to compile the bytecode to an executable, then runs the executable)
 ```
 
 # More Examples to come once I have implemented bytecode and compilation

@@ -11,6 +11,10 @@ fn main() {
 
     let mut path: Option<PathBuf> = None;
     let mut compile: bool = false;
+    let mut executable_name: Option<String> = None;
+    let mut current_dir: Option<PathBuf> = None;
+
+    current_dir = Some(std::env::current_dir().unwrap());
 
     for arg in args {
         if arg == "-c" {
@@ -21,7 +25,28 @@ fn main() {
             //     return;
             // }
         } else {
-            path = Some(PathBuf::from(arg));
+            path = Some(PathBuf::from(arg.clone()));
+            executable_name = Some(arg.clone());
+
+            // grab the name of the file
+            executable_name = Some(
+                executable_name
+                    .unwrap()
+                    .split('/')
+                    .last()
+                    .unwrap()
+                    .to_string(),
+            );
+
+            // remove the extension
+            executable_name = Some(
+                executable_name
+                    .unwrap()
+                    .split('.')
+                    .next()
+                    .unwrap()
+                    .to_string(),
+            );
         }
     }
 
@@ -35,10 +60,16 @@ fn main() {
                     let mut interpreter: interp::Interpreter = interp::Interpreter::new();
                     let _res: Result<(), ErrorHandler> = interpreter.interp(path);
                 }
-            } else if extension == "rssc" {
-                println!(
-                    "Running is not yet implemented, but it will probably invoke a VM or something"
-                );
+            } else if extension == "ll" {
+                let mut cmd: std::process::Command = std::process::Command::new("clang");
+                cmd.arg("-o");
+                cmd.arg(format!(
+                    "{}/{}",
+                    current_dir.unwrap().to_str().unwrap(),
+                    executable_name.unwrap()
+                ));
+                cmd.arg(path);
+                let _res = cmd.output().unwrap();
             } else {
                 println!("Invalid file extension");
             }

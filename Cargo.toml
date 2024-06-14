@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-llvm-ir = { version = "0.11.1", features = ["llvm-17"] }
+llvm-ir = { version = "0.11.1", features = ["llvm-17", "prefer-dynamic"] }
 rand = "0.8.5"
 regex = "1.10.4"
