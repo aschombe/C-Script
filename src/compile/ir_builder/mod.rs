@@ -1,53 +1,36 @@
-use crate::interp::parser::ASTNode;
 use crate::interp::error_handler::ErrorHandler;
-use std::collections::HashMap;
-use llvm_ir::*;
+use crate::interp::parser::ASTNode;
 
 pub struct IrBuilder {
-    pub input_ast: Vec<ASTNode>,
-    pub used_registers: Vec<String>,
-    pub variables: HashMap<String, f64>,
-    pub functions: HashMap<String, Vec<ASTNode>>,
+    input_ast: Vec<ASTNode>,
+    ir: String,
 }
 
 impl IrBuilder {
     pub fn new(input_ast: Vec<ASTNode>) -> IrBuilder {
         IrBuilder {
             input_ast,
-            used_registers: Vec::new(),
-            variables: HashMap::new(),
-            functions: HashMap::new(),
+            ir: String::new(),
         }
     }
 
     pub fn build_ir(mut self) -> Result<String, ErrorHandler> {
-        let mut ir: String = String::new();
-        let mut next_register: u32 = 0;
-        let mut next_return_register: u32 = 0;
-
-        ir.push_str("%nop = add i1 0, 0\n");
-        self.used_registers.push("nop".to_owned());
-
         for node in self.input_ast {
             match node {
-                ASTNode::NoOp => ir.push_str("%nop"),
+                ASTNode::NoOp => self.ir.push_str("%nop"),
                 ASTNode::Value(val) => {
-                    // these should be emitted to IR
+                    /*// these should be emitted to IR
                     if val == "True" {
-                        
                     } else if val == "False" {
-                        
                     } else if let Ok(num) = val.parse::<f64>() {
-                        
                     } else if let Some(num) = self.variables.get(&val) {
-                        
                     } else {
                         return Err(ErrorHandler::VariableNotFound(val));
-                    }
+                    }*/
                 }
-                
+
                 ASTNode::StringValue(val) => {
-                    ir.push_str(&val);
+                    //ir.push_str(&val);
                 }
 
                 ASTNode::Operator(op, operands) => {
@@ -59,18 +42,7 @@ impl IrBuilder {
                     // this extraction has to be done per operator, (its nested with other operators, so it will be difficult to turn into LLVM IR)
                     match op.as_str() {
                         "add" => {
-                            for operand in operands {
-                                match operand {
-                                    ASTNode::Value(val) => {
-                                        
-                                    }
-                                    ASTNode::Operator(op, operands) => {
-                                        
-                                    }
-                                    ASTNode::StringValue(_) => todo!(),
-                                    ASTNode::NoOp => ir.push_str("%nop"),
-                                }
-                            }
+                            for operand in operands {}
 
                             String::from("ADD")
                         }
@@ -92,7 +64,7 @@ impl IrBuilder {
                         "rand" => String::from("RAND"),
                         "if" => String::from("IF"),
                         // similarly to the interpreter, else should fall into the if case, so remove later potentially
-                        "else" => String::from("ELSE"),
+                        // "else" => String::from("ELSE"),
                         "switch" => String::from("SWITCH"),
                         "zero?" => String::from("ZERO?"),
                         "even?" => String::from("EVEN?"),
@@ -128,13 +100,9 @@ impl IrBuilder {
                         _ => String::from("UNKNOWN OPERATOR"),
                     };
                 }
-
-                ASTNode::Value(_) => todo!(),
-                ASTNode::StringValue(_) => todo!(),
-                ASTNode::NoOp => todo!(),
             }
         }
 
-        Ok(ir)
+        Ok(self.ir)
     }
 }

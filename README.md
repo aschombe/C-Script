@@ -53,7 +53,9 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 
 ## Todo
-- [ ] Rework parser, lexer and AST
+- [ ] Rework parser (allow for groupings of expressions: ((print x) (add 5 5)) and AST (make AST more expansive)
+- [ ] ASTNode types to add: everything variable related, function related, for, if
+- [ ] Maybe make ASTNode groupings. Ex: arithmetics (add, sub, mul, div, mod, neg), comparisons (eq, ne, gt, lt, ge, le), logic (and, or, not)
 - [ ] Extract keywords and arguments from input AST in the IR Builder
 - [ ] Make IR Builder work
  
