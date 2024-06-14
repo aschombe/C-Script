@@ -286,7 +286,6 @@ version = "0.1.0"
 dependencies = [
  "llvm-ir",
  "rand",
- "regex",
 ]
 
 [[package]]

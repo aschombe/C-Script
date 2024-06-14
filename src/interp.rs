@@ -1,19 +1,13 @@
-use std::{
-    collections::HashMap, 
-    fs::read_to_string, 
-    path::PathBuf, 
-    process::exit, 
-    str::Lines
-};
+use std::{collections::HashMap, fs::read_to_string, path::PathBuf, process::exit, str::Lines};
 
-use parser::*;
 use error_handler::ErrorHandler;
 use function::Function;
+use parser::*;
 use variable_value::VariableValue;
 
-pub(crate) mod parser;
 pub(crate) mod error_handler;
 pub(crate) mod function;
+pub(crate) mod parser;
 pub(crate) mod variable_value;
 
 #[derive(Debug)]
