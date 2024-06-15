@@ -15,7 +15,8 @@ pub struct IrBuilder<'a> {
     bool_type: FloatType<'a>,
     string_type: StructType<'a>,
     void_type: VoidType<'a>,
-    builder: Builder<'a>,
+    builder: &'a Builder<'a>,
+    ir: String,
 
     variables: HashMap<String, VariableValue>,
     functions: HashMap<String, Function>,
@@ -29,7 +30,7 @@ impl<'a> IrBuilder<'a> {
         bool_type: FloatType<'a>,
         string_type: StructType<'a>,
         void_type: VoidType<'a>,
-        builder: Builder<'a>,
+        builder: &'a Builder<'a>,
     ) -> IrBuilder<'a> {
         IrBuilder {
             // input_ast,
@@ -39,7 +40,7 @@ impl<'a> IrBuilder<'a> {
             string_type,
             void_type,
             builder,
-
+            ir: String::new(),
             variables: HashMap::new(),
             functions: HashMap::new(),
         }
@@ -100,64 +101,77 @@ impl<'a> IrBuilder<'a> {
                             return Err(ErrorHandler::ParseError("Empty Addition".to_string()));
                         }
 
-                        String::from("ADD")
+                        // put something in the IR
                     }
-                    "sub" => String::from("SUB"),
-                    "mul" => String::from("MUL"),
-                    "div" => String::from("DIV"),
-                    "mod" => String::from("MOD"),
-                    "neg" => String::from("NEG"),
-                    "max" => String::from("MAX"),
-                    "min" => String::from("MIN"),
-                    "pow" => String::from("POW"),
-                    "sqrt" => String::from("SQRT"),
-                    "sin" => String::from("SIN"),
-                    "cos" => String::from("COS"),
-                    "tan" => String::from("TAN"),
-                    "abs" => String::from("ABS"),
-                    "floor" => String::from("FLOOR"),
-                    "ceil" => String::from("CEIL"),
-                    "rand" => String::from("RAND"),
-                    "if" => String::from("IF"),
-                    // similarly to the interpreter, else should fall into the if case, so remove later potentially
-                    // "else" => String::from("ELSE"),
-                    "switch" => String::from("SWITCH"),
-                    "zero?" => String::from("ZERO?"),
-                    "even?" => String::from("EVEN?"),
-                    "odd?" => String::from("ODD?"),
-                    "pos?" => String::from("POS?"),
-                    "neg?" => String::from("NEG?"),
-                    "eq?" => String::from("EQ?"),
-                    "neq?" => String::from("NEQ?"),
-                    "lt?" => String::from("LT?"),
-                    "lte?" => String::from("LTE?"),
-                    "gt?" => String::from("GT?"),
-                    "gte?" => String::from("GTE?"),
-                    "and" => String::from("AND"),
-                    "or" => String::from("OR"),
-                    "not" => String::from("NOT"),
-                    "let" => String::from("LET"),
-                    "set" => String::from("SET"),
-                    "get" => String::from("GET"),
-                    "del" => String::from("DEL"),
-                    "for" => String::from("FOR"),
-                    "concat" => String::from("CONCAT"),
-                    "len" => String::from("LEN"),
-                    "substring" => String::from("SUBSTRING"),
-                    "strip" => String::from("STRIP"),
-                    "replace" => String::from("REPLACE"),
-                    "upper" => String::from("UPPER"),
-                    "lower" => String::from("LOWER"),
-                    "print" => String::from("PRINT"),
-                    "exit" => String::from("EXIT"),
-                    "debug" => String::from("DEBUG"),
-                    "base" => String::from("BASE"),
-                    "func" => String::from("FUNC"),
-                    _ => String::from("UNKNOWN OPERATOR"),
+                    "sub" => {
+                        if operands.is_empty() {
+                            return Err(ErrorHandler::ParseError("Empty Subtraction".to_string()));
+                        }
+                    }
+                    "mul" => {
+                        if operands.is_empty() {
+                            return Err(ErrorHandler::ParseError(
+                                "Empty Multiplication".to_string(),
+                            ));
+                        }
+                    }
+                    // "div" => String::from("DIV"),
+                    // "mod" => String::from("MOD"),
+                    // "neg" => String::from("NEG"),
+                    // "max" => String::from("MAX"),
+                    // "min" => String::from("MIN"),
+                    // "pow" => String::from("POW"),
+                    // "sqrt" => String::from("SQRT"),
+                    // "sin" => String::from("SIN"),
+                    // "cos" => String::from("COS"),
+                    // "tan" => String::from("TAN"),
+                    // "abs" => String::from("ABS"),
+                    // "floor" => String::from("FLOOR"),
+                    // "ceil" => String::from("CEIL"),
+                    // "rand" => String::from("RAND"),
+                    // "if" => String::from("IF"),
+                    // // similarly to the interpreter, else should fall into the if case, so remove later potentially
+                    // // "else" => String::from("ELSE"),
+                    // "switch" => String::from("SWITCH"),
+                    // "zero?" => String::from("ZERO?"),
+                    // "even?" => String::from("EVEN?"),
+                    // "odd?" => String::from("ODD?"),
+                    // "pos?" => String::from("POS?"),
+                    // "neg?" => String::from("NEG?"),
+                    // "eq?" => String::from("EQ?"),
+                    // "neq?" => String::from("NEQ?"),
+                    // "lt?" => String::from("LT?"),
+                    // "lte?" => String::from("LTE?"),
+                    // "gt?" => String::from("GT?"),
+                    // "gte?" => String::from("GTE?"),
+                    // "and" => String::from("AND"),
+                    // "or" => String::from("OR"),
+                    // "not" => String::from("NOT"),
+                    // "let" => String::from("LET"),
+                    // "set" => String::from("SET"),
+                    // "get" => String::from("GET"),
+                    // "del" => String::from("DEL"),
+                    // "for" => String::from("FOR"),
+                    // "concat" => String::from("CONCAT"),
+                    // "len" => String::from("LEN"),
+                    // "substring" => String::from("SUBSTRING"),
+                    // "strip" => String::from("STRIP"),
+                    // "replace" => String::from("REPLACE"),
+                    // "upper" => String::from("UPPER"),
+                    // "lower" => String::from("LOWER"),
+                    // "print" => String::from("PRINT"),
+                    // "exit" => String::from("EXIT"),
+                    // "debug" => String::from("DEBUG"),
+                    // "base" => String::from("BASE"),
+                    // "func" => String::from("FUNC"),
+                    // _ => String::from("UNKNOWN OPERATOR"),
+                    _ => {
+                        return Err(ErrorHandler::ParseError("Unknown Operator".to_string()));
+                    }
                 };
             } // }
         }
 
-        Ok(String::from("IR"))
+        Ok(self.ir.clone())
     }
 }

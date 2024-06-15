@@ -49,7 +49,6 @@ fn main() {
             );
         }
     }
-
     if let Some(path) = path {
         if let Some(extension) = path.extension() {
             if extension == "rss" {

@@ -3,11 +3,12 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use crate::interp::parser::*;
+// use crate::ErrorHandler;
 
 use inkwell::basic_block::BasicBlock;
 use inkwell::context::Context;
 use inkwell::types::{FloatType, FunctionType, IntType, StructType, VoidType};
-use inkwell::values::FunctionValue;
+use inkwell::values::{AnyValue, FunctionValue};
 
 use crate::compile::ir_builder::IrBuilder;
 pub(crate) mod ir_builder;
@@ -32,6 +33,12 @@ impl Compiler {
             .to_string();
 
         let output_dir: String = target_path.parent().unwrap().to_str().unwrap().to_string();
+        // if output_dir is empty, set it to '.'
+        let output_dir: String = if output_dir.is_empty() {
+            ".".to_string()
+        } else {
+            output_dir
+        };
 
         let output_name: String = target_name.replace(".rss", ".ll");
 
@@ -50,9 +57,9 @@ impl Compiler {
         let target_path: String = format!("{}/{}", self.output_dir, self.target_name);
         let output_path: String = format!("{}/{}", self.output_dir, self.output_name);
 
-        let contents: String = fs::read_to_string(target_path).expect("Could not read file");
+        // let contents: String = fs::read_to_string(target_path).expect("Could not read file");
+        let contents: String = fs::read_to_string(&target_path).expect("Could not read file");
 
-        // remove all comments
         let mut contents: String = contents
             .lines()
             .map(|line| {
@@ -130,7 +137,7 @@ impl Compiler {
         //     void_type,
         //     builder,
         // );
-
+        let mut bytecode: String = String::new();
         for node in &ast_vec {
             let r_builder: IrBuilder = ir_builder::IrBuilder::new(
                 int_type,
@@ -138,14 +145,13 @@ impl Compiler {
                 bool_type,
                 string_type,
                 void_type,
-                builder,
+                &builder,
             );
-            let return_value: Result<String, crate::interp::error_handler::ErrorHandler> =
-                r_builder.build_ir(node);
-            let _ = builder.build_return(return_value);
+
+            let _res = r_builder.build_ir(node);
         }
 
-        println!("Generated LLVM IR: {}", function);
+        // println!("Generated LLVM IR: {}", function);
 
         // for now just push the AST to the bytecode
         // let mut bytecode: String = String::new();
@@ -154,10 +160,10 @@ impl Compiler {
         //}
 
         // let mut output_file: fs::File =
-        //     fs::File::create(output_path).expect("Could not create file");
+        // fs::File::create(output_path).expect("Could not create file");
 
         // output_file
-        //     .write_all(bytecode.as_bytes())
-        //     .expect("Could not write to file");
+        // .write_all(bytecode.as_bytes())
+        // .expect("Could not write to file");
     }
 }
