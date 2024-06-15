@@ -61,6 +61,7 @@ impl Interpreter {
     fn eval_ast(&mut self, node: &ASTNode) -> Result<Option<VariableValue>, ErrorHandler> {
         match node {
             ASTNode::NoOp => Ok(None),
+            
             ASTNode::Value(val) => {
                 if val == "True" {
                     Ok(Some(VariableValue::Number(1.0)))
@@ -76,6 +77,7 @@ impl Interpreter {
             }
 
             ASTNode::StringValue(val) => Ok(Some(VariableValue::Text(val.clone()))),
+            
             ASTNode::Operator(op, operands) => match op.as_str() {
                 // Arithmetic operators:
                 "add" => {
@@ -194,25 +196,6 @@ impl Interpreter {
                     let exp: f64 = self.eval_ast(&operands[1])?.unwrap().as_number().unwrap();
                     Ok(Some(VariableValue::Number(base.powf(exp))))
                 }
-                // "exp" => {
-                //     if operands.len() != 1 {
-                //         return Err(ErrorHandler::ParseError(
-                //             "Invalid number of operands for 'exp'".to_string(),
-                //         ));
-                //     }
-                //     let val: f64 = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
-                //     Ok(Some(VariableValue::Number(val.exp())))
-                // }
-                // "log" => {
-                //     if operands.len() != 2 {
-                //         return Err(ErrorHandler::ParseError(
-                //             "Invalid number of operands for 'log'".to_string(),
-                //         ));
-                //     }
-                //     let base: f64 = self.eval_ast(&operands[0])?.unwrap().as_number().unwrap();
-                //     let val: f64 = self.eval_ast(&operands[1])?.unwrap().as_number().unwrap();
-                //     Ok(Some(VariableValue::Number(val.log(base))))
-                // }
                 "sqrt" => {
                     if operands.len() != 1 {
                         return Err(ErrorHandler::ParseError(

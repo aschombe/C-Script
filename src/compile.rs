@@ -4,8 +4,8 @@ use std::path::PathBuf;
 
 use crate::interp::parser::*;
 
-use crate::compile::ir_builder::IrBuilder;
-pub(crate) mod ir_builder;
+// use crate::compile::ir_builder::IrBuilder;
+// pub(crate) mod ir_builder;
 
 pub struct Compiler {
     pub target_name: String,
@@ -99,14 +99,14 @@ impl Compiler {
         }
 
         // translate AST to LLVM IR
-        let ir_builder: IrBuilder = IrBuilder::new(ast_vec);
-        let bytecode: String = ir_builder.build_ir().unwrap();
+        // let ir_builder: IrBuilder = IrBuilder::new(ast_vec);
+        // let bytecode: String = ir_builder.build_ir().unwrap();
 
         // for now just push the AST to the bytecode
-        // let mut bytecode: String = String::new();
-        // for node in ast_vec {
-        //     bytecode.push_str(&format!("{:?}\n", node));
-        // }
+        let mut bytecode: String = String::new();
+        for node in ast_vec {
+            bytecode.push_str(&format!("{:?}\n", node));
+        }
 
         let mut output_file: fs::File =
             fs::File::create(output_path).expect("Could not create file");
