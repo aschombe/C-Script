@@ -4,8 +4,13 @@ use std::path::PathBuf;
 
 use crate::interp::parser::*;
 
-// use crate::compile::ir_builder::IrBuilder;
-// pub(crate) mod ir_builder;
+use inkwell::basic_block::BasicBlock;
+use inkwell::context::Context;
+use inkwell::types::{FloatType, FunctionType, IntType, StructType, VoidType};
+use inkwell::values::FunctionValue;
+
+use crate::compile::ir_builder::IrBuilder;
+pub(crate) mod ir_builder;
 
 pub struct Compiler {
     pub target_name: String,
@@ -98,15 +103,40 @@ impl Compiler {
             }
         }
 
+        // prepare context and types
+        let context: Context = Context::create();
+        let module = context.create_module("main");
+        let builder = context.create_builder();
+
+        let void_type: VoidType = context.void_type();
+        let int_type: IntType = context.i32_type();
+        let func_type: FunctionType = void_type.fn_type(&[], false);
+        let f64_type: FloatType = context.f64_type();
+        let bool_type: FloatType = context.f64_type();
+        let string_type: StructType =
+            context.struct_type(&[context.i8_type().array_type(255).into()], false);
+        let function: FunctionValue = module.add_function("main", func_type, None);
+        let basic_block: BasicBlock = context.append_basic_block(function, "entry");
+
+        builder.position_at_end(basic_block);
+
         // translate AST to LLVM IR
-        // let ir_builder: IrBuilder = IrBuilder::new(ast_vec);
-        // let bytecode: String = ir_builder.build_ir().unwrap();
+        let ir_builder: IrBuilder = IrBuilder::new(
+            ast_vec,
+            int_type,
+            f64_type,
+            bool_type,
+            string_type,
+            void_type,
+            builder,
+        );
+        let bytecode: String = ir_builder.build_ir().unwrap();
 
         // for now just push the AST to the bytecode
-        let mut bytecode: String = String::new();
-        for node in ast_vec {
-            bytecode.push_str(&format!("{:?}\n", node));
-        }
+        // let mut bytecode: String = String::new();
+        // for node in ast_vec {
+        //    bytecode.push_str(&format!("{:?}\n", node));
+        //}
 
         let mut output_file: fs::File =
             fs::File::create(output_path).expect("Could not create file");

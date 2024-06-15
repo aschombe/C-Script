@@ -1,32 +1,87 @@
-use crate::interp::error_handler::ErrorHandler;
-use crate::interp::parser::ASTNode;
+use std::collections::HashMap;
 
-pub struct IrBuilder {
+use crate::interp::error_handler::ErrorHandler;
+use crate::interp::function::Function;
+use crate::interp::parser::ASTNode;
+use crate::interp::variable_value::VariableValue;
+
+use inkwell::builder::Builder;
+use inkwell::types::{FloatType, IntType, StructType, VoidType};
+
+pub struct IrBuilder<'a> {
     input_ast: Vec<ASTNode>,
+    int_type: IntType<'a>,
+    f64_type: FloatType<'a>,
+    bool_type: FloatType<'a>,
+    string_type: StructType<'a>,
+    void_type: VoidType<'a>,
     ir: String,
+    builder: Builder<'a>,
+
+    variables: HashMap<String, VariableValue>,
+    functions: HashMap<String, Function>,
 }
 
-impl IrBuilder {
-    pub fn new(input_ast: Vec<ASTNode>) -> IrBuilder {
+impl<'a> IrBuilder<'a> {
+    pub fn new(
+        input_ast: Vec<ASTNode>,
+        int_type: IntType<'a>,
+        f64_type: FloatType<'a>,
+        bool_type: FloatType<'a>,
+        string_type: StructType<'a>,
+        void_type: VoidType<'a>,
+        builder: Builder<'a>,
+    ) -> IrBuilder<'a> {
         IrBuilder {
             input_ast,
+            int_type,
+            f64_type,
+            bool_type,
+            string_type,
+            void_type,
             ir: String::new(),
+            builder,
+
+            variables: HashMap::new(),
+            functions: HashMap::new(),
         }
     }
 
     pub fn build_ir(mut self) -> Result<String, ErrorHandler> {
         for node in self.input_ast {
             match node {
-                ASTNode::NoOp => self.ir.push_str("%nop"),
+                ASTNode::NoOp => {
+                    // do nothing
+                }
                 ASTNode::Value(val) => {
-                    /*// these should be emitted to IR
                     if val == "True" {
+                        let _err = self
+                            .builder
+                            .build_return(Some(&self.f64_type.const_float(1.0)));
                     } else if val == "False" {
+                        let _err = self
+                            .builder
+                            .build_return(Some(&self.f64_type.const_float(0.0)));
                     } else if let Ok(num) = val.parse::<f64>() {
+                        let _err = self
+                            .builder
+                            .build_return(Some(&self.f64_type.const_float(num)));
                     } else if let Some(num) = self.variables.get(&val) {
+                        match num {
+                            VariableValue::Number(num) => {
+                                let _err = self
+                                    .builder
+                                    .build_return(Some(&self.f64_type.const_float(*num)));
+                            }
+                            VariableValue::Text(_) => {
+                                return Err(ErrorHandler::ParseError(
+                                    "Expected a number".to_string(),
+                                ));
+                            }
+                        }
                     } else {
                         return Err(ErrorHandler::VariableNotFound(val));
-                    }*/
+                    }
                 }
 
                 ASTNode::StringValue(val) => {
@@ -42,7 +97,48 @@ impl IrBuilder {
                     // this extraction has to be done per operator, (its nested with other operators, so it will be difficult to turn into LLVM IR)
                     match op.as_str() {
                         "add" => {
-                            for operand in operands {}
+                            // build_float_add<T: FLoatMathValue<'ctx>>(&self, lhs: T, rhs: T,
+                            // name: &str) -> Result(T, BuilderError)
+                            // for operand in operands {}
+                            if operands.is_empty() {
+                                return Err(ErrorHandler::ParseError("Empty Addition".to_string()));
+                            }
+
+                            // use build_float_add on operands
+                            for operand in operands {
+                                match operand {
+                                    ASTNode::Value(val) => {
+                                        if let Ok(num) = val.parse::<f64>() {
+                                            let _err = self.builder.build_return(Some(
+                                                &self.f64_type.const_float(num),
+                                            ));
+                                        } else if let Some(num) = self.variables.get(&val) {
+                                            match num {
+                                                VariableValue::Number(num) => {
+                                                    let _err = self.builder.build_return(Some(
+                                                        &self.f64_type.const_float(*num),
+                                                    ));
+                                                }
+                                                VariableValue::Text(_) => {
+                                                    return Err(ErrorHandler::ParseError(
+                                                        "Expected a number".to_string(),
+                                                    ));
+                                                }
+                                            }
+                                        } else {
+                                            return Err(ErrorHandler::VariableNotFound(val));
+                                        }
+                                    }
+                                    ASTNode::Operator(op, operands) => {
+                                        // then use the result to build the addition
+                                    }
+                                    _ => {
+                                        return Err(ErrorHandler::ParseError(
+                                            "Expected a number or operator".to_string(),
+                                        ));
+                                    }
+                                }
+                            }
 
                             String::from("ADD")
                         }
