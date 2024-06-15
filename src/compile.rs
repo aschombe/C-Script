@@ -121,16 +121,31 @@ impl Compiler {
         builder.position_at_end(basic_block);
 
         // translate AST to LLVM IR
-        let ir_builder: IrBuilder = IrBuilder::new(
-            ast_vec,
-            int_type,
-            f64_type,
-            bool_type,
-            string_type,
-            void_type,
-            builder,
-        );
-        let bytecode: String = ir_builder.build_ir().unwrap();
+        // let ir_builder: IrBuilder = IrBuilder::new(
+        //     // ast_vec,
+        //     int_type,
+        //     f64_type,
+        //     bool_type,
+        //     string_type,
+        //     void_type,
+        //     builder,
+        // );
+
+        for node in &ast_vec {
+            let r_builder: IrBuilder = ir_builder::IrBuilder::new(
+                int_type,
+                f64_type,
+                bool_type,
+                string_type,
+                void_type,
+                builder,
+            );
+            let return_value: Result<String, crate::interp::error_handler::ErrorHandler> =
+                r_builder.build_ir(node);
+            let _ = builder.build_return(return_value);
+        }
+
+        println!("Generated LLVM IR: {}", function);
 
         // for now just push the AST to the bytecode
         // let mut bytecode: String = String::new();
@@ -138,11 +153,11 @@ impl Compiler {
         //    bytecode.push_str(&format!("{:?}\n", node));
         //}
 
-        let mut output_file: fs::File =
-            fs::File::create(output_path).expect("Could not create file");
+        // let mut output_file: fs::File =
+        //     fs::File::create(output_path).expect("Could not create file");
 
-        output_file
-            .write_all(bytecode.as_bytes())
-            .expect("Could not write to file");
+        // output_file
+        //     .write_all(bytecode.as_bytes())
+        //     .expect("Could not write to file");
     }
 }
