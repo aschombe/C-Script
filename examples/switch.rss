@@ -1,4 +1,4 @@
-(let x 6)
+(let x 5)
 (switch x
     (case 1 (print 'one'))
     (case 2 (print 'two'))

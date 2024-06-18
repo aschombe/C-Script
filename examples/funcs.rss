@@ -6,4 +6,3 @@
 
 (func fact (0 x) (if (lte? x 1) (base 1) (else (mul x (fact (sub x 1))))))
 (fact 5)
-
