@@ -1,5 +1,8 @@
+#[cfg(not(windows))]
 mod compile;
+#[cfg(not(windows))]
 use compile::Compiler;
+
 mod interp;
 use interp::error_handler::ErrorHandler;
 
@@ -54,14 +57,24 @@ fn main() {
             if extension == "rss" {
                 if compile {
                     // compile the file
-                    let compiler: Compiler = Compiler::new(path);
-                    compiler.compile();
+                    #[cfg(not(windows))]
+                    {
+                        let compiler: Compiler = Compiler::new(path);
+                        compiler.compile();
+                        return;
+                    }
+                    println!("Cannot compile on Windows");
                 } else {
                     // interpret the file
                     let mut interpreter: interp::Interpreter = interp::Interpreter::new();
                     let _res: Result<(), ErrorHandler> = interpreter.interp(path);
                 }
             } else if extension == "ll" {
+                #[cfg(windows)]
+                {
+                    println!("Cannot compile on Windows");
+                    return;
+                }
                 // invoke clang to compile the llvm file
                 let mut cmd: std::process::Command = std::process::Command::new("clang");
                 cmd.arg("-o");
