@@ -31,34 +31,11 @@ The file should have the extension `.rss` or `.ll`. You can find some example fi
 More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 ## Features
-- [x] Print Statements
-- [x] Comments (single line comments)
-- [x] Arithmetic Operations
-- [x] Math Functions
-- [x] Comparison Operations
-- [x] And, Or, Not
-- [x] Nested Expressions
-- [x] Variables
-- [x] Floating point numbers
-- [x] For loops
-- [x] Control Flow
-- [x] Add boolean keywords
-- [x] Expansive Examples in the examples directory
-- [x] Debug function (prints the current state of the interpreter (variables and functions))
-- [x] Exit function (exits the interpreter)
-- [x] Code can span multiple lines
-- [x] String type for variables
-- [x] String literals
-- [x] String functions
+- [x] Nothing
 
 
 ## Todo
-- [ ] Rewrite a lot of stuff (add enum for keywords, the stuff below too)
-- [ ] Rework parser (allow for groupings of expressions: ((print x) (add 5 5)) and AST (make AST more expansive)
-- [ ] ASTNode types to add: everything variable related, function related, for, if
-- [ ] Maybe make ASTNode groupings. Ex: arithmetics (add, sub, mul, div, mod, neg), comparisons (eq, ne, gt, lt, ge, le), logic (and, or, not)
-- [ ] Extract keywords and arguments from input AST in the IR Builder
-- [ ] Make IR Builder work
+- [ ] Literally everything
  
 ## Notes
-- Empty parenthesis '()' are evaluated to None
+
