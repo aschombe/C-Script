@@ -42,7 +42,7 @@ pub enum Types {
     NumberFloat(f64),
     Text(String),
     Boolean(bool),
-    None,
+    Void,
 }
 
 // implement fmt::Display after the error handler is re-implemented

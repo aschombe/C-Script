@@ -32,7 +32,7 @@
 // }
 // Function
 // syntax for Function:
-// func <name>:<return type>(<args>) {
+// func <name>(<args>):<return-type> {
 //     // code
 // }
 // Return
@@ -59,8 +59,7 @@ pub enum ASTNode {
     IfElifElse(Box<ASTNode>, Vec<(Box<ASTNode>, Vec<ASTNode>)>, Vec<ASTNode>), // WIP
     Switch(Box<ASTNode>, Vec<(Box<ASTNode>, Vec<ASTNode>)>, Vec<ASTNode>),
     For(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>, Vec<ASTNode>),
-    While(Box<ASTNode>, Vec<ASTNode>),
-    Function(String, Types, Vec<String>, Vec<ASTNode>),
+    Function(String, Vec<(String, Types)>, Vec<ASTNode>), // function <name>(<args>):<return-type> { <code> }
     Return(Box<ASTNode>),
     Substring(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>), // substring(<string>, <start>, <end>)
     Strip(Box<ASTNode>, Box<ASTNode>), // strip(<string>, <char>)

@@ -1,47 +1,58 @@
-use crate::error_handler::ErrorHandler;
-use crate::ast::ASTNode;
+// here are some examples of how the tokenizer works:
+/*
 
-pub fn parse(tokens: &[String]) -> Result<(ASTNode, usize), ErrorHandler> {
-    if tokens.is_empty() {
-        return Err(ErrorHandler::ParseError("Empty expression".to_string()));
+let x: int = 5;
+becomes
+["let", "x", ":", "int", "=", "5;", "\n"]
+
+func add(x: int, y: int): int {
+    return x + y;
+}
+let y: int = add(2, 3);
+becomes
+["func", "add", "(", "x", ":", "int,", "y", ":", "int", ")", ":", "int", "{", "\n", "return", "x", "+", "y;", "\n", "}", "\n", "let", "y", ":", "int", "=", "add", "(", "2,", "3", ")", ";", "\n"]
+*/
+
+// here is my types and ast enums:
+/*
+pub enum Types {
+    NumberInt(i64),
+    NumberFloat(f64),
+    Text(String),
+    Boolean(bool),
+    Void,
+}
+
+pub enum ASTNode {
+    Value(Types),    
+    NArg(String, Vec<ASTNode>), // add, subtract, multiply, divide, modulo, and, or, concat, print
+    OneArg(String, Box<ASTNode>), // neg, sqrt, sin, cos, tan, abs, floor, ceil, not, len, upper, lower, exit
+    TwoArg(String, Box<ASTNode>, Box<ASTNode>), // pow, rand
+    TwoArgComp(String, Box<ASTNode>, Box<ASTNode>), // eq?, neq?, gt?, lt?, gte?, lte?
+    Let(String, Types, Box<ASTNode>), // let <name>:<type> = <value>
+    Del(String), // del <name>
+    IfElifElse(Box<ASTNode>, Vec<(Box<ASTNode>, Vec<ASTNode>)>, Vec<ASTNode>), // WIP
+    Switch(Box<ASTNode>, Vec<(Box<ASTNode>, Vec<ASTNode>)>, Vec<ASTNode>),
+    For(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>, Vec<ASTNode>),
+    While(Box<ASTNode>, Vec<ASTNode>),
+    Function(String, Types, Vec<String>, Vec<ASTNode>),
+    Return(Box<ASTNode>),
+    Substring(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>), // substring(<string>, <start>, <end>)
+    Strip(Box<ASTNode>, Box<ASTNode>), // strip(<string>, <char>)
+    Replace(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>), // replace(<string>, <old-char>, <new-char>)
+    Break,
+    Continue,
+}
+
+    tokenizer return type is Vec<String>
+*/
+
+use crate::{ast::ASTNode, types::Types, error_handler::ErrorHandler};
+
+pub fn parse(tokens: Vec<String>) -> Result<Vec<ASTNode>, ErrorHandler> {
+    if tokens.len() == 0 {
+        return Err(ErrorHandler::ParseError("No tokens to parse".to_string()));
     }
 
-    let mut index: usize = 0;
-
-    if tokens[index] != "(" {
-        return Err(ErrorHandler::ParseError("Expected '('. Good luck!".to_string()));
-    }
-
-    index += 1;
-
-    // Handle the case of empty parentheses
-    if index < tokens.len() && tokens[index] == ")" {
-        return Ok((ASTNode::NoOp, index + 1));
-    }
-
-    let operator: String = tokens[index].clone();
-    index += 1;
-
-    let mut operands: Vec<ASTNode> = Vec::new();
-
-    while index < tokens.len() && tokens[index] != ")" {
-        if tokens[index] == "(" {
-            let (node, consumed) = parse(&tokens[index..])?;
-            operands.push(node);
-            index += consumed;
-        } else if tokens[index].starts_with('\'') && tokens[index].ends_with('\'') {
-            let string_value = tokens[index][1..tokens[index].len() - 1].to_string();
-            operands.push(ASTNode::StringValue(string_value));
-            index += 1;
-        } else {
-            operands.push(ASTNode::Value(tokens[index].clone()));
-            index += 1;
-        }
-    }
-
-    if index >= tokens.len() || tokens[index] != ")" {
-        return Err(ErrorHandler::ParseError("Expected ')'. Good luck!".to_string()));
-    }
-
-    Ok((ASTNode::Operator(operator, operands), index + 1))
+    Ok(vec![])
 }
