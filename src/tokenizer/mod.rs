@@ -116,7 +116,7 @@ pub fn tokenize(expr: &str) -> Vec<String> {
                     }
                 }
             }
-            '\n' => {
+            '\n' | '\t' => {
                 if !token.is_empty() {
                     tokens.push(token.clone());
                     token.clear();
@@ -149,6 +149,9 @@ pub fn tokenize(expr: &str) -> Vec<String> {
     if !token.is_empty() {
         tokens.push(token);
     }
+
+    // clean the tokens (strip \n and \t)
+    tokens.retain(|x| x != "\n" && x != "\t");
 
     tokens
 }

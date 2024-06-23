@@ -109,32 +109,28 @@
 //     }
 // }
 
-// static code: &str = r#"
-// if (1 != 1) {
-//     print(1);
-// } elif (2 != 2) {
-//     print(2);
-// } elif ( (1 + 1 + 1) > 3 ) {
-//     print(3);
-// } else {
-//     print(4);
-// }
-// "#;
+static code: &str = r#"
+if (1 != 1) {
+    print(1);
+} elif (2 != 2) {
+    print(2);
+} elif ( (1 + 1 + 1) > 3 ) {
+    print(3);
+} else {
+    print(4);
+}
+"#;
 
 use rss::error_handler::ErrorHandler;
-
-// static code: &str = r#"
-// let y:int = 1;
-// "#;
 
 fn main() {
     // tokenize the code
     let tokens: Vec<String> = rss::tokenizer::tokenize(code);
     println!("{:?}", tokens);
-    let ast: Result<Vec<rss::ast::ASTNode>, ErrorHandler> = rss::parser::parse(tokens);
-    if let Ok(ast) = ast {
-        println!("{:?}", ast);
-    } else {
-        println!("Error: {:?}", ast.err());
-    }
+    // let ast: Result<Vec<rss::ast::ASTNode>, ErrorHandler> = rss::parser::parse(tokens);
+    // if let Ok(ast) = ast {
+    //     println!("{:?}", ast);
+    // } else {
+    //     println!("Error: {:?}", ast.err());
+    // }
 }
