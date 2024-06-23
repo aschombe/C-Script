@@ -60,12 +60,10 @@ the tokenized output of this is:
 */
 
 use crate::error_handler::ErrorHandler;
-use crate::keywords::{get_ast_node, get_keyword, Keywords};
+use crate::keywords::{get_ast_node, get_keyword};
 use crate::types::{Type, TypeTag};
 use crate::ast::{ASTNode, ASTNodeTypes};
-use crate::function::Function;
 
-use std::collections::HashMap;
 use std::iter::Peekable;
 use std::slice::Iter;
 
@@ -98,6 +96,11 @@ pub fn parse(tokens: Vec<String>) -> Result<Vec<ASTNode>, ErrorHandler> {
 
                 ast.push(ASTNode::Let(name.clone(), type_tag, Box::new(value)));
 
+                tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected ';'".to_string()))?;
+            }
+            "del" => {
+                let name: &String = tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected variable name".to_string()))?;
+                ast.push(ASTNode::Del(name.clone()));
                 tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected ';'".to_string()))?;
             }
             _ => {
@@ -168,21 +171,83 @@ fn parse_factor(tokens_iter: &mut Peekable<Iter<String>>) -> Result<ASTNode, Err
         } else if tokens_iter.peek() == Some(&&String::from("(")) {
             let func_name = token.clone();
             tokens_iter.next(); // Consume '('
-            let mut args: Vec<ASTNode> = Vec::new();
-            while let Some(&token) = tokens_iter.peek() {
-                if token == ")" {
-                    tokens_iter.next(); // Consume ')'
-                    break;
-                }
-                let arg: ASTNode = parse_expression(tokens_iter)?;
-                args.push(arg);
-                if let Some(&token) = tokens_iter.peek() {
-                    if token == "," {
-                        tokens_iter.next(); // Consume ','
+            
+            let ast_type: ASTNodeTypes = get_ast_node(&func_name);
+            match ast_type {
+                ASTNodeTypes::NArg => {
+                    let mut args: Vec<ASTNode> = Vec::new();
+                    while let Some(&token) = tokens_iter.peek() {
+                        if token == ")" {
+                            tokens_iter.next(); // Consume ')'
+                            break;
+                        }
+                        let arg: ASTNode = parse_expression(tokens_iter)?;
+                        args.push(arg);
+                        if let Some(&token) = tokens_iter.peek() {
+                            if token == "," {
+                                tokens_iter.next(); // Consume ','
+                            }
+                        }
                     }
+                    return Ok(ASTNode::NArg(get_keyword(&func_name), args));
+                }
+                ASTNodeTypes::OneArg => {
+                    let arg: ASTNode = parse_expression(tokens_iter)?;
+                    if let Some(&token) = tokens_iter.peek() {
+                        if token == ")" {
+                            tokens_iter.next(); // Consume ')'
+                        }
+                    }
+                    return Ok(ASTNode::OneArg(func_name, Box::new(arg)));
+                }
+                ASTNodeTypes::TwoArg => {
+                    let arg1: ASTNode = parse_expression(tokens_iter)?;
+                    if let Some(&token) = tokens_iter.peek() {
+                        if token == "," {
+                            tokens_iter.next(); // Consume ','
+                        }
+                    }
+                    let arg2: ASTNode = parse_expression(tokens_iter)?;
+                    if let Some(&token) = tokens_iter.peek() {
+                        if token == ")" {
+                            tokens_iter.next(); // Consume ')'
+                        }
+                    }
+                    return Ok(ASTNode::TwoArg(func_name, Box::new(arg1), Box::new(arg2)));
+                }
+                ASTNodeTypes::TwoArgComp => {
+                    let arg1: ASTNode = parse_expression(tokens_iter)?;
+                    if let Some(&token) = tokens_iter.peek() {
+                        if token == "," {
+                            tokens_iter.next(); // Consume ','
+                        }
+                    }
+                    let arg2: ASTNode = parse_expression(tokens_iter)?;
+                    if let Some(&token) = tokens_iter.peek() {
+                        if token == ")" {
+                            tokens_iter.next(); // Consume ')'
+                        }
+                    }
+                    return Ok(ASTNode::TwoArgComp(func_name, Box::new(arg1), Box::new(arg2)));
+                }
+                _ => {
+                    let mut args: Vec<ASTNode> = Vec::new();
+                    while let Some(&token) = tokens_iter.peek() {
+                        if token == ")" {
+                            tokens_iter.next(); // Consume ')'
+                            break;
+                        }
+                        let arg: ASTNode = parse_expression(tokens_iter)?;
+                        args.push(arg);
+                        if let Some(&token) = tokens_iter.peek() {
+                            if token == "," {
+                                tokens_iter.next(); // Consume ','
+                            }
+                        }
+                    }
+                    return Ok(ASTNode::FunctionCall(func_name, args));
                 }
             }
-            return Ok(ASTNode::FunctionCall(func_name, args));
         } else {
             return Ok(ASTNode::VariableRef(token.clone()));
         }

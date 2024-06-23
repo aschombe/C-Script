@@ -58,7 +58,7 @@ pub fn tokenize(expr: &str) -> Vec<String> {
                 }
                 tokens.push(c.to_string());
             }
-            ':' | '(' | ')' | '=' | ';' => {
+            ':' | '(' | ')' | '=' | ';' | ',' => {
                 if !token.is_empty() {
                     tokens.push(token.clone());
                     token.clear();

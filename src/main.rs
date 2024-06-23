@@ -112,13 +112,17 @@
 use rss::error_handler::ErrorHandler;
 
 static CODE: &str = r#"
+// let x: bool = true;
 // let x: int = 5 * 2 - 3 / 2 + 1 % 2;
 // let y: float = 5.5;
 // let x: int = 5;
 // let y: int = x;
+// let b: int = 2 ^ 3;
 // let z: float = sqrt(25.0);
+// let a: int = rand(1, 10);
 // let fact: int = factorial(5);
 // let name: string = "Hello, World!";
+
 // if (x > 5 && x < 10 && 1 == 1) {
 //     print("Hello, World!");
 // } elif (x > 10) {
@@ -126,10 +130,12 @@ static CODE: &str = r#"
 // } else {
 //     print("Hello, World Again!");
 // }
+
 // let p1:string = "Hello,";
 // let p2:string = " World!";
 // let p3:string = p1 <> p2;
 // print(p3); // Hello, World!
+
 // let y:float = 5.5;
 // print(~y); // -5.5
 // let z:float = sqrt(25.0);
@@ -162,15 +168,21 @@ static CODE: &str = r#"
 // let n:string = "Hello, World!";
 // let o:string = substring(n, 0, 5);
 // print(o); // Hello
-// func factorial ( n : int ) : int {
-//     if ( n == 0 ) {
+//
+// let x: int = 5;
+// for (i; i < 10; i = i + 1) {
+//     print(i);
+// }
+//
+// func factorial (n: int):int {
+//     if (n == 0) {
 //         return 1;
 //     } else {
-//         return n * factorial ( n - 1 );
+//         return n * factorial (n - 1);
 //     }
 // }
-// let p:int = factorial( 5 );
-// print( p ); // 120
+// let p:int = factorial(5);
+// print(p); // 120
 "#;
 
 fn main() {
