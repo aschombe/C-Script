@@ -1,48 +1,136 @@
+use std::fmt;
 
-// use std::fmt;
-
-// use crate::interp::error_handler::ErrorHandler;
-
-// #[derive(Debug, Clone)]
-// pub enum VariableValue {
-//     Number(f64),
-//     Text(String),
-// }
-
-// impl fmt::Display for VariableValue {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         match self {
-//             VariableValue::Number(num) => write!(f, "{}", num),
-//             VariableValue::Text(text) => write!(f, "{}", text),
-//         }
-//     }
-// }
-
-// impl VariableValue {
-//     pub fn as_number(&self) -> Result<f64, ErrorHandler> {
-//         if let VariableValue::Number(num) = self {
-//             Ok(*num)
-//         } else {
-//             Err(ErrorHandler::ParseError("Expected a number".to_string()))
-//         }
-//     }
-
-//     fn _as_text(&self) -> Result<&str, ErrorHandler> {
-//         if let VariableValue::Text(text) = self {
-//             Ok(text)
-//         } else {
-//             Err(ErrorHandler::ParseError("Expected a text".to_string()))
-//         }
-//     }
-// }
+use crate::error_handler::ErrorHandler;
 
 #[derive(Debug, Clone)]
-pub enum Types {
-    NumberInt(i64),
-    NumberFloat(f64),
-    Text(String),
+pub enum Type {
+    Int(i64),
+    Float(f64),
+    String(String),
     Boolean(bool),
+    Void,
+    // TypeTag(String),
+}
+
+#[derive(Debug, Clone)]
+pub enum TypeTag {
+    Int,
+    Float,
+    String,
+    Boolean,
     Void,
 }
 
-// implement fmt::Display after the error handler is re-implemented
+impl Type {
+    fn get_type_tag(&self) -> TypeTag {
+        match self {
+            Type::Int(_) => TypeTag::Int,
+            Type::Float(_) => TypeTag::Float,
+            Type::String(_) => TypeTag::String,
+            Type::Boolean(_) => TypeTag::Boolean,
+            Type::Void => TypeTag::Void,
+            // Type::TypeTag(_) => panic!("TypeTag {} is not a valid type", self),
+        }
+    }
+
+    fn as_int(&self) -> Result<i64, String> {
+        if let Type::Int(num) = self {
+            Ok(*num)
+        } else {
+            Err(ErrorHandler::TypeError("Expected an integer".to_string()).to_string())
+        }
+    }
+
+    fn as_float(&self) -> Result<f64, String> {
+        if let Type::Float(num) = self {
+            Ok(*num)
+        } else {
+            Err(ErrorHandler::TypeError("Expected a float".to_string()).to_string())
+        }
+    }
+
+    fn as_string(&self) -> Result<&str, String> {
+        if let Type::String(text) = self {
+            Ok(text)
+        } else {
+            Err(ErrorHandler::TypeError("Expected a string".to_string()).to_string())
+        }
+    }
+
+    fn as_boolean(&self) -> Result<bool, String> {
+        if let Type::Boolean(boolean) = self {
+            Ok(*boolean)
+        } else {
+            Err(ErrorHandler::TypeError("Expected a boolean".to_string()).to_string())
+        }
+    }
+
+    // fn as_type_tag(&self) -> Result<&str, String> {
+    //     if let Type::TypeTag(tag) = self {
+    //         Ok(tag)
+    //     } else {
+    //         Err(ErrorHandler::TypeError("Expected a type tag".to_string()).to_string())
+    //     }
+    // }
+
+    fn is_int(&self) -> bool {
+        if let Type::Int(_) = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn is_float(&self) -> bool {
+        if let Type::Float(_) = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn is_string(&self) -> bool {
+        if let Type::String(_) = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn is_boolean(&self) -> bool {
+        if let Type::Boolean(_) = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn is_void(&self) -> bool {
+        if let Type::Void = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    // fn is_type_tag(&self) -> bool {
+    //     if let Type::TypeTag(_) = self {
+    //         true
+    //     } else {
+    //         false
+    //     }
+    // }
+}
+
+impl fmt::Display for Type {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Type::Int(num) => write!(f, "{}", num),
+            Type::Float(num) => write!(f, "{}", num),
+            Type::String(text) => write!(f, "{}", text),
+            Type::Boolean(boolean) => write!(f, "{}", boolean),
+            Type::Void => write!(f, "void"),
+            // Type::TypeTag(tag) => write!(f, "{}", tag),
+        }
+    }
+}

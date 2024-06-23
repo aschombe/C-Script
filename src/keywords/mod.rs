@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub enum Keywords {
     Add,
     Sub,
@@ -45,7 +46,12 @@ pub enum Keywords {
     Substring,
     Strip,
     Replace,
-    Print
+    Print,
+    Int,
+    Float,
+    String,
+    Bool,
+    Void,
 }
 
 pub fn get_keyword(keyword: &str) -> Keywords {
@@ -97,6 +103,11 @@ pub fn get_keyword(keyword: &str) -> Keywords {
         "strip" => Keywords::Strip,
         "replace" => Keywords::Replace,
         "print" => Keywords::Print,
+        "int" => Keywords::Int,
+        "float" => Keywords::Float,
+        "string" => Keywords::String,
+        "bool" => Keywords::Bool,
+        "void" => Keywords::Void,
         _ => panic!("Unknown keyword: {}", keyword),
     }
 }
