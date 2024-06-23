@@ -109,17 +109,17 @@
 //     }
 // }
 
-static code: &str = r#"
-if (1 != 1) {
-    print(1);
-} elif (2 != 2) {
-    print(2);
-} elif ( (1 + 1 + 1) > 3 ) {
-    print(3);
-} else {
-    print(4);
-}
-"#;
+// static code: &str = r#"
+// if (1 != 1) {
+//     print(1);
+// } elif (2 != 2) {
+//     print(2);
+// } elif ( (1 + 1 + 1) > 3 ) {
+//     print(3);
+// } else {
+//     print(4);
+// }
+// "#;
 
 use rss::error_handler::ErrorHandler;
 
