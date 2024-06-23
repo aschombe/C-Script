@@ -5,3 +5,4 @@ pub mod tokenizer;
 pub mod types;
 pub mod interp;
 pub mod keywords;
+pub mod function;

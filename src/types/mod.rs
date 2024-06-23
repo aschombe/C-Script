@@ -8,8 +8,9 @@ pub enum Type {
     Float(f64),
     String(String),
     Boolean(bool),
+    FunctionCall(String, Vec<Type>),
+    Variable(String, Box<Type>),
     Void,
-    // TypeTag(String),
 }
 
 #[derive(Debug, Clone)]
@@ -21,6 +22,19 @@ pub enum TypeTag {
     Void,
 }
 
+impl fmt::Display for TypeTag {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            TypeTag::Int => write!(f, "Int"),
+            TypeTag::Float => write!(f, "Float"),
+            TypeTag::String => write!(f, "String"),
+            TypeTag::Boolean => write!(f, "Boolean"),
+            TypeTag::Void => write!(f, "Void"),
+            _ => panic!("{} is not a valid type", self),
+        }
+    }
+}
+
 impl Type {
     fn get_type_tag(&self) -> TypeTag {
         match self {
@@ -28,8 +42,9 @@ impl Type {
             Type::Float(_) => TypeTag::Float,
             Type::String(_) => TypeTag::String,
             Type::Boolean(_) => TypeTag::Boolean,
+            Type::Variable(_, typ) => typ.get_type_tag(),
             Type::Void => TypeTag::Void,
-            // Type::TypeTag(_) => panic!("TypeTag {} is not a valid type", self),
+            _ => panic!("{} is not a valid type", self),
         }
     }
 
@@ -129,8 +144,10 @@ impl fmt::Display for Type {
             Type::Float(num) => write!(f, "{}", num),
             Type::String(text) => write!(f, "{}", text),
             Type::Boolean(boolean) => write!(f, "{}", boolean),
+            Type::Variable(name, _) => write!(f, "{}", name),
+            Type::FunctionCall(name, _) => write!(f, "{}", name),
             Type::Void => write!(f, "void"),
-            // Type::TypeTag(tag) => write!(f, "{}", tag),
+            _ => panic!("{} is not a valid type", self),    
         }
     }
 }

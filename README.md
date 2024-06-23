@@ -1,5 +1,5 @@
 # Rust Explorer
-
+WIP
 ## Description
 This is an interpreter (soon to have compiler feature) written in rust. Open to feature suggestions. Check [main.md](docs/main.md) for more information.
 
@@ -31,11 +31,11 @@ The file should have the extension `.rss` or `.ll`. You can find some example fi
 More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 ## Features
-- [x] Nothing
-
+- [x] Tokenizer
 
 ## Todo
-- [ ] Literally everything
+- [ ] Parsing for function calls
+- [ ] Parsing for every other keyword except `let`
  
 ## Notes
 

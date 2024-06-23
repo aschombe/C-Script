@@ -1,3 +1,5 @@
+use crate::ast::{ASTNode, ASTNodeTypes};
+
 #[derive(Debug, Clone)]
 pub enum Keywords {
     Add,
@@ -52,6 +54,65 @@ pub enum Keywords {
     String,
     Bool,
     Void,
+}
+
+// match each keyword to an AST node
+pub fn get_ast_node(keyword: &str) -> ASTNodeTypes {
+    match keyword {
+        "+" => ASTNodeTypes::NArg,
+        "-" => ASTNodeTypes::NArg,
+        "*" => ASTNodeTypes::NArg,
+        "/" => ASTNodeTypes::NArg,
+        "%" => ASTNodeTypes::NArg,
+        "&&" => ASTNodeTypes::NArg,
+        "||" => ASTNodeTypes::NArg,
+        "<>" => ASTNodeTypes::NArg,
+        "~" => ASTNodeTypes::OneArg,
+        "sqrt" => ASTNodeTypes::OneArg,
+        "sin" => ASTNodeTypes::OneArg,
+        "cos" => ASTNodeTypes::OneArg,
+        "tan" => ASTNodeTypes::OneArg,
+        "abs" => ASTNodeTypes::OneArg,
+        "floor" => ASTNodeTypes::OneArg,
+        "ceil" => ASTNodeTypes::OneArg,
+        "!" => ASTNodeTypes::OneArg,
+        "len" => ASTNodeTypes::OneArg,
+        "upper" => ASTNodeTypes::OneArg,
+        "lower" => ASTNodeTypes::OneArg,
+        "exit" => ASTNodeTypes::OneArg,
+        "^" => ASTNodeTypes::TwoArg,
+        "rand" => ASTNodeTypes::TwoArg,
+        "==" => ASTNodeTypes::TwoArgComp,
+        "!=" => ASTNodeTypes::TwoArgComp,
+        ">" => ASTNodeTypes::TwoArgComp,
+        "<" => ASTNodeTypes::TwoArgComp,
+        ">=" => ASTNodeTypes::TwoArgComp,
+        "<=" => ASTNodeTypes::TwoArgComp,
+        "let" => ASTNodeTypes::Let,
+        "del" => ASTNodeTypes::Del,
+        "if" => ASTNodeTypes::IfElifElse,
+        "elif" => ASTNodeTypes::IfElifElse,
+        "else" => ASTNodeTypes::IfElifElse,
+        "switch" => ASTNodeTypes::Switch,
+        "case" => ASTNodeTypes::Case,
+        "default" => ASTNodeTypes::Default,
+        "for" => ASTNodeTypes::For,
+        "while" => ASTNodeTypes::While,
+        "func" => ASTNodeTypes::Function,
+        "return" => ASTNodeTypes::Return,
+        "break" => ASTNodeTypes::Break,
+        "continue" => ASTNodeTypes::Continue,
+        "substring" => ASTNodeTypes::Substring,
+        "strip" => ASTNodeTypes::Strip,
+        "replace" => ASTNodeTypes::Replace,
+        "print" => ASTNodeTypes::NArg,
+        "int" => ASTNodeTypes::Value,
+        "float" => ASTNodeTypes::Value,
+        "string" => ASTNodeTypes::Value,
+        "bool" => ASTNodeTypes::Value,
+        "void" => ASTNodeTypes::Value,
+        _ => panic!("Unknown keyword: {}", keyword),
+    }
 }
 
 pub fn get_keyword(keyword: &str) -> Keywords {

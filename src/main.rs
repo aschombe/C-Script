@@ -112,7 +112,12 @@
 use rss::error_handler::ErrorHandler;
 
 static CODE: &str = r#"
-let x: int = 5 * 2 - 3 / 2 + 1 % 2;
+// let x: int = 5 * 2 - 3 / 2 + 1 % 2;
+// let y: float = 5.5;
+// let x: int = 5;
+// let y: int = x;
+// let z: float = sqrt(25.0);
+// let name: string = "Hello, World!";
 // if (x > 5 && x < 10 && 1 == 1) {
 //     print("Hello, World!");
 // } elif (x > 10) {

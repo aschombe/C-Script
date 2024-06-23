@@ -63,6 +63,7 @@ use crate::error_handler::ErrorHandler;
 use crate::keywords::get_keyword;
 use crate::types::{Type, TypeTag};
 use crate::ast::ASTNode;
+use crate::function::Function;
 
 use std::iter::Peekable;
 use std::slice::Iter;
@@ -74,15 +75,16 @@ pub fn parse(tokens: Vec<String>) -> Result<Vec<ASTNode>, ErrorHandler> {
     while let Some(token) = tokens_iter.next() {
         match token.as_str() {
             "let" => {
-                let name = tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected variable name".to_string()))?;
+                let name: &String = tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected variable name".to_string()))?;
                 tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected ':'".to_string()))?;
-                let typ = tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected type".to_string()))?;
+                let typ: &String = tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected type".to_string()))?;
                 
-                let type_tag = match typ.as_str() {
+                let type_tag: TypeTag = match typ.as_str() {
                     "int" => TypeTag::Int,
                     "float" => TypeTag::Float,
                     "string" => TypeTag::String,
                     "bool" => TypeTag::Boolean,
+                    "void" => TypeTag::Void,
                     _ => return Err(ErrorHandler::TypeError(format!("Invalid type: {}", typ))),
                 };
                 
@@ -103,13 +105,13 @@ pub fn parse(tokens: Vec<String>) -> Result<Vec<ASTNode>, ErrorHandler> {
 }
 
 fn parse_expression(tokens_iter: &mut Peekable<Iter<String>>) -> Result<ASTNode, ErrorHandler> {
-    let mut expr_ast = parse_term(tokens_iter)?;
+    let mut expr_ast: ASTNode = parse_term(tokens_iter)?;
 
     while let Some(&token) = tokens_iter.peek() {
         match token.as_str() {
             "+" | "-" => {
                 tokens_iter.next(); // Consume '+' or '-'
-                let right = parse_term(tokens_iter)?;
+                let right: ASTNode = parse_term(tokens_iter)?;
                 expr_ast = ASTNode::NArg(get_keyword(token), vec![expr_ast, right]);
             }
             _ => break,
@@ -120,13 +122,13 @@ fn parse_expression(tokens_iter: &mut Peekable<Iter<String>>) -> Result<ASTNode,
 }
 
 fn parse_term(tokens_iter: &mut Peekable<Iter<String>>) -> Result<ASTNode, ErrorHandler> {
-    let mut term_ast = parse_factor(tokens_iter)?;
+    let mut term_ast: ASTNode = parse_factor(tokens_iter)?;
 
     while let Some(&token) = tokens_iter.peek() {
         match token.as_str() {
             "*" | "/" | "%" => {
                 tokens_iter.next(); // Consume '*', '/' or '%'
-                let right = parse_factor(tokens_iter)?;
+                let right: ASTNode = parse_factor(tokens_iter)?;
                 term_ast = ASTNode::NArg(get_keyword(token), vec![term_ast, right]);
             }
             _ => break,
@@ -146,10 +148,11 @@ fn parse_factor(tokens_iter: &mut Peekable<Iter<String>>) -> Result<ASTNode, Err
             return Ok(ASTNode::Value(Type::Boolean(true)));
         } else if token == "false" {
             return Ok(ASTNode::Value(Type::Boolean(false)));
-        } else if token.starts_with("\"") && token.ends_with("\"") {
+        } else if token.starts_with('"') && token.ends_with('"') {
             return Ok(ASTNode::Value(Type::String(token.clone())));
         } else if tokens_iter.peek() == Some(&&String::from("(")) {
-            let func_name = token.clone();
+            let func_name: String = token.clone();
+            // check if the function is a built-in function
             tokens_iter.next(); // Consume '('
             let mut args: Vec<ASTNode> = Vec::new();
             while let Some(arg) = tokens_iter.next() {
@@ -158,9 +161,9 @@ fn parse_factor(tokens_iter: &mut Peekable<Iter<String>>) -> Result<ASTNode, Err
                 }
                 args.push(parse_expression(tokens_iter)?);
             }
-            return Ok(ASTNode::NArg(get_keyword(&func_name), args));
+            // return Ok(ASTNode::OneArg(func_name, 
         } else {
-            return Ok(ASTNode::Value(Type::String(token.clone())));
+            return Ok(ASTNode::VariableRef(token.clone()));
         }
     }
 
