@@ -112,6 +112,7 @@
 use rss::error_handler::ErrorHandler;
 
 static CODE: &str = r#"
+print("Hello, World!");
 // let x: bool = true;
 // let x: int = 5 * 2 - 3 / 2 + 1 % 2;
 // let y: float = 5.5;
@@ -169,7 +170,7 @@ static CODE: &str = r#"
 // let o:string = substring(n, 0, 5);
 // print(o); // Hello
 //
-// let x: int = 5;
+// let i: int = 5;
 // for (i; i < 10; i = i + 1) {
 //     print(i);
 // }

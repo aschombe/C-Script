@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, ASTNodeTypes};
+use crate::ast::ASTNodeTypes;
 
 #[derive(Debug, Clone)]
 pub enum Keywords {
@@ -105,7 +105,7 @@ pub fn get_ast_node(keyword: &str) -> ASTNodeTypes {
         "substring" => ASTNodeTypes::Substring,
         "strip" => ASTNodeTypes::Strip,
         "replace" => ASTNodeTypes::Replace,
-        "print" => ASTNodeTypes::NArg,
+        "print" => ASTNodeTypes::Print,
         "int" => ASTNodeTypes::Value,
         "float" => ASTNodeTypes::Value,
         "string" => ASTNodeTypes::Value,

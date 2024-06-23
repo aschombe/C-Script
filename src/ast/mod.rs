@@ -12,12 +12,13 @@ pub enum ASTNode {
     TwoArgComp(String, Box<ASTNode>, Box<ASTNode>), // eq?, neq?, gt?, lt?, gte?, lte?
     Let(String, TypeTag, Box<ASTNode>), // let <name>:<type> = <value>
     Del(String), // del <name>
-    IfElifElse(Box<ASTNode>, Vec<(Box<ASTNode>, Vec<ASTNode>)>, Vec<ASTNode>), // WIP
+    If(Box<ASTNode>, Vec<ASTNode>, Vec<(Box<ASTNode>, Vec<ASTNode>)>, Vec<ASTNode>),
     Switch(Box<ASTNode>, Vec<(Box<ASTNode>, Vec<ASTNode>)>, Vec<ASTNode>),
     For(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>, Vec<ASTNode>),
     While(Box<ASTNode>, Vec<ASTNode>),
     Function(String, Vec<(String, Type)>, TypeTag, Vec<ASTNode>), // function <name>(<args>):<return-type> { <code> }
     FunctionCall(String, Vec<ASTNode>), // <name>(<args>
+    VariableSet(String, Box<ASTNode>), // <name> = <value>
     VariableRef(String), // <name>
     Return(Box<ASTNode>),
     Substring(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>), // substring(<string>, <start>, <end>)
@@ -50,4 +51,5 @@ pub enum ASTNodeTypes {
     Replace,
     Break,
     Continue,
+    Print,
 }

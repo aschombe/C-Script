@@ -1,6 +1,6 @@
 use std::fmt;
+// use crate::error_handler::ErrorHandler; 
 
-use crate::error_handler::ErrorHandler;
 
 #[derive(Debug, Clone)]
 pub enum Type {
@@ -30,7 +30,6 @@ impl fmt::Display for TypeTag {
             TypeTag::String => write!(f, "String"),
             TypeTag::Boolean => write!(f, "Boolean"),
             TypeTag::Void => write!(f, "Void"),
-            _ => panic!("{} is not a valid type", self),
         }
     }
 }
@@ -48,37 +47,37 @@ impl Type {
         }
     }
 
-    fn as_int(&self) -> Result<i64, String> {
-        if let Type::Int(num) = self {
-            Ok(*num)
-        } else {
-            Err(ErrorHandler::TypeError("Expected an integer".to_string()).to_string())
-        }
-    }
+    // fn as_int(&self) -> Result<i64, String> {
+    //     if let Type::Int(num) = self {
+    //         Ok(*num)
+    //     } else {
+    //         Err(ErrorHandler::TypeError("Expected an integer".to_string()).to_string())
+    //     }
+    // }
 
-    fn as_float(&self) -> Result<f64, String> {
-        if let Type::Float(num) = self {
-            Ok(*num)
-        } else {
-            Err(ErrorHandler::TypeError("Expected a float".to_string()).to_string())
-        }
-    }
+    // fn as_float(&self) -> Result<f64, String> {
+    //     if let Type::Float(num) = self {
+    //         Ok(*num)
+    //     } else {
+    //         Err(ErrorHandler::TypeError("Expected a float".to_string()).to_string())
+    //     }
+    // }
 
-    fn as_string(&self) -> Result<&str, String> {
-        if let Type::String(text) = self {
-            Ok(text)
-        } else {
-            Err(ErrorHandler::TypeError("Expected a string".to_string()).to_string())
-        }
-    }
+    // fn as_string(&self) -> Result<&str, String> {
+    //     if let Type::String(text) = self {
+    //         Ok(text)
+    //     } else {
+    //         Err(ErrorHandler::TypeError("Expected a string".to_string()).to_string())
+    //     }
+    // }
 
-    fn as_boolean(&self) -> Result<bool, String> {
-        if let Type::Boolean(boolean) = self {
-            Ok(*boolean)
-        } else {
-            Err(ErrorHandler::TypeError("Expected a boolean".to_string()).to_string())
-        }
-    }
+    // fn as_boolean(&self) -> Result<bool, String> {
+    //     if let Type::Boolean(boolean) = self {
+    //         Ok(*boolean)
+    //     } else {
+    //         Err(ErrorHandler::TypeError("Expected a boolean".to_string()).to_string())
+    //     }
+    // }
 
     // fn as_type_tag(&self) -> Result<&str, String> {
     //     if let Type::TypeTag(tag) = self {
@@ -88,48 +87,40 @@ impl Type {
     //     }
     // }
 
-    fn is_int(&self) -> bool {
-        if let Type::Int(_) = self {
-            true
-        } else {
-            false
-        }
-    }
+    // fn is_int(&self) -> bool {
+    //     if let Type::Int(_) = self {
+    //         true
+    //     } else {
+    //         false
+    //     }
+    // }
 
-    fn is_float(&self) -> bool {
-        if let Type::Float(_) = self {
-            true
-        } else {
-            false
-        }
-    }
+    // fn is_float(&self) -> bool {
+    //     if let Type::Float(_) = self {
+    //         true
+    //     } else {
+    //         false
+    //     }
+    // }
 
-    fn is_string(&self) -> bool {
-        if let Type::String(_) = self {
-            true
-        } else {
-            false
-        }
-    }
+    // fn is_string(&self) -> bool {
+    //     if let Type::String(_) = self {
+    //         true
+    //     } else {
+    //         false
+    //     }
+    // }
 
-    fn is_boolean(&self) -> bool {
-        if let Type::Boolean(_) = self {
-            true
-        } else {
-            false
-        }
-    }
+    // fn is_boolean(&self) -> bool {
+    //     if let Type::Boolean(_) = self {
+    //         true
+    //     } else {
+    //         false
+    //     }
+    // }
 
-    fn is_void(&self) -> bool {
-        if let Type::Void = self {
-            true
-        } else {
-            false
-        }
-    }
-
-    // fn is_type_tag(&self) -> bool {
-    //     if let Type::TypeTag(_) = self {
+    // fn is_void(&self) -> bool {
+    //     if let Type::Void = self {
     //         true
     //     } else {
     //         false
