@@ -109,26 +109,23 @@
 //     }
 // }
 
-// static code: &str = r#"
-// if (1 != 1) {
-//     code
-// } /*elif (2 != 2) {
-//     code
-// } elif ( (1 + 1 + 1) > 3 ) {
-//     code
-// }*/ else {
-//     code
-// }
-// "#;
+static code: &str = r#"
+if (1 != 1) {
+    print(1);
+} elif (2 != 2) {
+    print(2);
+} elif ( (1 + 1 + 1) > 3 ) {
+    print(3);
+} else {
+    print(4);
+}
+"#;
 
 use rss::error_handler::ErrorHandler;
 
-static code: &str = r#"
-func add(x: int, y: int): int {
-    return x + y;
-}
-let y: int = add(2, 3);
-"#;
+// static code: &str = r#"
+// let y:int = 1;
+// "#;
 
 fn main() {
     // tokenize the code

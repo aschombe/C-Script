@@ -123,7 +123,7 @@ pub fn tokenize(expr: &str) -> Vec<String> {
                 }
                 tokens.push(c.to_string());
             }
-            ':' | '(' | ')' | '=' => {
+            ':' | '(' | ')' | '=' | ';' => {  // Added ';' here
                 if !token.is_empty() {
                     tokens.push(token.clone());
                     token.clear();
@@ -152,3 +152,4 @@ pub fn tokenize(expr: &str) -> Vec<String> {
 
     tokens
 }
+
