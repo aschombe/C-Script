@@ -3,6 +3,7 @@ use std::fmt;
 
 #[derive(Debug)]
 pub enum ErrorHandler {
+    NoProgram,
     DivisionByZero,
     TooManyArguments(String),
     TooFewArguments(String),
@@ -16,9 +17,10 @@ pub enum ErrorHandler {
 impl fmt::Display for ErrorHandler {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ErrorHandler::DivisionByZero => write!(f, "Division by zero"),
-            ErrorHandler::TooManyArguments(func) => write!(f, "Too many arguments for function: {}", func),
-            ErrorHandler::TooFewArguments(func) => write!(f, "Too few arguments for function: {}", func),
+            ErrorHandler::NoProgram => write!(f, "No program to run!"),
+            ErrorHandler::DivisionByZero => write!(f, "Division by zero!"),
+            ErrorHandler::TooManyArguments(func) => write!(f, "Too many arguments for function: {}!", func),
+            ErrorHandler::TooFewArguments(func) => write!(f, "Too few arguments for function: {}!", func),
             ErrorHandler::SyntaxError(err) => write!(f, "Syntax error: {}", err),
             ErrorHandler::ParseError(err) => write!(f, "Parse error: {}", err),
             ErrorHandler::TypeError(err) => write!(f, "Type error: {}", err),

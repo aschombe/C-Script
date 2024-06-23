@@ -111,7 +111,7 @@ pub fn get_ast_node(keyword: &str) -> ASTNodeTypes {
         "string" => ASTNodeTypes::Value,
         "bool" => ASTNodeTypes::Value,
         "void" => ASTNodeTypes::Value,
-        _ => panic!("Unknown keyword: {}", keyword),
+        _ => ASTNodeTypes::FunctionCall,
     }
 }
 

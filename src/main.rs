@@ -117,6 +117,7 @@ static CODE: &str = r#"
 // let x: int = 5;
 // let y: int = x;
 // let z: float = sqrt(25.0);
+// let fact: int = factorial(5);
 // let name: string = "Hello, World!";
 // if (x > 5 && x < 10 && 1 == 1) {
 //     print("Hello, World!");
@@ -180,8 +181,6 @@ fn main() {
     match ast {
         Ok(ast) => {
             println!("{:?}", ast);
-            // let mut interpreter: rss::interp::Interpreter = rss::interp::Interpreter::new();
-            // let _res: Result<(), ErrorHandler> = interpreter.interp(ast);
         }
         Err(e) => {
             println!("{}", e);

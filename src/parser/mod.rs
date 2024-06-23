@@ -60,15 +60,20 @@ the tokenized output of this is:
 */
 
 use crate::error_handler::ErrorHandler;
-use crate::keywords::get_keyword;
+use crate::keywords::{get_ast_node, get_keyword, Keywords};
 use crate::types::{Type, TypeTag};
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, ASTNodeTypes};
 use crate::function::Function;
 
+use std::collections::HashMap;
 use std::iter::Peekable;
 use std::slice::Iter;
 
 pub fn parse(tokens: Vec<String>) -> Result<Vec<ASTNode>, ErrorHandler> {
+    if tokens.is_empty() {
+        return Err(ErrorHandler::NoProgram);
+    }
+
     let mut tokens_iter: Peekable<Iter<String>> = tokens.iter().peekable();
     let mut ast: Vec<ASTNode> = Vec::new();
 
@@ -150,22 +155,38 @@ fn parse_factor(tokens_iter: &mut Peekable<Iter<String>>) -> Result<ASTNode, Err
             return Ok(ASTNode::Value(Type::Boolean(false)));
         } else if token.starts_with('"') && token.ends_with('"') {
             return Ok(ASTNode::Value(Type::String(token.clone())));
+        } else if token == "(" {
+            let expr_ast: ASTNode = parse_expression(tokens_iter)?;
+            if let Some(next_token) = tokens_iter.next() {
+                if next_token != ")" {
+                    return Err(ErrorHandler::SyntaxError("Expected ')'".to_string()));
+                }
+                return Ok(expr_ast);
+            } else {
+                return Err(ErrorHandler::SyntaxError("Expected ')'".to_string()));
+            }
         } else if tokens_iter.peek() == Some(&&String::from("(")) {
-            let func_name: String = token.clone();
-            // check if the function is a built-in function
+            let func_name = token.clone();
             tokens_iter.next(); // Consume '('
             let mut args: Vec<ASTNode> = Vec::new();
-            while let Some(arg) = tokens_iter.next() {
-                if arg == ")" {
+            while let Some(&token) = tokens_iter.peek() {
+                if token == ")" {
+                    tokens_iter.next(); // Consume ')'
                     break;
                 }
-                args.push(parse_expression(tokens_iter)?);
+                let arg: ASTNode = parse_expression(tokens_iter)?;
+                args.push(arg);
+                if let Some(&token) = tokens_iter.peek() {
+                    if token == "," {
+                        tokens_iter.next(); // Consume ','
+                    }
+                }
             }
-            // return Ok(ASTNode::OneArg(func_name, 
+            return Ok(ASTNode::FunctionCall(func_name, args));
         } else {
             return Ok(ASTNode::VariableRef(token.clone()));
         }
     }
 
-    Err(ErrorHandler::SyntaxError("Expected factor".to_string()))
+    Err(ErrorHandler::SyntaxError("Expected expression".to_string()))
 }
