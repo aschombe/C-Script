@@ -6,11 +6,12 @@ use crate::keywords::Keywords;
 #[derive(Debug, Clone)]
 pub enum ASTNode {
     Value(Type),    
-    NArg(Keywords, Vec<ASTNode>), // add, subtract, multiply, divide, modulo, and, or, concat, print
+    NArg(Keywords, Vec<ASTNode>), // add, subtract, multiply, divide, modulo, and, or, concat
     OneArg(String, Box<ASTNode>), // neg, sqrt, sin, cos, tan, abs, floor, ceil, not, len, upper, lower, exit
     TwoArg(String, Box<ASTNode>, Box<ASTNode>), // pow, rand
     TwoArgComp(String, Box<ASTNode>, Box<ASTNode>), // eq?, neq?, gt?, lt?, gte?, lte?
     Let(String, TypeTag, Box<ASTNode>), // let <name>:<type> = <value>
+    Set(String, Box<ASTNode>), // set <name> = <value>
     Del(String), // del <name>
     If(Box<ASTNode>, Vec<ASTNode>, Vec<(Box<ASTNode>, Vec<ASTNode>)>, Vec<ASTNode>),
     Switch(Box<ASTNode>, Vec<(Box<ASTNode>, Vec<ASTNode>)>, Vec<ASTNode>),
@@ -24,6 +25,7 @@ pub enum ASTNode {
     Substring(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>), // substring(<string>, <start>, <end>)
     Strip(Box<ASTNode>, Box<ASTNode>), // strip(<string>, <char>)
     Replace(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>), // replace(<string>, <old-char>, <new-char>)
+    Print(Vec<ASTNode>), // print(<args>)
     Break,
     Continue,
 }
@@ -35,6 +37,7 @@ pub enum ASTNodeTypes {
     TwoArg,
     TwoArgComp,
     Let,
+    Set,
     Del,
     IfElifElse,
     Switch,

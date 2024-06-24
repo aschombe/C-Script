@@ -112,7 +112,6 @@
 use rss::error_handler::ErrorHandler;
 
 static CODE: &str = r#"
-print("Hello, World!");
 // let x: bool = true;
 // let x: int = 5 * 2 - 3 / 2 + 1 % 2;
 // let y: float = 5.5;
@@ -123,6 +122,8 @@ print("Hello, World!");
 // let a: int = rand(1, 10);
 // let fact: int = factorial(5);
 // let name: string = "Hello, World!";
+// let name: string = "Hello, World!";
+// set name = "Goodbye, World!";
 
 // if (x > 5 && x < 10 && 1 == 1) {
 //     print("Hello, World!");
@@ -170,10 +171,11 @@ print("Hello, World!");
 // let o:string = substring(n, 0, 5);
 // print(o); // Hello
 //
-// let i: int = 5;
-// for (i; i < 10; i = i + 1) {
-//     print(i);
-// }
+let i: int = 5;
+let j: int = 0;
+for (i; i < 10; set i = i + 1) {
+    set j = j + i;
+}
 //
 // func factorial (n: int):int {
 //     if (n == 0) {

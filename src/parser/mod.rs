@@ -1,5 +1,5 @@
 use crate::error_handler::ErrorHandler;
-use crate::keywords::{get_ast_node, get_keyword};
+use crate::keywords::{get_ast_node, get_keyword, Keywords};
 use crate::types::{Type, TypeTag};
 use crate::ast::{ASTNode, ASTNodeTypes};
 
@@ -42,6 +42,14 @@ pub fn parse(tokens: Vec<String>) -> Result<Vec<ASTNode>, ErrorHandler> {
                 ast.push(ASTNode::Del(name.clone()));
                 tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected ';'".to_string()))?;
             }
+            "set" => {
+                let name: &String = tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected variable name".to_string()))?;
+                tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected '='".to_string()))?;
+                let value: ASTNode = parse_expression(&mut tokens_iter)?;
+                ast.push(ASTNode::Set(name.clone(), Box::new(value)));
+                tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected ';'".to_string()))?;
+            }
+            
             _ => {
 
             }

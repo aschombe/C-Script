@@ -23,6 +23,16 @@ pub fn tokenize(expr: &str) -> Vec<String> {
             continue;
         }
 
+        if in_string {
+            token.push(c);
+            if c == '"' {
+                tokens.push(token.clone());
+                token.clear();
+                in_string = false;
+            }
+            continue;
+        }
+
         match c {
             '/' if prev_char == Some('/') => {
                 in_comment = true;
@@ -42,13 +52,9 @@ pub fn tokenize(expr: &str) -> Vec<String> {
                 tokens.push(c.to_string());
             }
             ' ' => {
-                if in_string {
-                    token.push(c);
-                } else {
-                    if !token.is_empty() {
-                        tokens.push(token.clone());
-                        token.clear();
-                    }
+                if !token.is_empty() {
+                    tokens.push(token.clone());
+                    token.clear();
                 }
             }
             '\n' | '\t' => {
@@ -65,14 +71,13 @@ pub fn tokenize(expr: &str) -> Vec<String> {
                 }
                 tokens.push(c.to_string());
             }
-            '\'' => {
-                if in_string {
+            '"' => {
+                if !token.is_empty() {
                     tokens.push(token.clone());
                     token.clear();
-                    in_string = false;
-                } else {
-                    in_string = true;
                 }
+                in_string = true;
+                token.push(c);
             }
             _ => {
                 token.push(c);
@@ -90,4 +95,3 @@ pub fn tokenize(expr: &str) -> Vec<String> {
 
     tokens
 }
-
