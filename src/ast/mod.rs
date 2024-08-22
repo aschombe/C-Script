@@ -9,7 +9,8 @@ pub enum Expr {
     
     // Literals
     Type(String),
-    Var(String),
+    String(String),
+    // Var(String),
     Int(i64),
     Float(f64),
     Bool(bool),
@@ -27,11 +28,11 @@ pub enum Expr {
     Abs(Box<Expr>),
     
     // Aggregates
-    Min(Vec<Expr>),
-    Max(Vec<Expr>),
-    Sum(Vec<Expr>),
-    Prod(Vec<Expr>),
-    Avg(Vec<Expr>),
+    // Min(Vec<Expr>),
+    // Max(Vec<Expr>),
+    // Sum(Vec<Expr>),
+    // Prod(Vec<Expr>),
+    // Avg(Vec<Expr>),
     
     // Conditionals
     ITE(Box<Expr>, Box<Expr>, Box<Expr>),
@@ -62,11 +63,11 @@ pub enum Expr {
     // Second(Box<Expr>),
 
     // For lists
-    Head(Box<Expr>),
-    Tail(Box<Expr>),
-    Cons(Box<Expr>, Box<Expr>),
-    IsEmpty(Box<Expr>),
-    Len(Box<Expr>),
+    // Head(Box<Expr>),
+    // Tail(Box<Expr>),
+    // Cons(Box<Expr>, Box<Expr>),
+    // IsEmpty(Box<Expr>),
+    // Len(Box<Expr>),
 }
 
 impl Expr {
@@ -77,7 +78,8 @@ impl Expr {
             Expr::Delete(s) => "Delete(".to_string() + s + ")",
 
             Expr::Type(t) => "Type".to_string() + t,
-            Expr::Var(s) => "Var".to_string() + s,
+            // Expr::Var(s) => "Var".to_string() + s,
+            Expr::String(s) => "String".to_string() + s,
             Expr::Int(i) => "Int".to_string() + &i.to_string(),
             Expr::Float(f) => "Float".to_string() + &f.to_string(),
             Expr::Bool(b) => "Bool".to_string() + &b.to_string(),
@@ -109,51 +111,51 @@ impl Expr {
             Expr::Pow(e1, e2) => "Pow(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
             Expr::Abs(e) => "Abs(".to_string() + &e.to_ast() + ")",
 
-            Expr::Min(v) => {
-                let mut s: String = "Min(".to_string();
-                for e in v {
-                    s += &e.to_ast();
-                    s += ", ";
-                }
-                s += ")";
-                s
-            },
-            Expr::Max(v) => {
-                let mut s: String = "Max(".to_string();
-                for e in v {
-                    s += &e.to_ast();
-                    s += ", ";
-                }
-                s += ")";
-                s
-            },
-            Expr::Sum(v) => {
-                let mut s: String = "Sum(".to_string();
-                for e in v {
-                    s += &e.to_ast();
-                    s += ", ";
-                }
-                s += ")";
-                s
-            },
-            Expr::Prod(v) => {
-                let mut s: String = "Prod(".to_string();
-                for e in v {
-                    s += &e.to_ast();
-                    s += ", ";
-                }
-                s += ")";
-                s
-            },
-            Expr::Avg(v) => {
-                let mut s: String = "Avg(".to_string();
-                for e in v {
-                    s += &e.to_ast();
-                    s += ", ";
-                }
-                s += ")";
-                s
-            },
+            // Expr::Min(v) => {
+            //     let mut s: String = "Min(".to_string();
+            //     for e in v {
+            //         s += &e.to_ast();
+            //         s += ", ";
+            //     }
+            //     s += ")";
+            //     s
+            // },
+            // Expr::Max(v) => {
+            //     let mut s: String = "Max(".to_string();
+            //     for e in v {
+            //         s += &e.to_ast();
+            //         s += ", ";
+            //     }
+            //     s += ")";
+            //     s
+            // },
+            // Expr::Sum(v) => {
+            //     let mut s: String = "Sum(".to_string();
+            //     for e in v {
+            //         s += &e.to_ast();
+            //         s += ", ";
+            //     }
+            //     s += ")";
+            //     s
+            // },
+            // Expr::Prod(v) => {
+            //     let mut s: String = "Prod(".to_string();
+            //     for e in v {
+            //         s += &e.to_ast();
+            //         s += ", ";
+            //     }
+            //     s += ")";
+            //     s
+            // },
+            // Expr::Avg(v) => {
+            //     let mut s: String = "Avg(".to_string();
+            //     for e in v {
+            //         s += &e.to_ast();
+            //         s += ", ";
+            //     }
+            //     s += ")";
+            //     s
+            // },
 
             Expr::ITE(e1, e2, e3) => "ITE(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ", " + &e3.to_ast() + ")",
             Expr::IsEqual(e1, e2) => "IsEqual(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
@@ -200,46 +202,13 @@ impl Expr {
             // Expr::First(e) => "First(".to_string() + &e.to_ast() + ")",
             // Expr::Second(e) => "Second(".to_string() + &e.to_ast() + ")",
         
-            Expr::Head(e) => "Head(".to_string() + &e.to_ast() + ")",
-            Expr::Tail(e) => "Tail(".to_string() + &e.to_ast() + ")",
-            Expr::Cons(e1, e2) => "Cons(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
-            Expr::IsEmpty(e) => "IsEmpty(".to_string() + &e.to_ast() + ")",
-            Expr::Len(e) => "Len(".to_string() + &e.to_ast() + ")",
+            // Expr::Head(e) => "Head(".to_string() + &e.to_ast() + ")",
+            // Expr::Tail(e) => "Tail(".to_string() + &e.to_ast() + ")",
+            // Expr::Cons(e1, e2) => "Cons(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
+            // Expr::IsEmpty(e) => "IsEmpty(".to_string() + &e.to_ast() + ")",
+            // Expr::Len(e) => "Len(".to_string() + &e.to_ast() + ")",
 
-            _ => "Unknown".to_string(),
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub enum Type {
-    IntType,
-    FloatType,
-    BoolType,
-    ListType,
-    VoidType,
-    // TupleType(Vec<Type>),
-    RefType(Box<Type>),
-}
-
-impl Type {
-    pub fn to_string(&self) -> String {
-        match self {
-            Type::IntType => "int".to_string(),
-            Type::FloatType => "float".to_string(),
-            Type::BoolType => "bool".to_string(),
-            Type::ListType => "list".to_string(),
-            Type::VoidType => "void".to_string(),
-            // Type::TupleType(t) => {
-            //     let mut s: String = "tuple(".to_string();
-            //     for t in t {
-            //         s += &t.to_string();
-            //         s += ", ";
-            //     }
-            //     s += ")";
-            //     s
-            // },
-            Type::RefType(t) => format!("ref {}", t.to_string()),
+            // _ => "Unknown".to_string(),
         }
     }
 }

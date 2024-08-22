@@ -1064,3 +1064,30 @@
 //         Ok(())
 //     }
 // }
+
+use std::collections::HashMap;
+use crate::function::Function;
+use crate::types::Type;
+
+pub struct Interpreter {
+    pub variables: HashMap<String, Type>,
+    pub functions: HashMap<String, Function>,
+    pub output: Vec<String>,
+}
+
+impl Interpreter {
+    pub fn new() -> Self {
+        Interpreter {
+            variables: HashMap::new(),
+            functions: HashMap::new(),
+            output: Vec::new(),
+        }
+    }
+
+    // take a vector of AST strings and evaluate them
+    pub fn interp(&mut self, ast: Vec<String>) -> Result<(), String> {
+        // do stuff for arithmetic and let statements
+        
+        Ok(())
+    }
+}

@@ -111,7 +111,7 @@
 
 // use rss::error_handler::ErrorHandler;
 
-static CODE: &str = r#"let x:int = 5 * 55 + 5 * 5 + 2 ^ 3 + (2 + 2);"#;
+static CODE: &str = r#"let x:int = 5.0;"#;
 
 fn main() {
     // tokenize the code

@@ -209,6 +209,7 @@
 // }
 
 use crate::ast::Expr;
+use regex::Regex;
 
 #[derive(Clone)]
 pub struct Parser<'a> {
@@ -338,6 +339,10 @@ impl<'a> Parser<'a> {
     fn parse_factor(&mut self) -> Result<Expr, String> {
         let token = self.current_token().ok_or("Unexpected end of input")?.clone();
     
+        // Define regex patterns
+        let float_pattern = Regex::new(r"^\d*\.\d+$").unwrap(); // Matches numbers like 3.14
+        let int_pattern = Regex::new(r"^\d+$").unwrap(); // Matches whole numbers like 42
+    
         let mut left = match token.as_str() {
             "(" => {
                 self.advance(); // Consume '('
@@ -345,13 +350,17 @@ impl<'a> Parser<'a> {
                 self.expect(")")?; // Expect and consume ')'
                 expr
             }
-            _ if token.chars().all(|c: char| c.is_digit(10)) => {
-                self.advance(); // Consume number
+            _ if float_pattern.is_match(&token) => {
+                self.advance(); // Consume float
+                Expr::Float(token.parse().unwrap())
+            }
+            _ if int_pattern.is_match(&token) => {
+                self.advance(); // Consume int
                 Expr::Int(token.parse().unwrap())
             }
             _ => return Err(format!("Unexpected token: {}", token)),
         };
-        
+    
         while let Some(op) = self.current_token().map(|t| t.clone()) {
             match op.as_str() {
                 "^" => {
@@ -362,12 +371,10 @@ impl<'a> Parser<'a> {
                 _ => break,
             }
         }
-        
+    
         Ok(left)
     }
     
-    
-
     pub fn parse(&mut self) -> Result<Expr, String> {
         self.parse_var_decl()
     }
