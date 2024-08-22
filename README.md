@@ -1,5 +1,5 @@
 # Rust Explorer
-WIP
+This branch is WIP, check the `main` branch for the latest stable version (which is still LISP-like).
 ## Description
 This is an interpreter (soon to have compiler feature) written in rust. Open to feature suggestions. Check [main.md](docs/main.md) for more information.
 
@@ -34,8 +34,8 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 - [x] Tokenizer
 
 ## Todo
-- [ ] Parsing for function calls
-- [ ] Parsing for every other keyword except `let`
+- [ ] Everything
+- [ ] Fix parsing of parenthesized expressions (e.g. `(1 + 2) * 3`)
  
 ## Notes
 

@@ -109,96 +109,16 @@
 //     }
 // }
 
-use rss::error_handler::ErrorHandler;
+// use rss::error_handler::ErrorHandler;
 
-static CODE: &str = r#"
-// let x: bool = true;
-// let x: int = 5 * 2 - 3 / 2 + 1 % 2;
-// let y: float = 5.5;
-// let x: int = 5;
-// let y: int = x;
-// let b: int = 2 ^ 3;
-// let z: float = sqrt(25.0);
-// let a: int = rand(1, 10);
-// let fact: int = factorial(5);
-// let name: string = "Hello, World!";
-// let name: string = "Hello, World!";
-// set name = "Goodbye, World!";
-
-// if (x > 5 && x < 10 && 1 == 1) {
-//     print("Hello, World!");
-// } elif (x > 10) {
-//     print("Goodbye, World!");
-// } else {
-//     print("Hello, World Again!");
-// }
-
-// let p1:string = "Hello,";
-// let p2:string = " World!";
-// let p3:string = p1 <> p2;
-// print(p3); // Hello, World!
-
-// let y:float = 5.5;
-// print(~y); // -5.5
-// let z:float = sqrt(25.0);
-// print(z); // 5.0
-// let a:float = sin(90.0);
-// print(a); // 1.0
-// let b:float = cos(0.0);
-// print(b); // 1.0
-// let c:float = tan(45.0);
-// print(c); // 1.0
-// let d:float = abs(-5.0);
-// print(d); // 5.0
-// let e:float = floor(5.5);
-// print(e); // 5.0
-// let f:float = ceil(5.5);
-// print(f); // 6.0    
-// let g:bool = true;
-// let h:bool = !g;
-// print(h); // false
-// let i:int = len("Hello, World!");
-// print(i); // 13
-// let j:string = upper("hello, world!");
-// print(j); // HELLO, WORLD!
-// let k:string = lower("HELLO, WORLD!");
-// print(k); // hello, world!
-// let l:int = rand(1, 10);
-// print(l); // random number between 1 and 10
-// let m:int = 5 ^ 2;
-// print(m); // 25
-// let n:string = "Hello, World!";
-// let o:string = substring(n, 0, 5);
-// print(o); // Hello
-//
-let i: int = 5;
-let j: int = 0;
-for (i; i < 10; set i = i + 1) {
-    set j = j + i;
-}
-//
-// func factorial (n: int):int {
-//     if (n == 0) {
-//         return 1;
-//     } else {
-//         return n * factorial (n - 1);
-//     }
-// }
-// let p:int = factorial(5);
-// print(p); // 120
-"#;
+static CODE: &str = r#"let x:int = 5 * 55 + 5 * 5 + 2 ^ 3 + (2 + 2);"#;
 
 fn main() {
     // tokenize the code
     let tokens: Vec<String> = rss::tokenizer::tokenize(CODE);
     println!("{:?}", tokens);
-    let ast: Result<Vec<rss::ast::ASTNode>, ErrorHandler> = rss::parser::parse(tokens);
-    match ast {
-        Ok(ast) => {
-            println!("{:?}", ast);
-        }
-        Err(e) => {
-            println!("{}", e);
-        }
-    }
+
+    let mut parser: rss::parser::Parser = rss::parser::Parser::new(&tokens);
+    let ast: Result<rss::ast::Expr, String> = parser.parse();
+    println!("{:?}", ast);
 }
