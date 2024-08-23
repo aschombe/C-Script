@@ -4,4 +4,5 @@ pub mod parser;
 pub mod tokenizer;
 pub mod types;
 pub mod interp;
-pub mod function;
+pub mod var_func;
+pub mod checker;

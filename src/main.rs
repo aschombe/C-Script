@@ -111,14 +111,43 @@
 
 // use rss::error_handler::ErrorHandler;
 
-static CODE: &str = r#"let x:int = 5.0;"#;
+use rss::error_handler::ErrorHandler;
+
+static CODE: &str = r#"
+// let x:float = (5.0 + 1.0) * 2.0;
+// x = 3.0;
+// del x;
+// let y:float = 1.0 + x;
+// func add(a:float, b:float):float {
+//     return a + b;
+// }
+
+// let x:float = add(1.0, 2.0);
+
+// func rec factorial(n:int):int {
+//     if n == 0 {
+//         return 1;
+//     } else {
+//         return n * factorial(n - 1);
+//     }
+// }
+
+if (1 == 1) { }
+"#;
 
 fn main() {
     // tokenize the code
     let tokens: Vec<String> = rss::tokenizer::tokenize(CODE);
     println!("{:?}", tokens);
+    
+    if tokens.is_empty() {
+        println!("{}", ErrorHandler::NoProgram);
+        return;
+    }
 
     let mut parser: rss::parser::Parser = rss::parser::Parser::new(&tokens);
-    let ast: Result<rss::ast::Expr, String> = parser.parse();
-    println!("{:?}", ast);
+    match parser.parse() {
+        Ok(ast) => println!("{:?}", ast),
+        Err(err) => println!("{}", err),
+    }
 }

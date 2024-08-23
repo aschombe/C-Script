@@ -1066,7 +1066,7 @@
 // }
 
 use std::collections::HashMap;
-use crate::function::Function;
+use crate::var_func::Function;
 use crate::types::Type;
 
 pub struct Interpreter {
@@ -1085,7 +1085,7 @@ impl Interpreter {
     }
 
     // take a vector of AST strings and evaluate them
-    pub fn interp(&mut self, ast: Vec<String>) -> Result<(), String> {
+    pub fn interp(&mut self, _ast: Vec<String>) -> Result<(), String> {
         // do stuff for arithmetic and let statements
         
         Ok(())

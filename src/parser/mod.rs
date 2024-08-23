@@ -1,225 +1,46 @@
-// use crate::error_handler::ErrorHandler;
-// use crate::keywords::{get_ast_node, get_keyword, Keywords};
-// use crate::types::{Type, TypeTag};
-// use crate::ast::{ASTNode, ASTNodeTypes};
-
-// use std::iter::Peekable;
-// use std::slice::Iter;
-
-// pub fn parse(tokens: Vec<String>) -> Result<Vec<ASTNode>, ErrorHandler> {
-//     if tokens.is_empty() {
-//         return Err(ErrorHandler::NoProgram);
-//     }
-
-//     let mut tokens_iter: Peekable<Iter<String>> = tokens.iter().peekable();
-//     let mut ast: Vec<ASTNode> = Vec::new();
-
-//     while let Some(token) = tokens_iter.next() {
-//         match token.as_str() {
-//             "let" => {
-//                 let name: &String = tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected variable name".to_string()))?;
-//                 tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected ':'".to_string()))?;
-//                 let typ: &String = tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected type".to_string()))?;
-                
-//                 let type_tag: TypeTag = match typ.as_str() {
-//                     "int" => TypeTag::Int,
-//                     "float" => TypeTag::Float,
-//                     "string" => TypeTag::String,
-//                     "bool" => TypeTag::Boolean,
-//                     "void" => TypeTag::Void,
-//                     _ => return Err(ErrorHandler::TypeError(format!("Invalid type: {}", typ))),
-//                 };
-                
-//                 tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected '='".to_string()))?;
-//                 let value: ASTNode = parse_expression(&mut tokens_iter)?;
-
-//                 ast.push(ASTNode::Let(name.clone(), type_tag, Box::new(value)));
-
-//                 tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected ';'".to_string()))?;
-//             }
-//             "del" => {
-//                 let name: &String = tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected variable name".to_string()))?;
-//                 ast.push(ASTNode::Del(name.clone()));
-//                 tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected ';'".to_string()))?;
-//             }
-//             "set" => {
-//                 let name: &String = tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected variable name".to_string()))?;
-//                 tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected '='".to_string()))?;
-//                 let value: ASTNode = parse_expression(&mut tokens_iter)?;
-//                 ast.push(ASTNode::Set(name.clone(), Box::new(value)));
-//                 tokens_iter.next().ok_or(ErrorHandler::SyntaxError("Expected ';'".to_string()))?;
-//             }
-            
-//             _ => {
-
-//             }
-//         }
-//     }
-
-//     Ok(ast)
-// }
-
-// fn parse_expression(tokens_iter: &mut Peekable<Iter<String>>) -> Result<ASTNode, ErrorHandler> {
-//     let mut expr_ast: ASTNode = parse_term(tokens_iter)?;
-
-//     while let Some(&token) = tokens_iter.peek() {
-//         match token.as_str() {
-//             "+" | "-" => {
-//                 tokens_iter.next(); // Consume '+' or '-'
-//                 let right: ASTNode = parse_term(tokens_iter)?;
-//                 expr_ast = ASTNode::NArg(get_keyword(token), vec![expr_ast, right]);
-//             }
-//             "==" | "!=" | "<" | "<=" | ">" | ">=" => {
-//                 tokens_iter.next(); // Consume '==' or '!=' or '<' or '<=' or '>' or '>='
-//                 let right: ASTNode = parse_term(tokens_iter)?;
-//                 expr_ast = ASTNode::NArg(get_keyword(token), vec![expr_ast, right]);
-//             }
-//             _ => break,
-//         }
-//     }
-
-//     Ok(expr_ast)
-// }
-
-// fn parse_term(tokens_iter: &mut Peekable<Iter<String>>) -> Result<ASTNode, ErrorHandler> {
-//     let mut term_ast: ASTNode = parse_factor(tokens_iter)?;
-
-//     while let Some(&token) = tokens_iter.peek() {
-//         match token.as_str() {
-//             "*" | "/" | "%" => {
-//                 tokens_iter.next(); // Consume '*', '/' or '%'
-//                 let right: ASTNode = parse_factor(tokens_iter)?;
-//                 term_ast = ASTNode::NArg(get_keyword(token), vec![term_ast, right]);
-//             }
-//             _ => break,
-//         }
-//     }
-
-//     Ok(term_ast)
-// }
-
-// fn parse_factor(tokens_iter: &mut Peekable<Iter<String>>) -> Result<ASTNode, ErrorHandler> {
-//     if let Some(token) = tokens_iter.next() {
-//         if let Ok(num) = token.parse::<f64>() {
-//             return Ok(ASTNode::Value(Type::Float(num)));
-//         } else if let Ok(num) = token.parse::<i64>() {
-//             return Ok(ASTNode::Value(Type::Int(num)));
-//         } else if token == "true" {
-//             return Ok(ASTNode::Value(Type::Boolean(true)));
-//         } else if token == "false" {
-//             return Ok(ASTNode::Value(Type::Boolean(false)));
-//         } else if token.starts_with('"') && token.ends_with('"') {
-//             return Ok(ASTNode::Value(Type::String(token.clone())));
-//         } else if token == "(" {
-//             let expr_ast: ASTNode = parse_expression(tokens_iter)?;
-//             if let Some(next_token) = tokens_iter.next() {
-//                 if next_token != ")" {
-//                     return Err(ErrorHandler::SyntaxError("Expected ')'".to_string()));
-//                 }
-//                 return Ok(expr_ast);
-//             } else {
-//                 return Err(ErrorHandler::SyntaxError("Expected ')'".to_string()));
-//             }
-//         } else if tokens_iter.peek() == Some(&&String::from("(")) {
-//             let func_name = token.clone();
-//             tokens_iter.next(); // Consume '('
-            
-//             let ast_type: ASTNodeTypes = get_ast_node(&func_name);
-//             match ast_type {
-//                 ASTNodeTypes::NArg => {
-//                     let mut args: Vec<ASTNode> = Vec::new();
-//                     while let Some(&token) = tokens_iter.peek() {
-//                         if token == ")" {
-//                             tokens_iter.next(); // Consume ')'
-//                             break;
-//                         }
-//                         let arg: ASTNode = parse_expression(tokens_iter)?;
-//                         args.push(arg);
-//                         if let Some(&token) = tokens_iter.peek() {
-//                             if token == "," {
-//                                 tokens_iter.next(); // Consume ','
-//                             }
-//                         }
-//                     }
-//                     return Ok(ASTNode::NArg(get_keyword(&func_name), args));
-//                 }
-//                 ASTNodeTypes::OneArg => {
-//                     let arg: ASTNode = parse_expression(tokens_iter)?;
-//                     if let Some(&token) = tokens_iter.peek() {
-//                         if token == ")" {
-//                             tokens_iter.next(); // Consume ')'
-//                         }
-//                     }
-//                     return Ok(ASTNode::OneArg(func_name, Box::new(arg)));
-//                 }
-//                 ASTNodeTypes::TwoArg => {
-//                     let arg1: ASTNode = parse_expression(tokens_iter)?;
-//                     if let Some(&token) = tokens_iter.peek() {
-//                         if token == "," {
-//                             tokens_iter.next(); // Consume ','
-//                         }
-//                     }
-//                     let arg2: ASTNode = parse_expression(tokens_iter)?;
-//                     if let Some(&token) = tokens_iter.peek() {
-//                         if token == ")" {
-//                             tokens_iter.next(); // Consume ')'
-//                         }
-//                     }
-//                     return Ok(ASTNode::TwoArg(func_name, Box::new(arg1), Box::new(arg2)));
-//                 }
-//                 ASTNodeTypes::TwoArgComp => {
-//                     let arg1: ASTNode = parse_expression(tokens_iter)?;
-//                     if let Some(&token) = tokens_iter.peek() {
-//                         if token == "," {
-//                             tokens_iter.next(); // Consume ','
-//                         }
-//                     }
-//                     let arg2: ASTNode = parse_expression(tokens_iter)?;
-//                     if let Some(&token) = tokens_iter.peek() {
-//                         if token == ")" {
-//                             tokens_iter.next(); // Consume ')'
-//                         }
-//                     }
-//                     return Ok(ASTNode::TwoArgComp(func_name, Box::new(arg1), Box::new(arg2)));
-//                 }
-//                 _ => {
-//                     let mut args: Vec<ASTNode> = Vec::new();
-//                     while let Some(&token) = tokens_iter.peek() {
-//                         if token == ")" {
-//                             tokens_iter.next(); // Consume ')'
-//                             break;
-//                         }
-//                         let arg: ASTNode = parse_expression(tokens_iter)?;
-//                         args.push(arg);
-//                         if let Some(&token) = tokens_iter.peek() {
-//                             if token == "," {
-//                                 tokens_iter.next(); // Consume ','
-//                             }
-//                         }
-//                     }
-//                     return Ok(ASTNode::FunctionCall(func_name, args));
-//                 }
-//             }
-//         } else {
-//             return Ok(ASTNode::VariableRef(token.clone()));
-//         }
-//     }
-
-//     Err(ErrorHandler::SyntaxError("Expected expression".to_string()))
-// }
-
-use crate::ast::Expr;
+use crate::{ast::{self, Expr}, checker::check_type, error_handler::ErrorHandler, var_func::{Function, VariableInfo}};
 use regex::Regex;
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct Parser<'a> {
     tokens: &'a [String],
     current: usize,
+    global_variables: HashMap<String, VariableInfo>,
+    functions: HashMap<String, Function>,
+    scopes: Vec<HashMap<String, VariableInfo>>, // Stack of scopes for local variables
 }
 
 impl<'a> Parser<'a> {
     pub fn new(tokens: &'a [String]) -> Self {
-        Self { tokens, current: 0 }
+        Self { tokens, current: 0, global_variables: HashMap::new(), functions: HashMap::new(), scopes: vec![HashMap::new()] }
+    }
+
+    // Function to push a new scope (e.g., when entering a function)
+    fn push_scope(&mut self) {
+        self.scopes.push(HashMap::new());
+    }
+
+    // Function to pop the current scope (e.g., when exiting a function)
+    fn pop_scope(&mut self) {
+        self.scopes.pop();
+    }
+
+    // Function to get a variable from the current scope
+    fn get_variable(&self, name: &str) -> Option<&VariableInfo> {
+        for scope in self.scopes.iter().rev() {
+            if let Some(var) = scope.get(name) {
+                return Some(var);
+            }
+        }
+        None
+    }
+
+    // Function to set a variable in the current scope
+    fn set_variable(&mut self, name: String, var_info: VariableInfo) {
+        if let Some(scope) = self.scopes.last_mut() {
+            scope.insert(name, var_info);
+        }
     }
 
     fn advance(&mut self) {
@@ -233,8 +54,7 @@ impl<'a> Parser<'a> {
     fn expect(&mut self, expected: &str) -> Result<(), String> {
         if let Some(token) = self.current_token() {
             if token == expected {
-                let mut parser = self.clone();
-                parser.advance();
+                self.advance();
                 Ok(())
             } else {
                 Err(format!("Expected '{}', found '{}'", expected, token))
@@ -244,40 +64,206 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_var_decl(&mut self) -> Result<Expr, String> {
-        // Expect and consume "let"
-        self.expect("let")?;
-        self.advance(); // Move to the next token
+    fn parse_keyword(&mut self) -> Result<Option<Expr>, String> {
+        // Handle variable declaration
+        if let Some(token) = self.current_token() {
+            if token == "let" {
+                self.advance();
+                let name: String = self.current_token().ok_or("Expected variable name")?.clone();
+
+                self.advance();
+                let _ = self.expect(":");
+                let typ: String = self.current_token().ok_or("Expected type")?.clone();
+        
+                self.advance();
+                let _ = self.expect("=");
+                let expr: Expr = self.parse_expr()?;
+                let expr: Expr = check_type(&typ, expr)?;
+        
+                let _ = self.expect(";");
+                
+                let typ2: String = typ.clone();
+                self.global_variables.insert(name.clone(), VariableInfo { name: name.clone(), typ, value: Some(expr.clone()) });
+
+                return Ok(Some(Expr::Let(name.clone(), Box::new(Expr::Type(typ2)), Box::new(expr))));
+            }
     
-        // Extract the variable name
-        let name = self.current_token().ok_or("Expected variable name")?.clone();
-        if !self.tokens.contains(&name) {
-            return Err("Variable name not found".to_string());
+            // Handle variable assignment
+            if self.global_variables.contains_key(token) {
+                let name: String = token.clone();
+                self.advance();
+                self.expect("=")?;
+                let expr: Expr = self.parse_expr()?;
+                
+                if let Some(var_info) = self.global_variables.get(&name) {
+                    let expr: Expr = check_type(&var_info.typ, expr.clone())?;
+        
+                    let name2: String = name.clone();
+                    self.global_variables.insert(name.clone(), VariableInfo { name, typ: var_info.typ.clone(), value: Some(expr.clone()) });
+        
+                    self.expect(";")?;
+                    return Ok(Some(Expr::Set(name2, Box::new(expr))));
+                } else {
+                    return Err(ErrorHandler::VariableNotFound(name).to_string());
+                }
+            }
+    
+            // Handle deletion
+            if token == "del" {
+                self.advance();
+                let name: String = self.current_token().ok_or("Expected variable name")?.clone();
+    
+                self.advance();
+                self.expect(";")?;
+    
+                if self.global_variables.remove(&name).is_some() {
+                    return Ok(Some(Expr::Delete(name)));
+                } else {
+                    return Err(ErrorHandler::VariableNotFound(name).to_string());
+                }
+            }
+
+            // Handle return statement
+            if token == "return" {
+                self.advance();
+                let expr = self.parse_expr()?;
+                self.expect(";")?;
+                return Ok(Some(Expr::Return(Box::new(expr))));
+            }
+
+            // Handle function declaration
+            if token == "func" {
+                self.advance();
+    
+                let recursive = if self.current_token() == Some(&"rec".to_string()) {
+                    self.advance();
+                    true
+                } else {
+                    false
+                };
+    
+                let name = self.current_token().ok_or("Expected function name")?.clone();
+                self.advance();
+    
+                self.push_scope(); // Start a new local scope for the function
+    
+                let mut args = Vec::new();
+                self.expect("(")?;
+                while self.current_token() != Some(&")".to_string()) {
+                    let arg_name = self.current_token().ok_or("Expected argument name")?.clone();
+                    self.advance();
+                    self.expect(":")?;
+                    let arg_type = self.current_token().ok_or("Expected argument type")?.clone();
+                    args.push((arg_name.clone(), arg_type.clone()));
+                    self.set_variable(arg_name.clone(), VariableInfo { name: arg_name.clone(), typ: arg_type.clone(), value: None });
+                    self.advance();
+                    if self.current_token() == Some(&",".to_string()) {
+                        self.advance();
+                    }
+                }
+    
+                self.expect(")")?;
+    
+                self.expect(":")?;
+                let return_type = self.current_token().ok_or("Expected return type")?.clone();
+                self.advance();
+                self.expect("{")?;
+    
+                let mut body = Vec::new();
+                while self.current_token() != Some(&"}".to_string()) {
+                    if let Some(expr) = self.parse_keyword()? {
+                        body.push(expr);
+                    } else {
+                        body.push(self.parse_expr()?);
+                        self.expect(";")?;
+                    }
+                }
+    
+                self.expect("}")?;
+    
+                self.pop_scope(); // Exit the function scope
+    
+                // Create function expression
+                let func_expr = Expr::Func(
+                    name.clone(),
+                    recursive,
+                    args.clone(),
+                    return_type.clone(),
+                    body.clone(),
+                );
+    
+                self.functions.insert(
+                    name.clone(),
+                    Function {
+                        name: name.clone(),
+                        recursive,
+                        params: args.clone(),
+                        body: vec![func_expr.clone()],
+                        return_type: return_type.clone(),
+                    },
+                );
+    
+                return Ok(Some(func_expr));
+            }
+
+            // // if (condition) { body } elif (condition) { body } elif (condition) { body } ... else { body }
+            // IEE(Box<Expr>, Vec<(Box<Expr>, Box<Expr>)>, Box<Expr>),
+            if token == "if" {
+                self.advance();
+                self.expect("(")?;
+                let condition = self.parse_expr()?;
+                self.expect(")")?;
+                self.expect("{")?;
+                let mut body = Vec::new();
+                while self.current_token() != Some(&"}".to_string()) {
+                    if let Some(expr) = self.parse_keyword()? {
+                        body.push(expr);
+                    } else {
+                        body.push(self.parse_expr()?);
+                        self.expect(";")?;
+                    }
+                }
+                self.expect("}")?;
+                let mut elifs = Vec::new();
+                while self.current_token() == Some(&"elif".to_string()) {
+                    self.advance();
+                    self.expect("(")?;
+                    let condition = self.parse_expr()?;
+                    self.expect(")")?;
+                    self.expect("{")?;
+                    let mut body = Vec::new();
+                    while self.current_token() != Some(&"}".to_string()) {
+                        if let Some(expr) = self.parse_keyword()? {
+                            body.push(expr);
+                        } else {
+                            body.push(self.parse_expr()?);
+                            self.expect(";")?;
+                        }
+                    }
+                    self.expect("}")?;
+                    elifs.push((Box::new(condition), Box::new(Expr::List(body))));
+                }
+                let mut else_body = Vec::new();
+                if self.current_token() == Some(&"else".to_string()) {
+                    self.advance();
+                    self.expect("{")?;
+                    while self.current_token() != Some(&"}".to_string()) {
+                        if let Some(expr) = self.parse_keyword()? {
+                            else_body.push(expr);
+                        } else {
+                            else_body.push(self.parse_expr()?);
+                            self.expect(";")?;
+                        }
+                    }
+                    self.expect("}")?;
+                }
+                return Ok(Some(Expr::IEE(Box::new(condition), elifs, Box::new(Expr::List(else_body)))));
+            } else {
+                return Ok(None);
+            }
+        } else {
+            return Ok(None);
         }
-        self.advance(); // Move to the next token
-    
-        // Expect ":"
-        self.expect(":")?;
-        self.advance(); // Move to the next token
-    
-        // Extract the type
-        let typ = self.current_token().ok_or("Expected type")?.clone();
-        if !self.tokens.contains(&typ) {
-            return Err("Type not found".to_string());
-        }
-        self.advance(); // Move to the next token
-    
-        // Expect "="
-        self.expect("=")?;
-        self.advance(); // Move to the next token
-    
-        // Parse the expression
-        let expr = self.parse_expr()?;
-    
-        // Expect ";"
-        self.expect(";")?;
-    
-        Ok(Expr::Let(name, Box::new(Expr::Type(typ)), Box::new(expr)))
     }
 
     fn parse_expr(&mut self) -> Result<Expr, String> {
@@ -286,7 +272,7 @@ impl<'a> Parser<'a> {
         while let Some(op) = self.current_token().map(|t| t.clone()) {
             match op.as_str() {
                 "+" | "-" => {
-                    self.advance(); // Consume '+' or '-'
+                    self.advance();
                     let right = self.parse_term()?;
                     left = match op.as_str() {
                         "+" => Expr::Add(Box::new(left), Box::new(right)),
@@ -295,7 +281,7 @@ impl<'a> Parser<'a> {
                     };
                 }
                 "==" | "!=" | "<" | "<=" | ">" | ">=" => {
-                    self.advance(); // Consume comparison operators
+                    self.advance();
                     let right = self.parse_term()?;
                     left = match op.as_str() {
                         "==" => Expr::IsEqual(Box::new(left), Box::new(right)),
@@ -316,11 +302,11 @@ impl<'a> Parser<'a> {
     
     fn parse_term(&mut self) -> Result<Expr, String> {
         let mut left = self.parse_factor()?;
-    
-        while let Some(op) = self.current_token().map(|t| t.clone()) { // Extract the operator
+        
+        while let Some(op) = self.current_token().map(|t| t.clone()) {
             match op.as_str() {
-                "*" | "/" | "%" => { 
-                    self.advance(); // Consume '*', '/' or '%'
+                "*" | "/" | "%" => {
+                    self.advance();
                     let right = self.parse_factor()?;
                     left = match op.as_str() {
                         "*" => Expr::Mul(Box::new(left), Box::new(right)),
@@ -332,50 +318,89 @@ impl<'a> Parser<'a> {
                 _ => break,
             }
         }
-    
+        
         Ok(left)
     }
     
     fn parse_factor(&mut self) -> Result<Expr, String> {
         let token = self.current_token().ok_or("Unexpected end of input")?.clone();
-    
-        // Define regex patterns
-        let float_pattern = Regex::new(r"^\d*\.\d+$").unwrap(); // Matches numbers like 3.14
-        let int_pattern = Regex::new(r"^\d+$").unwrap(); // Matches whole numbers like 42
-    
+        
+        let float_pattern = Regex::new(r"^\d*\.\d+$").unwrap();
+        let int_pattern = Regex::new(r"^\d+$").unwrap();
+        let string_pattern = Regex::new(r#"^".*"$"#).unwrap();
+        
         let mut left = match token.as_str() {
             "(" => {
-                self.advance(); // Consume '('
+                self.advance();
                 let expr = self.parse_expr()?;
-                self.expect(")")?; // Expect and consume ')'
+                self.expect(")")?;
                 expr
             }
             _ if float_pattern.is_match(&token) => {
-                self.advance(); // Consume float
+                self.advance();
                 Expr::Float(token.parse().unwrap())
             }
             _ if int_pattern.is_match(&token) => {
-                self.advance(); // Consume int
+                self.advance();
                 Expr::Int(token.parse().unwrap())
+            }
+            _ if string_pattern.is_match(&token) => {
+                self.advance();
+                Expr::String(token.trim_matches('"').to_string())
+            }
+            "true" => {
+                self.advance();
+                Expr::Bool(true)
+            }
+            "false" => {
+                self.advance();
+                Expr::Bool(false)
+            }
+            _ if self.get_variable(&token).is_some() => {
+                self.advance();
+                Expr::VarRef(token)
+            }
+            _ if self.functions.contains_key(&token) => {
+                self.advance();
+                let mut args = Vec::new();
+                self.expect("(")?;
+                while self.current_token().map(|t| t.clone()) != Some(")".to_string()) {
+                    args.push(self.parse_expr()?);
+                    if self.current_token().map(|t| t.clone()) == Some(",".to_string()) {
+                        self.advance();
+                    }
+                }
+                self.expect(")")?;
+                Expr::FuncApp(token, args)
             }
             _ => return Err(format!("Unexpected token: {}", token)),
         };
-    
+        
         while let Some(op) = self.current_token().map(|t| t.clone()) {
             match op.as_str() {
                 "^" => {
-                    self.advance(); // Consume '^'
+                    self.advance();
                     let right = self.parse_factor()?;
                     left = Expr::Pow(Box::new(left), Box::new(right));
                 }
                 _ => break,
             }
         }
-    
+        
         Ok(left)
     }
     
-    pub fn parse(&mut self) -> Result<Expr, String> {
-        self.parse_var_decl()
+    pub fn parse(&mut self) -> Result<Vec<Expr>, String> {
+        let mut expressions = Vec::new();
+        
+        while self.current < self.tokens.len() {
+            match self.parse_keyword() {
+                Ok(Some(expr)) => expressions.push(expr),
+                Ok(None) => (),
+                Err(e) => return Err(e),
+            }
+        }
+        
+        Ok(expressions)
     }
 }

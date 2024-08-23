@@ -4,8 +4,9 @@
 pub enum Expr {
     // Variables
     Let(String, Box<Expr>, Box<Expr>),
-    Set(String, Box<Expr>),
+    Set(String, Box<Expr>), // syntax: var_name = expr
     Delete(String),
+    VarRef(String),
     
     // Literals
     Type(String),
@@ -35,7 +36,8 @@ pub enum Expr {
     // Avg(Vec<Expr>),
     
     // Conditionals
-    ITE(Box<Expr>, Box<Expr>, Box<Expr>),
+    // if (condition) { body } elif (condition) { body } elif (condition) { body } ... else { body }
+    IEE(Box<Expr>, Vec<(Box<Expr>, Box<Expr>)>, Box<Expr>),
     IsEqual(Box<Expr>, Box<Expr>),
     IsLT(Box<Expr>, Box<Expr>),
     IsGT(Box<Expr>, Box<Expr>),
@@ -50,13 +52,14 @@ pub enum Expr {
     IsVoid(Box<Expr>),
     
     // func (recursive - optional) name(arg1: type, arg2: type, ...): type { ... }
-    Func(String, bool, Vec<(String, String)>, String, Box<Expr>),
+    Func(String, bool, Vec<(String, String)>, String, Vec<Expr>),
     FuncApp(String, Vec<Expr>),
+    Return(Box<Expr>),
 
     // For references
-    NewRef(Box<Expr>),
-    Deref(Box<Expr>),
-    SetRef(Box<Expr>, Box<Expr>),
+    // NewRef(Box<Expr>),
+    // Deref(Box<Expr>),
+    // SetRef(Box<Expr>, Box<Expr>),
 
     // For tuples
     // First(Box<Expr>),
@@ -68,6 +71,8 @@ pub enum Expr {
     // Cons(Box<Expr>, Box<Expr>),
     // IsEmpty(Box<Expr>),
     // Len(Box<Expr>),
+
+    WIP(String),
 }
 
 impl Expr {
@@ -76,6 +81,7 @@ impl Expr {
             Expr::Let(s, e1, e2) => "Let(".to_string() + s + ", " + &e1.to_ast() + ", " + &e2.to_ast() + ")",
             Expr::Set(s, e) => "Set(".to_string() + s + ", " + &e.to_ast() + ")",
             Expr::Delete(s) => "Delete(".to_string() + s + ")",
+            Expr::VarRef(s) => "VarRef(".to_string() + s + ")",
 
             Expr::Type(t) => "Type".to_string() + t,
             // Expr::Var(s) => "Var".to_string() + s,
@@ -157,7 +163,19 @@ impl Expr {
             //     s
             // },
 
-            Expr::ITE(e1, e2, e3) => "ITE(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ", " + &e3.to_ast() + ")",
+            // Expr::ITE(e1, e2, e3) => "ITE(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ", " + &e3.to_ast() + ")",
+            Expr::IEE(e1, v, e2) => {
+                let mut s: String = "IEE(".to_string() + &e1.to_ast() + ", ";
+                for (e1, e2) in v {
+                    s += &e1.to_ast();
+                    s += ", ";
+                    s += &e2.to_ast();
+                    s += ", ";
+                }
+                s += &e2.to_ast();
+                s += ")";
+                s
+            },
             Expr::IsEqual(e1, e2) => "IsEqual(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
             Expr::IsLT(e1, e2) => "IsLT(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
             Expr::IsGT(e1, e2) => "IsGT(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
@@ -172,19 +190,23 @@ impl Expr {
             Expr::IsVoid(e) => "IsVoid(".to_string() + &e.to_ast() + ")",
 
             Expr::Func(s, r, v, t, e) => {
-                let mut s: String = "Func(".to_string() + s + ", " + &r.to_string() + ", ";
-                for (a, t) in v {
-                    s += &a;
-                    s += ": ";
-                    s += &t;
-                    s += ", ";
+                let mut result: String = "Func(".to_string() + s + ", " + &r.to_string() + ", ";
+                for (arg, arg_type) in v {
+                    result += &arg;
+                    result += ": ";
+                    result += &arg_type;
+                    result += ", ";
                 }
-                s += t;
-                s += ", ";
-                s += &e.to_ast();
-                s += ")";
-                s
+                result += t;
+                result += ", ";
+                for expr in e {
+                    result += &expr.to_ast();
+                    result += ", ";
+                }
+                result += ")";
+                result
             },
+            
             Expr::FuncApp(s, v) => {
                 let mut s: String = "FuncApp(".to_string() + s + ", ";
                 for e in v {
@@ -194,10 +216,11 @@ impl Expr {
                 s += ")";
                 s
             },
+            Expr::Return(e) => "Return(".to_string() + &e.to_ast() + ")",
 
-            Expr::NewRef(e) => "NewRef(".to_string() + &e.to_ast() + ")",
-            Expr::Deref(e) => "Deref(".to_string() + &e.to_ast() + ")",
-            Expr::SetRef(e1, e2) => "SetRef(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
+            // Expr::NewRef(e) => "NewRef(".to_string() + &e.to_ast() + ")",
+            // Expr::Deref(e) => "Deref(".to_string() + &e.to_ast() + ")",
+            // Expr::SetRef(e1, e2) => "SetRef(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
 
             // Expr::First(e) => "First(".to_string() + &e.to_ast() + ")",
             // Expr::Second(e) => "Second(".to_string() + &e.to_ast() + ")",
@@ -209,6 +232,8 @@ impl Expr {
             // Expr::Len(e) => "Len(".to_string() + &e.to_ast() + ")",
 
             // _ => "Unknown".to_string(),
+
+            Expr::WIP(s) => "WIP(".to_string() + s + ")",
         }
     }
 }
