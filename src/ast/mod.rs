@@ -37,7 +37,7 @@ pub enum Expr {
     
     // Conditionals
     // if (condition) { body } elif (condition) { body } elif (condition) { body } ... else { body }
-    IEE(Box<Expr>, Vec<(Box<Expr>, Box<Expr>)>, Box<Expr>),
+    IEE(Box<Expr>, Option<Vec<(Box<Expr>, Box<Expr>)>>, Option<Vec<Expr>>),
     IsEqual(Box<Expr>, Box<Expr>),
     IsLT(Box<Expr>, Box<Expr>),
     IsGT(Box<Expr>, Box<Expr>),
@@ -166,13 +166,20 @@ impl Expr {
             // Expr::ITE(e1, e2, e3) => "ITE(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ", " + &e3.to_ast() + ")",
             Expr::IEE(e1, v, e2) => {
                 let mut s: String = "IEE(".to_string() + &e1.to_ast() + ", ";
-                for (e1, e2) in v {
-                    s += &e1.to_ast();
-                    s += ", ";
-                    s += &e2.to_ast();
-                    s += ", ";
+                if let Some(v) = v {
+                    for (e1, e2) in v {
+                        s += &e1.to_ast();
+                        s += ", ";
+                        s += &e2.to_ast();
+                        s += ", ";
+                    }
                 }
-                s += &e2.to_ast();
+                if let Some(e2) = e2 {
+                    for e in e2 {
+                        s += &e.to_ast();
+                        s += ", ";
+                    }
+                }
                 s += ")";
                 s
             },
@@ -237,3 +244,147 @@ impl Expr {
         }
     }
 }
+
+// std::fmt::Display
+impl std::fmt::Display for Expr {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Expr::Let(s, e1, e2) => write!(f, "Let({}, {}, {})", s, e1, e2),
+            Expr::Set(s, e) => write!(f, "Set({}, {})", s, e),
+            Expr::Delete(s) => write!(f, "Delete({})", s),
+            Expr::VarRef(s) => write!(f, "VarRef({})", s),
+
+            Expr::Type(t) => write!(f, "Type{}", t),
+            // Expr::Var(s) => write!(f, "Var{}", s),
+            Expr::String(s) => write!(f, "String{}", s),
+            Expr::Int(i) => write!(f, "Int{}", i),
+            Expr::Float(fl) => write!(f, "Float{}", fl),
+            Expr::Bool(b) => write!(f, "Bool{}", b),
+            Expr::List(l) => {
+                write!(f, "List(")?;
+                for e in l {
+                    write!(f, "{}, ", e)?;
+                }
+                write!(f, ")")
+            },
+            // Expr::Tuple(t) => {
+            //     write!(f, "Tuple(")?;
+            //     for e in t {
+            //         write!(f, "{}, ", e)?;
+            //     }
+            //     write!(f, ")")
+            // },
+            Expr::Void => write!(f, "Void"),
+
+            Expr::Add(e1, e2) => write!(f, "Add({}, {})", e1, e2),
+            Expr::Sub(e1, e2) => write!(f, "Sub({}, {})", e1, e2),
+            Expr::Mul(e1, e2) => write!(f, "Mul({}, {})", e1, e2),
+            Expr::Div(e1, e2) => write!(f, "Div({}, {})", e1, e2),
+            Expr::Mod(e1, e2) => write!(f, "Mod({}, {})", e1, e2),
+            Expr::Pow(e1, e2) => write!(f, "Pow({}, {})", e1, e2),
+            Expr::Abs(e) => write!(f, "Abs({})", e),
+
+            // Expr::Min(v) => {
+            //     write!(f, "Min(")?;
+            //     for e in v {
+            //         write!(f, "{}, ", e)?;
+            //     }
+            //     write!(f, ")")
+            // },
+            // Expr::Max(v) => {
+            //     write!(f, "Max(")?;
+            //     for e in v {
+            //         write!(f, "{}, ", e)?;
+            //     }
+            //     write!(f, ")")
+            // },
+            // Expr::Sum(v) => {
+            //     write!(f, "Sum(")?;
+            //     for e in v {
+            //         write!(f, "{}, ", e)?;
+            //     }
+            //     write!(f, ")")
+            // },
+            // Expr::Prod(v) => {
+            //     write!(f, "Prod(")?;
+            //     for e in v {
+            //         write!(f, "{}, ", e)?;
+            //     }
+            //     write!(f, ")")
+            // },
+            // Expr::Avg(v) => {
+            //     write!(f, "Avg(")?;
+            //     for e in v {
+            //         write!(f, "{}, ", e)?;
+            //     }
+            //     write!(f, ")")
+            // },
+
+            // Expr::ITE(e1, e2, e3) => write!(f, "ITE({}, {}, {})", e1, e2, e3),
+            Expr::IEE(e1, v, e2) => {
+                write!(f, "IEE({}, ", e1)?;
+                if let Some(v) = v {
+                    for (e1, e2) in v {
+                        write!(f, "{}, {}, ", e1, e2)?;
+                    }
+                }
+                if let Some(e2) = e2 {
+                    for e in e2 {
+                        write!(f, "{}, ", e)?;
+                    }
+                }
+                write!(f, ")")
+            },
+            Expr::IsEqual(e1, e2) => write!(f, "IsEqual({}, {})", e1, e2),
+            Expr::IsLT(e1, e2) => write!(f, "IsLT({}, {})", e1, e2),
+            Expr::IsGT(e1, e2) => write!(f, "IsGT({}, {})", e1, e2),
+            Expr::IsLTE(e1, e2) => write!(f, "IsLTE({}, {})", e1, e2),
+            Expr::IsGTE(e1, e2) => write!(f, "IsGTE({}, {})", e1, e2),
+            Expr::IsNE(e1, e2) => write!(f, "IsNE({}, {})", e1, e2),
+            Expr::IsZero(e) => write!(f, "IsZero({})", e),
+            Expr::IsNumber(e) => write!(f, "IsNumber({})", e),
+            Expr::IsBool(e) => write!(f, "IsBool({})", e),
+            Expr::IsString(e) => write!(f, "IsString({})", e),
+            Expr::IsList(e) => write!(f, "IsList({})", e),
+            Expr::IsVoid(e) => write!(f, "IsVoid({})", e),
+            
+            Expr::Func(s, r, v, t, e) => {
+                write!(f, "Func({}, {}, ", s, r)?;
+                for (arg, arg_type) in v {
+                    write!(f, "{}: {}, ", arg, arg_type)?;
+                }
+                write!(f, "{}: ", t)?;
+                for expr in e {
+                    write!(f, "{}, ", expr)?;
+                }
+                write!(f, ")")
+            },
+            Expr::FuncApp(s, v) => {
+                write!(f, "FuncApp({}, ", s)?;
+                for e in v {
+                    write!(f, "{}, ", e)?;
+                }
+                write!(f, ")")
+            },
+            Expr::Return(e) => write!(f, "Return({})", e),
+
+            // Expr::NewRef(e) => write!(f, "NewRef({})", e),
+            // Expr::Deref(e) => write!(f, "Deref({})", e),
+            // Expr::SetRef(e1, e2) => write!(f, "SetRef({}, {})", e1, e2),
+
+            // Expr::First(e) => write!(f, "First({})", e),
+            // Expr::Second(e) => write!(f, "Second({})", e),
+
+            // Expr::Head(e) => write!(f, "Head({})", e),
+            // Expr::Tail(e) => write!(f, "Tail({})", e),
+            // Expr::Cons(e1, e2) => write!(f, "Cons({}, {})", e1, e2),
+            // Expr::IsEmpty(e) => write!(f, "IsEmpty({})", e),
+            // Expr::Len(e) => write!(f, "Len({})", e),
+
+            // _ => write!(f, "Unknown"),
+            Expr::WIP(s) => write!(f, "WIP({})", s),
+        }
+    }
+}
+
+            

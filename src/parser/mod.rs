@@ -211,7 +211,7 @@ impl<'a> Parser<'a> {
             if token == "if" {
                 self.advance();
                 self.expect("(")?;
-                let condition = self.parse_expr()?;
+                let condition: Expr = self.parse_expr()?;
                 self.expect(")")?;
                 self.expect("{")?;
                 let mut body = Vec::new();
@@ -257,7 +257,9 @@ impl<'a> Parser<'a> {
                     }
                     self.expect("}")?;
                 }
-                return Ok(Some(Expr::IEE(Box::new(condition), elifs, Box::new(Expr::List(else_body)))));
+                // if (condition) { body } elif (condition) { body } elif (condition) { body } ... else { body }
+                // IEE(Box<Expr>, Option<Vec<(Box<Expr>, Box<Expr>)>>, Option<Vec<Expr>>),
+                return Ok(Some(Expr::IEE(Box::new(condition), Some(elifs), Some(else_body))));
             } else {
                 return Ok(None);
             }
@@ -267,19 +269,12 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_expr(&mut self) -> Result<Expr, String> {
+        // Start with parsing the lowest precedence operators
         let mut left = self.parse_term()?;
         
+        // Parse relational operators
         while let Some(op) = self.current_token().map(|t| t.clone()) {
             match op.as_str() {
-                "+" | "-" => {
-                    self.advance();
-                    let right = self.parse_term()?;
-                    left = match op.as_str() {
-                        "+" => Expr::Add(Box::new(left), Box::new(right)),
-                        "-" => Expr::Sub(Box::new(left), Box::new(right)),
-                        _ => unreachable!(),
-                    };
-                }
                 "==" | "!=" | "<" | "<=" | ">" | ">=" => {
                     self.advance();
                     let right = self.parse_term()?;
@@ -293,6 +288,7 @@ impl<'a> Parser<'a> {
                         _ => unreachable!(),
                     };
                 }
+                "+" | "-" => break,  // Break when encountering addition/subtraction
                 _ => break,
             }
         }
@@ -301,8 +297,10 @@ impl<'a> Parser<'a> {
     }
     
     fn parse_term(&mut self) -> Result<Expr, String> {
+        // Start with parsing factors
         let mut left = self.parse_factor()?;
         
+        // Parse arithmetic operators
         while let Some(op) = self.current_token().map(|t| t.clone()) {
             match op.as_str() {
                 "*" | "/" | "%" => {
@@ -321,7 +319,7 @@ impl<'a> Parser<'a> {
         
         Ok(left)
     }
-    
+
     fn parse_factor(&mut self) -> Result<Expr, String> {
         let token = self.current_token().ok_or("Unexpected end of input")?.clone();
         

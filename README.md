@@ -37,6 +37,7 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 - [x] AST for function calls
 
 ## Todo
+- [ ] Parser confuses comparison operators that have eqauls signs with assignment operators (e.g. `==`,`>=`,`<=` and `=`)
 - [ ] Control Flow (if, elif, else) AST
 - [ ] Loops (for, while) AST 
 - [ ] Functions (declaration, calling, recursion) AST
