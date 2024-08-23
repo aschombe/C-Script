@@ -47,4 +47,4 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 - [ ] Compiler
  
 ## Notes
-
+Check out pratt parser
