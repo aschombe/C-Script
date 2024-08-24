@@ -124,7 +124,7 @@ static CODE: &str = r#"
 
 // let x:float = add(1.0, 2.0);
 
-// func rec factorial(n:int):int {
+// func factorial(n:int):int {
 //     if n == 0 {
 //         return 1;
 //     } else {
@@ -132,19 +132,39 @@ static CODE: &str = r#"
 //     }
 // }
 
-if (1 == 1) { }
+// if (1 != 1) {
+//     let x:int = 1;
+//     let a:float = 2;
+// } elif (1 == 1) {
+//     let y:int = 2;
+//     let b:float = 3;
+// } else {
+//     let z:int = 3;
+//     let c:float = 4;
+// }
+
+let x:int = 0;
+for (i; i < 10; i = i + 1) { 
+    1 + 1
+}
+
+// let x:int = 5;
+// while (x > 0) {
+//     x = x - 1;
+// }
 "#;
 
 fn main() {
     // tokenize the code
     let tokens: Vec<String> = rss::tokenizer::tokenize(CODE);
-    println!("{:?}", tokens);
+    println!("Tokenized: {:?}", tokens);
     
     if tokens.is_empty() {
         println!("{}", ErrorHandler::NoProgram);
         return;
     }
 
+    println!("Parsed:");
     let mut parser: rss::parser::Parser = rss::parser::Parser::new(&tokens);
     match parser.parse() {
         Ok(ast) => println!("{:?}", ast),

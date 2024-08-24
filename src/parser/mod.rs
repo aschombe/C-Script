@@ -1,4 +1,4 @@
-use crate::{ast::{self, Expr}, checker::check_type, error_handler::ErrorHandler, var_func::{Function, VariableInfo}};
+use crate::{ast::Expr, checker::check_type, error_handler::ErrorHandler, var_func::{Function, VariableInfo}};
 use regex::Regex;
 use std::collections::HashMap;
 
@@ -6,41 +6,14 @@ use std::collections::HashMap;
 pub struct Parser<'a> {
     tokens: &'a [String],
     current: usize,
+    in_function: bool,
     global_variables: HashMap<String, VariableInfo>,
     functions: HashMap<String, Function>,
-    scopes: Vec<HashMap<String, VariableInfo>>, // Stack of scopes for local variables
 }
 
 impl<'a> Parser<'a> {
     pub fn new(tokens: &'a [String]) -> Self {
-        Self { tokens, current: 0, global_variables: HashMap::new(), functions: HashMap::new(), scopes: vec![HashMap::new()] }
-    }
-
-    // Function to push a new scope (e.g., when entering a function)
-    fn push_scope(&mut self) {
-        self.scopes.push(HashMap::new());
-    }
-
-    // Function to pop the current scope (e.g., when exiting a function)
-    fn pop_scope(&mut self) {
-        self.scopes.pop();
-    }
-
-    // Function to get a variable from the current scope
-    fn get_variable(&self, name: &str) -> Option<&VariableInfo> {
-        for scope in self.scopes.iter().rev() {
-            if let Some(var) = scope.get(name) {
-                return Some(var);
-            }
-        }
-        None
-    }
-
-    // Function to set a variable in the current scope
-    fn set_variable(&mut self, name: String, var_info: VariableInfo) {
-        if let Some(scope) = self.scopes.last_mut() {
-            scope.insert(name, var_info);
-        }
+        Self { tokens, current: 0, global_variables: HashMap::new(), functions: HashMap::new(), in_function: false }
     }
 
     fn advance(&mut self) {
@@ -57,175 +30,204 @@ impl<'a> Parser<'a> {
                 self.advance();
                 Ok(())
             } else {
-                Err(format!("Expected '{}', found '{}'", expected, token))
+                Err(ErrorHandler::UnexpectedToken(expected.to_string(), token.clone()).to_string())
             }
         } else {
-            Err(format!("Expected '{}', found end of input", expected))
+            Err(ErrorHandler::UnexpectedToken(expected.to_string(), "end of input".to_string()).to_string())
         }
     }
 
     fn parse_keyword(&mut self) -> Result<Option<Expr>, String> {
-        // Handle variable declaration
         if let Some(token) = self.current_token() {
-            if token == "let" {
-                self.advance();
-                let name: String = self.current_token().ok_or("Expected variable name")?.clone();
-
-                self.advance();
-                let _ = self.expect(":");
-                let typ: String = self.current_token().ok_or("Expected type")?.clone();
-        
-                self.advance();
-                let _ = self.expect("=");
-                let expr: Expr = self.parse_expr()?;
-                let expr: Expr = check_type(&typ, expr)?;
-        
-                let _ = self.expect(";");
-                
-                let typ2: String = typ.clone();
-                self.global_variables.insert(name.clone(), VariableInfo { name: name.clone(), typ, value: Some(expr.clone()) });
-
-                return Ok(Some(Expr::Let(name.clone(), Box::new(Expr::Type(typ2)), Box::new(expr))));
-            }
-    
-            // Handle variable assignment
-            if self.global_variables.contains_key(token) {
-                let name: String = token.clone();
-                self.advance();
-                self.expect("=")?;
-                let expr: Expr = self.parse_expr()?;
-                
-                if let Some(var_info) = self.global_variables.get(&name) {
-                    let expr: Expr = check_type(&var_info.typ, expr.clone())?;
-        
-                    let name2: String = name.clone();
-                    self.global_variables.insert(name.clone(), VariableInfo { name, typ: var_info.typ.clone(), value: Some(expr.clone()) });
-        
-                    self.expect(";")?;
-                    return Ok(Some(Expr::Set(name2, Box::new(expr))));
-                } else {
-                    return Err(ErrorHandler::VariableNotFound(name).to_string());
-                }
-            }
-    
-            // Handle deletion
-            if token == "del" {
-                self.advance();
-                let name: String = self.current_token().ok_or("Expected variable name")?.clone();
-    
-                self.advance();
-                self.expect(";")?;
-    
-                if self.global_variables.remove(&name).is_some() {
-                    return Ok(Some(Expr::Delete(name)));
-                } else {
-                    return Err(ErrorHandler::VariableNotFound(name).to_string());
-                }
-            }
-
-            // Handle return statement
-            if token == "return" {
-                self.advance();
-                let expr = self.parse_expr()?;
-                self.expect(";")?;
-                return Ok(Some(Expr::Return(Box::new(expr))));
-            }
-
-            // Handle function declaration
-            if token == "func" {
-                self.advance();
-    
-                let recursive = if self.current_token() == Some(&"rec".to_string()) {
+            match token.as_str() {
+                "let" => {
                     self.advance();
-                    true
-                } else {
-                    false
-                };
-    
-                let name = self.current_token().ok_or("Expected function name")?.clone();
-                self.advance();
-    
-                self.push_scope(); // Start a new local scope for the function
-    
-                let mut args = Vec::new();
-                self.expect("(")?;
-                while self.current_token() != Some(&")".to_string()) {
-                    let arg_name = self.current_token().ok_or("Expected argument name")?.clone();
+                    let name: String = self.current_token().ok_or("Expected variable name")?.clone();
                     self.advance();
                     self.expect(":")?;
-                    let arg_type = self.current_token().ok_or("Expected argument type")?.clone();
-                    args.push((arg_name.clone(), arg_type.clone()));
-                    self.set_variable(arg_name.clone(), VariableInfo { name: arg_name.clone(), typ: arg_type.clone(), value: None });
+                    let typ: String = self.current_token().ok_or("Expected type")?.clone();
                     self.advance();
-                    if self.current_token() == Some(&",".to_string()) {
+                    self.expect("=")?;
+                    let expr: Expr = self.parse_expr()?;
+                    let expr: Expr = check_type(&typ, expr)?;
+                    self.expect(";")?;
+                    let typ2: String = typ.clone();
+                    self.global_variables.insert(
+                        name.clone(), 
+                        VariableInfo { 
+                            name: name.clone(), 
+                            typ, 
+                            value: Some(expr.clone()) 
+                        }
+                    );
+                    return Ok(Some(Expr::Let(name, Box::new(Expr::Type(typ2)), Box::new(expr))));
+                },
+                "if" => {
+                    // If-Condition, If-Body, List of (condition, list of expr) pairs, else body
+                    // IEE(Box<Expr>, Vec<Box<Expr>>, Option<Vec<(Expr, Vec<Expr>)>>, Option<Vec<Expr>>),
+                    self.advance();
+                    let if_condition: Expr = self.parse_expr()?;
+                    self.expect("{")?;
+                    let mut if_body: Vec<Expr> = Vec::new();
+                    while self.current_token() != Some(&"}".to_string()) {
+                        if let Some(expr) = self.parse_keyword()? {
+                            if_body.push(expr);
+                        } else {
+                            if_body.push(self.parse_expr()?);
+                            self.expect(";")?;
+                        }
+                    }
+                    self.expect("}")?;
+                    let mut elifs: Vec<(Expr, Vec<Expr>)> = Vec::new();
+                    while self.current_token() == Some(&"elif".to_string()) {
                         self.advance();
+                        let elif_condition: Expr = self.parse_expr()?;
+                        self.expect("{")?;
+                        let mut elif_body: Vec<Expr> = Vec::new();
+                        while self.current_token() != Some(&"}".to_string()) {
+                            if let Some(expr) = self.parse_keyword()? {
+                                elif_body.push(expr);
+                            } else {
+                                elif_body.push(self.parse_expr()?);
+                                self.expect(";")?;
+                            }
+                        }
+                        self.expect("}")?;
+                        elifs.push((elif_condition, elif_body));
                     }
-                }
-    
-                self.expect(")")?;
-    
-                self.expect(":")?;
-                let return_type = self.current_token().ok_or("Expected return type")?.clone();
-                self.advance();
-                self.expect("{")?;
-    
-                let mut body = Vec::new();
-                while self.current_token() != Some(&"}".to_string()) {
-                    if let Some(expr) = self.parse_keyword()? {
-                        body.push(expr);
+                    let mut else_body: Vec<Expr> = Vec::new();
+                    if self.current_token() == Some(&"else".to_string()) {
+                        self.advance();
+                        self.expect("{")?;
+                        while self.current_token() != Some(&"}".to_string()) {
+                            if let Some(expr) = self.parse_keyword()? {
+                                else_body.push(expr);
+                            } else {
+                                else_body.push(self.parse_expr()?);
+                                self.expect(";")?;
+                            }
+                        }
+                        self.expect("}")?;
+                    }
+                    return Ok(Some(Expr::IEE(Box::new(if_condition), if_body, Some(elifs), Some(else_body))));
+                },
+                "return" => {
+                    if !self.in_function {
+                        // return Err("Return statement outside of function".to_string());
+                        return Err(ErrorHandler::ReturnOutsideFunction.to_string());
+                    }
+                    self.advance();
+                    let expr: Expr = self.parse_expr()?;
+                    self.expect(";")?;
+                    return Ok(Some(Expr::Return(Box::new(expr))));
+                },
+                "del" => {
+                    self.advance();
+                    let name: String = self.current_token().ok_or("Expected variable name")?.clone();
+                    self.advance();
+                    self.expect(";")?;
+                    if self.global_variables.remove(&name).is_some() {
+                        return Ok(Some(Expr::Delete(name)));
                     } else {
-                        body.push(self.parse_expr()?);
-                        self.expect(";")?;
+                        return Err(ErrorHandler::VariableNotFound(name).to_string());
                     }
+                },
+                "func" => {
+                    self.advance();
+                    let name: String = self.current_token().ok_or("Expected function name")?.clone();
+                    self.advance();
+                    self.expect("(")?;
+                    let mut args: Vec<(String, String)> = Vec::new();
+                    while self.current_token() != Some(&")".to_string()) {
+                        let arg_name: String = self.current_token().ok_or("Expected argument name")?.clone();
+                        self.advance();
+                        self.expect(":")?;
+                        let arg_type: String = self.current_token().ok_or("Expected argument type")?.clone();
+                        self.advance();
+                        args.push((arg_name, arg_type));
+                        if self.current_token() == Some(&",".to_string()) {
+                            self.advance();
+                        }
+                    }
+                    self.expect(")")?;
+                    self.expect(":")?;
+                    let return_type: String = self.current_token().ok_or("Expected return type")?.clone();
+                    self.advance();
+                    self.expect("{")?;
+                    let mut body: Vec<Expr> = Vec::new();
+                    self.in_function = true;
+                    while self.current_token() != Some(&"}".to_string()) {
+                        if let Some(expr) = self.parse_keyword()? {
+                            body.push(expr);
+                        } else {
+                            body.push(self.parse_expr()?);
+                            self.expect(";")?;
+                        }
+                    }
+                    self.in_function = false;
+                    self.expect("}")?;
+                    // func (recursive - optional) name(arg1: type, arg2: type, ...): type { ... }
+                    // Func(String, bool, Vec<(String, String)>, String, Vec<Expr>),
+                    let args2 = args.clone();
+                    let return_type2 = return_type.clone();
+                    let body2 = body.clone();
+                    self.functions.insert(
+                        name.clone(),
+                        Function { 
+                            name: name.clone(), 
+                            recursive: false, 
+                            params: args, 
+                            return_type, 
+                            body 
+                        }
+                    );
+                    return Ok(Some(Expr::Func(name, false, args2, return_type2, body2))); 
+                },
+                /*
+                Supported syntax for for loops:
+                let i:int = 0
+                for (i; i < 10; i = i + 1) {
+                    1 + 1
                 }
-    
-                self.expect("}")?;
-    
-                self.pop_scope(); // Exit the function scope
-    
-                // Create function expression
-                let func_expr = Expr::Func(
-                    name.clone(),
-                    recursive,
-                    args.clone(),
-                    return_type.clone(),
-                    body.clone(),
-                );
-    
-                self.functions.insert(
-                    name.clone(),
-                    Function {
-                        name: name.clone(),
-                        recursive,
-                        params: args.clone(),
-                        body: vec![func_expr.clone()],
-                        return_type: return_type.clone(),
-                    },
-                );
-    
-                return Ok(Some(func_expr));
-            }
+                */
+                "for" => {
+                    self.advance(); // Advance past 'for'
+                    self.expect("(")?;
 
-            // // if (condition) { body } elif (condition) { body } elif (condition) { body } ... else { body }
-            // IEE(Box<Expr>, Vec<(Box<Expr>, Box<Expr>)>, Box<Expr>),
-            if token == "if" {
-                self.advance();
-                self.expect("(")?;
-                let condition: Expr = self.parse_expr()?;
-                self.expect(")")?;
-                self.expect("{")?;
-                let mut body = Vec::new();
-                while self.current_token() != Some(&"}".to_string()) {
-                    if let Some(expr) = self.parse_keyword()? {
-                        body.push(expr);
-                    } else {
-                        body.push(self.parse_expr()?);
-                        self.expect(";")?;
+                    // Parse initialization
+                    let init_var_name = self.current_token().ok_or("Expected variable name")?.clone();
+                    self.advance();
+                    self.expect(";")?;
+                    let init_expr = self.parse_expr()?;
+
+                    // Parse condition
+                    let condition = self.parse_expr()?;
+                    self.expect(";")?;
+
+                    // Parse increment
+                    let increment = self.parse_expr()?;
+                    self.expect(")")?;
+
+                    // Parse body
+                    self.expect("{")?;
+                    let mut body = Vec::new();
+                    while self.current_token() != Some(&"}".to_string()) {
+                        if let Some(expr) = self.parse_keyword()? {
+                            body.push(expr);
+                        } else {
+                            body.push(self.parse_expr()?);
+                            self.expect(";")?;
+                        }
                     }
-                }
-                self.expect("}")?;
-                let mut elifs = Vec::new();
-                while self.current_token() == Some(&"elif".to_string()) {
+                    self.expect("}")?;
+
+                    // Return the parsed for loop expression
+                    return Ok(Some(Expr::For((init_var_name, Box::new(init_expr)), Box::new(condition), Box::new(increment), body)));
+                },
+                // while(condition) { body }
+                // While(Box<Expr>, Vec<Expr>),
+                // condition will be a comparison
+                "while" => {
                     self.advance();
                     self.expect("(")?;
                     let condition = self.parse_expr()?;
@@ -241,38 +243,69 @@ impl<'a> Parser<'a> {
                         }
                     }
                     self.expect("}")?;
-                    elifs.push((Box::new(condition), Box::new(Expr::List(body))));
+                    return Ok(Some(Expr::While(Box::new(condition), body)));
                 }
-                let mut else_body = Vec::new();
-                if self.current_token() == Some(&"else".to_string()) {
-                    self.advance();
-                    self.expect("{")?;
-                    while self.current_token() != Some(&"}".to_string()) {
-                        if let Some(expr) = self.parse_keyword()? {
-                            else_body.push(expr);
-                        } else {
-                            else_body.push(self.parse_expr()?);
+                // see if its a variable assignment
+                _ => {
+                    // Check if it's an assignment
+                    if self.current_token().map(|t| t.clone()) == Some("=".to_string()) {
+                        let name: String = token.clone();
+                        self.advance();
+                        self.expect("=")?;
+                        let expr: Expr = self.parse_expr()?;
+                        if let Some(var_info) = self.global_variables.get(&name) {
+                            let expr: Expr = check_type(&var_info.typ, expr.clone())?;
+                            self.global_variables.insert(
+                                name.clone(), 
+                                VariableInfo { 
+                                    name: name.clone(), 
+                                    typ: var_info.typ.clone(), 
+                                    value: Some(expr.clone()) 
+                                }
+                            );
                             self.expect(";")?;
+                            return Ok(Some(Expr::Set(name, Box::new(expr))));
+                        } else {
+                            return Err(ErrorHandler::VariableNotFound(name).to_string());
                         }
                     }
-                    self.expect("}")?;
+                    
+                    // Handle variable assignment
+                    if self.global_variables.contains_key(token) {
+                        let name: String = token.clone();
+                        self.advance();
+                        self.expect("=")?;
+                        let expr: Expr = self.parse_expr()?;
+                        
+                        if let Some(var_info) = self.global_variables.get(&name) {
+                            let expr: Expr = check_type(&var_info.typ, expr.clone())?;
+                            self.global_variables.insert(
+                                name.clone(), 
+                                VariableInfo { 
+                                    name: name.clone(), 
+                                    typ: var_info.typ.clone(), 
+                                    value: Some(expr.clone()) 
+                                }
+                            );
+                            self.expect(";")?;
+                            return Ok(Some(Expr::Set(name, Box::new(expr))));
+                        } else {
+                            return Err(ErrorHandler::VariableNotFound(name).to_string());
+                        }
+                    }
                 }
-                // if (condition) { body } elif (condition) { body } elif (condition) { body } ... else { body }
-                // IEE(Box<Expr>, Option<Vec<(Box<Expr>, Box<Expr>)>>, Option<Vec<Expr>>),
-                return Ok(Some(Expr::IEE(Box::new(condition), Some(elifs), Some(else_body))));
-            } else {
-                return Ok(None);
             }
+
+            Ok(None)
         } else {
-            return Ok(None);
+            // Err("Unexpected end of input".to_string())
+            Err(ErrorHandler::UnexpectedEndOfProgram.to_string())
         }
     }
 
     fn parse_expr(&mut self) -> Result<Expr, String> {
-        // Start with parsing the lowest precedence operators
         let mut left = self.parse_term()?;
         
-        // Parse relational operators
         while let Some(op) = self.current_token().map(|t| t.clone()) {
             match op.as_str() {
                 "==" | "!=" | "<" | "<=" | ">" | ">=" => {
@@ -288,7 +321,15 @@ impl<'a> Parser<'a> {
                         _ => unreachable!(),
                     };
                 }
-                "+" | "-" => break,  // Break when encountering addition/subtraction
+                "+" | "-" => {
+                    self.advance();
+                    let right = self.parse_term()?;
+                    left = match op.as_str() {
+                        "+" => Expr::Add(Box::new(left), Box::new(right)),
+                        "-" => Expr::Sub(Box::new(left), Box::new(right)),
+                        _ => unreachable!(),
+                    };
+                }
                 _ => break,
             }
         }
@@ -354,10 +395,19 @@ impl<'a> Parser<'a> {
                 self.advance();
                 Expr::Bool(false)
             }
-            _ if self.get_variable(&token).is_some() => {
+            _ if self.global_variables.contains_key(&token) => {
                 self.advance();
-                Expr::VarRef(token)
+                if let Some(var_info) = self.global_variables.get(&token) {
+                    if let Some(value) = &var_info.value {
+                        value.clone()
+                    } else {
+                        return Err(ErrorHandler::VariableNotFound(token).to_string());
+                    }
+                } else {
+                    return Err(ErrorHandler::VariableNotFound(token).to_string());
+                }
             }
+
             _ if self.functions.contains_key(&token) => {
                 self.advance();
                 let mut args = Vec::new();

@@ -37,7 +37,10 @@ pub enum Expr {
     
     // Conditionals
     // if (condition) { body } elif (condition) { body } elif (condition) { body } ... else { body }
-    IEE(Box<Expr>, Option<Vec<(Box<Expr>, Box<Expr>)>>, Option<Vec<Expr>>),
+    // Condition Expressions, list of (condition, body) pairs, and optional else body
+    // IEE(Box<Expr>, Option<Vec<(Box<Expr>, Box<Expr>)>>, Option<Vec<Expr>>),
+    // If-Condition, If-Body, List of (condition, list of expr) pairs, else body
+    IEE(Box<Expr>, Vec<Expr>, Option<Vec<(Expr, Vec<Expr>)>>, Option<Vec<Expr>>),
     IsEqual(Box<Expr>, Box<Expr>),
     IsLT(Box<Expr>, Box<Expr>),
     IsGT(Box<Expr>, Box<Expr>),
@@ -55,6 +58,17 @@ pub enum Expr {
     Func(String, bool, Vec<(String, String)>, String, Vec<Expr>),
     FuncApp(String, Vec<Expr>),
     Return(Box<Expr>),
+
+    // loops
+    // for(var; condition; increment) { body }
+    // For(var, condition, increment, body)
+    // For(Box<Expr>, Box<Expr>, Box<Expr>, Vec<Expr>),
+    // make the first arg the Name, Box<Expr>
+    // (name, value), condition, increment, body
+    For((String, Box<Expr>), Box<Expr>, Box<Expr>, Vec<Expr>),
+    
+    // while(condition) { body }
+    While(Box<Expr>, Vec<Expr>),
 
     // For references
     // NewRef(Box<Expr>),
@@ -164,24 +178,24 @@ impl Expr {
             // },
 
             // Expr::ITE(e1, e2, e3) => "ITE(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ", " + &e3.to_ast() + ")",
-            Expr::IEE(e1, v, e2) => {
-                let mut s: String = "IEE(".to_string() + &e1.to_ast() + ", ";
-                if let Some(v) = v {
-                    for (e1, e2) in v {
-                        s += &e1.to_ast();
-                        s += ", ";
-                        s += &e2.to_ast();
-                        s += ", ";
-                    }
+            Expr::IEE(e1, v, e2, e3) => {
+                let mut result: String = "IEE(".to_string() + &e1.to_ast() + ", ";
+                for e in v {
+                    result += &e.to_ast();
+                    result += ", ";
                 }
                 if let Some(e2) = e2 {
-                    for e in e2 {
-                        s += &e.to_ast();
-                        s += ", ";
+                    for (e1, e2) in e2 {
+                        result += &e1.to_ast();
+                        result += ", ";
+                        for e in e2 {
+                            result += &e.to_ast();
+                            result += ", ";
+                        }
                     }
                 }
-                s += ")";
-                s
+                result += ")";
+                result
             },
             Expr::IsEqual(e1, e2) => "IsEqual(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
             Expr::IsLT(e1, e2) => "IsLT(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
@@ -224,6 +238,26 @@ impl Expr {
                 s
             },
             Expr::Return(e) => "Return(".to_string() + &e.to_ast() + ")",
+
+            Expr::For(v1, v2, v3, v4) => {
+                let mut s: String = "For(".to_string() + &v1.0 + ", " + &v2.to_ast() + ", " + &v3.to_ast() + ", ";
+                for e in v4 {
+                    s += &e.to_ast();
+                    s += ", ";
+                }
+                s += ")";
+                s
+            },
+            Expr::While(v1, v2) => {
+                let mut s: String = "While(".to_string() + &v1.to_ast() + ", ";
+                for e in v2 {
+                    s += &e.to_ast();
+                    s += ", ";
+                }
+                s += ")";
+                s
+            }
+
 
             // Expr::NewRef(e) => "NewRef(".to_string() + &e.to_ast() + ")",
             // Expr::Deref(e) => "Deref(".to_string() + &e.to_ast() + ")",
@@ -321,16 +355,17 @@ impl std::fmt::Display for Expr {
             // },
 
             // Expr::ITE(e1, e2, e3) => write!(f, "ITE({}, {}, {})", e1, e2, e3),
-            Expr::IEE(e1, v, e2) => {
+            Expr::IEE(e1, v, e2, e3) => {
                 write!(f, "IEE({}, ", e1)?;
-                if let Some(v) = v {
-                    for (e1, e2) in v {
-                        write!(f, "{}, {}, ", e1, e2)?;
-                    }
+                for e in v {
+                    write!(f, "{}, ", e)?;
                 }
                 if let Some(e2) = e2 {
-                    for e in e2 {
-                        write!(f, "{}, ", e)?;
+                    for (e1, e2) in e2 {
+                        write!(f, "{}, ", e1)?;
+                        for e in e2 {
+                            write!(f, "{}, ", e)?;
+                        }
                     }
                 }
                 write!(f, ")")
@@ -367,6 +402,21 @@ impl std::fmt::Display for Expr {
                 write!(f, ")")
             },
             Expr::Return(e) => write!(f, "Return({})", e),
+
+            Expr::For(v1, v2, v3, v4) => {
+                write!(f, "For({}, {}, {}, ", v1.0, v2, v3)?;
+                for e in v4 {
+                    write!(f, "{}, ", e)?;
+                }
+                write!(f, ")")
+            },
+            Expr::While(v1, v2) => {
+                write!(f, "While({}, ", v1)?;
+                for e in v2 {
+                    write!(f, "{}, ", e)?;
+                }
+                write!(f, ")")
+            },
 
             // Expr::NewRef(e) => write!(f, "NewRef({})", e),
             // Expr::Deref(e) => write!(f, "Deref({})", e),

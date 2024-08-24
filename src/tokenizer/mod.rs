@@ -1,97 +1,35 @@
-pub fn tokenize(expr: &str) -> Vec<String> {
-    let mut tokens: Vec<String> = Vec::new();
-    let mut token: String = String::new();
-    let mut in_string: bool = false;
-    let mut in_comment: bool = false;
-    let mut in_multiline_comment: bool = false;
-    let mut prev_char: Option<char> = None;
+use regex::Regex;
 
-    for c in expr.chars() {
-        if in_comment {
-            if c == '\n' {
-                in_comment = false;
-                tokens.push("\n".to_string());
-            }
-            continue;
+pub fn tokenize(input: &str) -> Vec<String> {
+    // Updated regex pattern to include more operators
+    let re: Regex = Regex::new(r"(?P<comment>//[^\n]*)|(?P<whitespace>\s+)|(?P<operator>==|!=|<=|>=|[+\-*/%<>])|(?P<assign>=)|(?P<colon>:)|(?P<identifier>[a-zA-Z_][a-zA-Z0-9_]*)|(?P<number>\d+)|(?P<punctuation>[(){};])").unwrap();
+   
+    let mut tokens = Vec::new();
+    for cap in re.captures_iter(input) {
+        if cap.name("comment").is_some() {
+            continue; // Ignore comments
         }
-
-        if in_multiline_comment {
-            if prev_char == Some('*') && c == '/' {
-                in_multiline_comment = false;
-            }
-            prev_char = Some(c);
-            continue;
+        if cap.name("whitespace").is_some() {
+            continue; // Ignore whitespace
         }
-
-        if in_string {
-            token.push(c);
-            if c == '"' {
-                tokens.push(token.clone());
-                token.clear();
-                in_string = false;
-            }
-            continue;
+        if let Some(m) = cap.name("operator") {
+            tokens.push(m.as_str().to_string());
         }
-
-        match c {
-            '/' if prev_char == Some('/') => {
-                in_comment = true;
-                tokens.pop();
-                continue;
-            }
-            '*' if prev_char == Some('/') => {
-                in_multiline_comment = true;
-                tokens.pop();
-                continue;
-            }
-            '/' | '*' => {
-                if !token.is_empty() {
-                    tokens.push(token.clone());
-                    token.clear();
-                }
-                tokens.push(c.to_string());
-            }
-            ' ' => {
-                if !token.is_empty() {
-                    tokens.push(token.clone());
-                    token.clear();
-                }
-            }
-            '\n' | '\t' => {
-                if !token.is_empty() {
-                    tokens.push(token.clone());
-                    token.clear();
-                }
-                tokens.push(c.to_string());
-            }
-            ':' | '(' | ')' | '=' | ';' | ',' => {
-                if !token.is_empty() {
-                    tokens.push(token.clone());
-                    token.clear();
-                }
-                tokens.push(c.to_string());
-            }
-            '"' => {
-                if !token.is_empty() {
-                    tokens.push(token.clone());
-                    token.clear();
-                }
-                in_string = true;
-                token.push(c);
-            }
-            _ => {
-                token.push(c);
-            }
+        if let Some(m) = cap.name("assign") {
+            tokens.push(m.as_str().to_string());
         }
-        prev_char = Some(c);
+        if let Some(m) = cap.name("colon") {
+            tokens.push(m.as_str().to_string());
+        }
+        if let Some(m) = cap.name("identifier") {
+            tokens.push(m.as_str().to_string());
+        }
+        if let Some(m) = cap.name("number") {
+            tokens.push(m.as_str().to_string());
+        }
+        if let Some(m) = cap.name("punctuation") {
+            tokens.push(m.as_str().to_string());
+        }
     }
-
-    if !token.is_empty() {
-        tokens.push(token);
-    }
-
-    // clean the tokens (strip \n and \t)
-    tokens.retain(|x| x != "\n" && x != "\t");
-
     tokens
 }

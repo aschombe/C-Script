@@ -31,20 +31,21 @@ The file should have the extension `.rss` or `.ll`. You can find some example fi
 More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 ## Features
-- [x] Arithmetic AST
-- [x] Variable related AST (declaration, assignment, deletion, referencing)
-- [x] Type system AST (int, float, bool, string, list, void)
-- [x] AST for function calls
+- [x] AST (Arithmetic, Variable, Type System, Control Flow, While Loop)
+
 
 ## Todo
-- [ ] Parser confuses comparison operators that have eqauls signs with assignment operators (e.g. `==`,`>=`,`<=` and `=`)
-- [ ] Control Flow (if, elif, else) AST
-- [ ] Loops (for, while) AST 
-- [ ] Functions (declaration, calling, recursion) AST
+- [ ] For loop can't parse condition
+- [ ] For loop AST
+- [ ] Functions (declaration, calling, recursion, scoping) AST
 - [ ] Error handling
 - [ ] Standard library (very basic stdlib) AST
 - [ ] Interpreter
 - [ ] Compiler
  
 ## Notes
-Check out pratt parser
+What should I do if a func param has the same name as a global variable?
+Ideas:
+- [ ] Local variable takes precedence
+- [ ] Global variable takes precedence
+- [ ] Error

@@ -13,6 +13,10 @@ pub enum ErrorHandler {
     VariableNotFound(String),
     FunctionNotFound(String),
     FunctionOrVariableNotFound(String),
+    UnknownToken(String),
+    UnexpectedToken(String, String),
+    ReturnOutsideFunction,
+    UnexpectedEndOfProgram,
 }
 
 impl fmt::Display for ErrorHandler {
@@ -28,6 +32,10 @@ impl fmt::Display for ErrorHandler {
             ErrorHandler::VariableNotFound(var) => write!(f, "Variable not found: {}", var),
             ErrorHandler::FunctionNotFound(func) => write!(f, "Function not found: {}", func),
             ErrorHandler::FunctionOrVariableNotFound(name) => write!(f, "Function or variable not found: {}", name),
+            ErrorHandler::UnknownToken(token) => write!(f, "Unknown token: {}", token),
+            ErrorHandler::UnexpectedToken(expected, found) => write!(f, "Unexpected token: expected {}, found {}", expected, found),
+            ErrorHandler::ReturnOutsideFunction => write!(f, "Return statement outside function!"),
+            ErrorHandler::UnexpectedEndOfProgram => write!(f, "Unexpected end of program!"),
         }
     }
 }
