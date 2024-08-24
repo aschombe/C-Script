@@ -247,6 +247,15 @@ impl<'a> Parser<'a> {
                 return Ok(Expr::FuncApp(name, args));
             }
         }
+
+        // Handle string literals
+        if let Some(token) = self.current_token() {
+            if token.chars().next() == Some('"') {
+                let value: String = token.clone();
+                self.advance(1);
+                return Ok(Expr::String(value));
+            }
+        }
     
         // Handle other expressions
         let mut left: Expr = self.parse_term()?;

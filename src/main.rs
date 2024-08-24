@@ -157,6 +157,8 @@ static CODE: &str = r#"
 // while (x > 0) {
 //     x = x - 1;
 // }
+// print("Hello, World!");
+// print(5 + 5);
 "#;
 
 fn main() {

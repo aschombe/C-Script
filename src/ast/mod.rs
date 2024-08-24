@@ -84,6 +84,7 @@ pub enum Expr {
     // IsEmpty(Box<Expr>),
     // Len(Box<Expr>),
 
+    Print(Box<Expr>),
     WIP(String),
 }
 
@@ -270,6 +271,7 @@ impl Expr {
 
             // _ => "Unknown".to_string(),
 
+            Expr::Print(e) => "Print(".to_string() + &e.to_ast() + ")",
             Expr::WIP(s) => "WIP(".to_string() + s + ")",
         }
     }
@@ -427,6 +429,7 @@ impl std::fmt::Display for Expr {
             // Expr::Len(e) => write!(f, "Len({})", e),
 
             // _ => write!(f, "Unknown"),
+            Expr::Print(e) => write!(f, "Print({})", e),
             Expr::WIP(s) => write!(f, "WIP({})", s),
         }
     }
