@@ -118,19 +118,22 @@ static CODE: &str = r#"
 // x = 3.0;
 // del x;
 // let y:float = 1.0 + x;
-func add(a:float, b:float):float {
-    return a + b;
-}
 
-// let x:float = add(1.0, 2.0);
-
-// func factorial(n:int):int {
-//     if n == 0 {
-//         return 1;
-//     } else {
-//         return n * factorial(n - 1);
-//     }
+// func myst(a:float, b:float):float {
+//     let x:int = 1;
+//     return x + c;
 // }
+// myst(1.0, 2.0);
+
+// let x:float = myst(1.0, 2.0);
+
+func factorial(n:int):int {
+    if (n == 0) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}
 
 // if (1 != 1) {
 //     let x:int = 1;
@@ -144,7 +147,7 @@ func add(a:float, b:float):float {
 // }
 
 // let x:int = 0;
-// for (i; i < 10; i = i + 1) { 
+// for (i; j < 10; k = i + 1) { 
 //     1 + 1;
 // }
 

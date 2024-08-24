@@ -31,15 +31,16 @@ The file should have the extension `.rss` or `.ll`. You can find some example fi
 More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 ## Features
-- [x] AST (Arithmetic, Variable, Type System, Control Flow, Loops)
+- [x] AST (Arithmetic, Variable, Type System, Control Flow, Loops, Function declaration)
 
 
 ## Todo
+- [ ] Parsing of referencing variables
 - [ ] For loop AST needs fixing (condition and increment have strings instead of AST)
-- [ ] Functions (declaration, calling, recursion, scoping) AST
+- [ ] Functions calling AST
 - [ ] Error handling
 - [ ] Standard library (very basic stdlib) AST
-- [ ] Interpreter
+- [ ] Interpreter (scoping is important)
 - [ ] Compiler
  
 ## Notes

@@ -8,16 +8,16 @@ pub enum Expr {
     Delete(String),
     VarRef(String),
     
-    // Literals
     Type(String),
+    // Literals
     String(String),
     // Var(String),
     Int(i64),
     Float(f64),
     Bool(bool),
-    List(Vec<Expr>),
+    // List(Vec<Expr>),
     // Tuple(Vec<Expr>),
-    Void,
+    // Void,
     
     // Arithmetic
     Add(Box<Expr>, Box<Expr>),
@@ -54,8 +54,8 @@ pub enum Expr {
     IsList(Box<Expr>),
     IsVoid(Box<Expr>),
     
-    // func (recursive - optional) name(arg1: type, arg2: type, ...): type { ... }
-    Func(String, bool, Vec<(String, String)>, String, Vec<Expr>),
+    // func name(arg1: type, arg2: type, ...): type { ... }
+    Func(String, Vec<(String, String)>, String, Vec<Expr>),
     FuncApp(String, Vec<Expr>),
     Return(Box<Expr>),
 
@@ -101,15 +101,15 @@ impl Expr {
             Expr::Int(i) => "Int".to_string() + &i.to_string(),
             Expr::Float(f) => "Float".to_string() + &f.to_string(),
             Expr::Bool(b) => "Bool".to_string() + &b.to_string(),
-            Expr::List(l) => {
-                let mut s: String = "List(".to_string();
-                for e in l {
-                    s += &e.to_ast();
-                    s += ", ";
-                }
-                s += ")";
-                s
-            },
+            // Expr::List(l) => {
+            //     let mut s: String = "List(".to_string();
+            //     for e in l {
+            //         s += &e.to_ast();
+            //         s += ", ";
+            //     }
+            //     s += ")";
+            //     s
+            // },
             // Expr::Tuple(t) => {
             //     let mut s: String = "Tuple(".to_string();
             //     for e in t {
@@ -119,7 +119,7 @@ impl Expr {
             //     s += ")";
             //     s
             // },
-            Expr::Void => "Void".to_string(),
+            // Expr::Void => "Void".to_string(),
 
             Expr::Add(e1, e2) => "Add(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
             Expr::Sub(e1, e2) => "Sub(".to_string() + &e1.to_ast() + ", " + &e2.to_ast() + ")",
@@ -208,22 +208,20 @@ impl Expr {
             Expr::IsList(e) => "IsList(".to_string() + &e.to_ast() + ")",
             Expr::IsVoid(e) => "IsVoid(".to_string() + &e.to_ast() + ")",
 
-            Expr::Func(s, r, v, t, e) => {
-                let mut result: String = "Func(".to_string() + s + ", " + &r.to_string() + ", ";
+            Expr::Func(s, v, t, e) => {
+                let mut s: String = "Func(".to_string() + s + ", " + t + ", ";
                 for (arg, arg_type) in v {
-                    result += &arg;
-                    result += ": ";
-                    result += &arg_type;
-                    result += ", ";
+                    s += arg;
+                    s += ": ";
+                    s += arg_type;
+                    s += ", ";
                 }
-                result += t;
-                result += ", ";
                 for expr in e {
-                    result += &expr.to_ast();
-                    result += ", ";
+                    s += &expr.to_ast();
+                    s += ", ";
                 }
-                result += ")";
-                result
+                s += ")";
+                s
             },
             
             Expr::FuncApp(s, v) => {
@@ -292,13 +290,13 @@ impl std::fmt::Display for Expr {
             Expr::Int(i) => write!(f, "Int{}", i),
             Expr::Float(fl) => write!(f, "Float{}", fl),
             Expr::Bool(b) => write!(f, "Bool{}", b),
-            Expr::List(l) => {
-                write!(f, "List(")?;
-                for e in l {
-                    write!(f, "{}, ", e)?;
-                }
-                write!(f, ")")
-            },
+            // Expr::List(l) => {
+            //     write!(f, "List(")?;
+            //     for e in l {
+            //         write!(f, "{}, ", e)?;
+            //     }
+            //     write!(f, ")")
+            // },
             // Expr::Tuple(t) => {
             //     write!(f, "Tuple(")?;
             //     for e in t {
@@ -306,7 +304,7 @@ impl std::fmt::Display for Expr {
             //     }
             //     write!(f, ")")
             // },
-            Expr::Void => write!(f, "Void"),
+            // Expr::Void => write!(f, "Void"),
 
             Expr::Add(e1, e2) => write!(f, "Add({}, {})", e1, e2),
             Expr::Sub(e1, e2) => write!(f, "Sub({}, {})", e1, e2),
@@ -381,12 +379,11 @@ impl std::fmt::Display for Expr {
             Expr::IsList(e) => write!(f, "IsList({})", e),
             Expr::IsVoid(e) => write!(f, "IsVoid({})", e),
             
-            Expr::Func(s, r, v, t, e) => {
-                write!(f, "Func({}, {}, ", s, r)?;
+            Expr::Func(s, v, t, e) => {
+                write!(f, "Func({}, {}, ", s, t)?;
                 for (arg, arg_type) in v {
                     write!(f, "{}: {}, ", arg, arg_type)?;
                 }
-                write!(f, "{}: ", t)?;
                 for expr in e {
                     write!(f, "{}, ", expr)?;
                 }
