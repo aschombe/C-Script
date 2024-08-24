@@ -195,10 +195,16 @@ impl<'a> Parser<'a> {
                 "while" => {
                     self.advance(1);
                     self.expect("(")?;
-                    let condition: Expr = self.parse_expr()?;
+                    // let condition: Expr = self.parse_expr()?;
+                    let mut condition: Vec<String> = Vec::new();
+                    while self.current_token() != Some(&")".to_string()) {
+                        condition.push(self.current_token().ok_or("Expected condition")?.clone());
+                        self.advance(1);
+                    }
+                    let condition: String = condition.join(" ");
                     self.expect(")")?;
                     self.expect("{")?;
-                    let mut body = Vec::new();
+                    let mut body: Vec<Expr> = Vec::new();
                     while self.current_token() != Some(&"}".to_string()) {
                         if let Some(expr) = self.parse_keyword()? {
                             body.push(expr);
@@ -208,7 +214,7 @@ impl<'a> Parser<'a> {
                         }
                     }
                     self.expect("}")?;
-                    return Ok(Some(Expr::While(Box::new(condition), body)));
+                    return Ok(Some(Expr::While(condition, body)));
                 }
                 _ => {
                     if let Some(next_token) = self.tokens.get(self.current + 1) {

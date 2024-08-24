@@ -112,9 +112,10 @@
 // use rss::error_handler::ErrorHandler;
 
 use rss::error_handler::ErrorHandler;
+use rss::interp::Interpreter;
 
 static CODE: &str = r#"
-// let x:float = (5.0 + 1.0) * 2.0;
+let x:float = (5.0 + 1.0) * 2.0;
 // x = 3.0;
 // del x;
 // let y:float = 1.0 + x;
@@ -157,6 +158,7 @@ static CODE: &str = r#"
 // while (x > 0) {
 //     x = x - 1;
 // }
+
 // print("Hello, World!");
 // print(5 + 5);
 "#;
@@ -171,10 +173,22 @@ fn main() {
         return;
     }
 
+    // parse and interpret
     println!("Parsed:");
     let mut parser: rss::parser::Parser = rss::parser::Parser::new(&tokens);
     match parser.parse() {
-        Ok(ast) => println!("{:?}", ast),
+        Ok(ast) => {
+            println!("{:#?}", ast);
+            let mut interpreter: Interpreter = Interpreter::new();
+            // loop through the ast and interpret each node
+            for node in ast {
+                match interpreter.interp(node) {
+                    Ok(_) => {}
+                    Err(err) => println!("{}", err),
+                }
+            }
+        }
         Err(err) => println!("{}", err),
     }
+
 }

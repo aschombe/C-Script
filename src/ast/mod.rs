@@ -66,7 +66,7 @@ pub enum Expr {
     For(String, String, String, Vec<Expr>),
 
     // while(condition) { body }
-    While(Box<Expr>, Vec<Expr>),
+    While(String, Vec<Expr>),
 
     // For references
     // NewRef(Box<Expr>),
@@ -246,14 +246,14 @@ impl Expr {
                 s
             },
             Expr::While(v1, v2) => {
-                let mut s: String = "While(".to_string() + &v1.to_ast() + ", ";
+                let mut s: String = "While(".to_string() + v1 + ", ";
                 for e in v2 {
                     s += &e.to_ast();
                     s += ", ";
                 }
                 s += ")";
                 s
-            }
+            },
 
 
             // Expr::NewRef(e) => "NewRef(".to_string() + &e.to_ast() + ")",

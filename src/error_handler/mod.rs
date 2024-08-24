@@ -17,6 +17,7 @@ pub enum ErrorHandler {
     UnexpectedToken(String, String),
     ReturnOutsideFunction,
     UnexpectedEndOfProgram,
+    VariableAlreadyExists(String),
 }
 
 impl fmt::Display for ErrorHandler {
@@ -36,6 +37,7 @@ impl fmt::Display for ErrorHandler {
             ErrorHandler::UnexpectedToken(expected, found) => write!(f, "Unexpected token: expected {}, found {}", expected, found),
             ErrorHandler::ReturnOutsideFunction => write!(f, "Return statement outside function!"),
             ErrorHandler::UnexpectedEndOfProgram => write!(f, "Unexpected end of program!"),
+            ErrorHandler::VariableAlreadyExists(var) => write!(f, "Variable already exists: {}", var),
         }
     }
 }

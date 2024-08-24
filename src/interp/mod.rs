@@ -1066,28 +1066,157 @@
 // }
 
 use std::collections::HashMap;
-use crate::var_func::Function;
-use crate::types::Type;
+
+use crate::{ast::{self, Expr}, error_handler::ErrorHandler, var_func::VariableInfo};
 
 pub struct Interpreter {
-    pub variables: HashMap<String, Type>,
-    pub functions: HashMap<String, Function>,
+    // pub variables: HashMap<String, Type>,
+    // pub functions: HashMap<String, Function>,
+    pub scopes: Vec<(HashMap<String, VariableInfo>, HashMap<String, VariableInfo>)>,
     pub output: Vec<String>,
 }
 
 impl Interpreter {
     pub fn new() -> Self {
         Interpreter {
-            variables: HashMap::new(),
-            functions: HashMap::new(),
+            scopes: vec![(
+                HashMap::new(),
+                HashMap::new(),
+            )],
             output: Vec::new(),
         }
     }
 
     // take a vector of AST strings and evaluate them
-    pub fn interp(&mut self, _ast: Vec<String>) -> Result<(), String> {
-        // do stuff for arithmetic and let statements
-        
-        Ok(())
+    pub fn interp(&mut self, expr: Expr) -> Result<f64, String> {
+        // print out each AST EXPR
+        // for expr in ast {
+        //     println!("{:?}", expr);
+        // }
+        // match on the AST
+        match expr {
+            // handle the literals
+            Expr::Int(val) => {
+                // return the value
+                return Ok(val as f64);
+            }
+            Expr::Float(val) => {
+                // return the value
+                return Ok(val);
+            }
+            Expr::String(val) => {
+                // return the string
+                println!("{}", val);
+            }
+            Expr::Bool(val) => {
+                // if val is true print true else print false
+                if val {
+                    println!("true");
+                } else {
+                    println!("false");
+                }
+            }
+            Expr::Add(left, right) => {
+                // interpret the left and right side and add them together
+                let left: f64 = self.interp(*left)? as f64;
+                let right: f64 = self.interp(*right)? as f64;
+                println!("{}", left + right);
+            }
+            Expr::Sub(left, right) => {
+                // interpret the left and right side and subtract them
+                let left: f64 = self.interp(*left)? as f64;
+                let right: f64 = self.interp(*right)? as f64;
+                println!("{}", left - right);
+            }
+            Expr::Mul(left, right) => {
+                // interpret the left and right side and multiply them
+                let left: f64 = self.interp(*left)? as f64;
+                let right: f64 = self.interp(*right)? as f64;
+                println!("{}", left * right);
+            }
+            Expr::Div(left, right) => {
+                // interpret the left and right side and divide them
+                let left: f64 = self.interp(*left)? as f64;
+                let right: f64 = self.interp(*right)? as f64;
+                if right == 0.0 {
+                    return Err(ErrorHandler::DivisionByZero.to_string());
+                }
+                println!("{}", left / right);
+            }
+            Expr::Mod(left, right) => {
+                // interpret the left and right side and mod them
+                let left: f64 = self.interp(*left)? as f64;
+                let right: f64 = self.interp(*right)? as f64;
+                println!("{}", left % right);
+            }
+            Expr::Pow(left, right) => {
+                // interpret the left and right side and raise left to the power of right
+                let left: f64 = self.interp(*left)? as f64;
+                let right: f64 = self.interp(*right)? as f64;
+                println!("{}", left.powf(right));
+            }
+            Expr::Let(var, typ, val) => {
+                // println!("Let: {:?} {:?} {:?}", var, typ, val);
+                // insert the variable into the current scope
+                
+                // self.scopes.last_mut().unwrap().0.insert(var.clone(), VariableInfo::new(var.clone(), (*typ).to_string(), Some(*val)));
+                // println!("{:?}", self.scopes.last().unwrap().0);
+                // before inserting it, check if it already exists
+                if self.scopes.last().unwrap().0.contains_key(&var) {
+                    // throw an error
+                    return Err(ErrorHandler::VariableAlreadyExists(var.clone()).to_string());
+                } else {
+                    // insert the variable into the current scope
+                    // self.scopes.last_mut().unwrap().0.insert(var.clone(), VariableInfo::new(var.clone(), (*typ).to_string(), Some(*val)));
+                    // instead of directly inserting it, interpret the value first, then insert the result
+                    let val: f64 = self.interp(*val)? as f64;
+                    self.scopes.last_mut().unwrap().0.insert(var.clone(), VariableInfo::new(var.clone(), (*typ).to_string(), Some(ast::Expr::Float(val))));
+                }
+                println!("{:?}", self.scopes.last().unwrap().0);
+            }
+            Expr::Set(var, val) => {
+                // first check if its the current scope (each new scope inherits from the previouis)
+                if self.scopes.last().unwrap().0.contains_key(&var) {
+                    self.scopes.last_mut().unwrap().0.insert(var.clone(), VariableInfo::new(var.clone(), "String".to_string(), Some(*val)));
+                } else {
+                    // throw an error
+                    return Err(ErrorHandler::VariableNotFound(var.clone()).to_string());
+                }
+                // print the current scope
+                println!("{:?}", self.scopes.last().unwrap().0);
+            }
+            Expr::Delete(var) => {
+                // first check if its the current scope (each new scope inherits from the previouis)
+                if self.scopes.last().unwrap().0.contains_key(&var) {
+                    self.scopes.last_mut().unwrap().0.remove(&var);
+                } else {
+                    // throw an error
+                    return Err(ErrorHandler::VariableNotFound(var.clone()).to_string());
+                }
+                // print the current scope
+                println!("{:?}", self.scopes.last().unwrap().0);
+            }
+            Expr::VarRef(var) => {
+                // check if its in the scope
+                if self.scopes.last().unwrap().0.contains_key(&var) {
+                    // grab the variables value (it will be an expr)
+                    let val: Option<Expr> = self.scopes.last().unwrap().0.get(&var).unwrap().value.clone();
+                    // interpret the value
+                    if let Some(expr) = val {
+                        self.interp(expr)?;
+                    } else {
+                        return Err(ErrorHandler::VariableNotFound(var.clone()).to_string());
+                    }
+                } else {
+                    // throw an error
+                    return Err(ErrorHandler::VariableNotFound(var.clone()).to_string());
+                }
+            }
+            _ => {
+                println!("Unknown AST");
+            }
+        }
+
+        Ok(1.0)
     }
 }
