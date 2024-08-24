@@ -13,13 +13,8 @@ pub struct Parser<'a> {
     tokens: &'a [String],
     current: usize,
     in_function: bool,
-    // global_variables: HashMap<String, VariableInfo>,
-    // functions: HashMap<String, Function>,
-    // instead of two hashmaps for global variables and functions, 
-    // we'll use a stack called scopes where we push and pop hashmap environments depending on when we enter and exit a function
-    // actually, each environment will be a tuple of two hashmaps, one for variables and one for functions
-    // Vector of (Variable HashMap, Function HashMap)
-    scopes: Vec<(HashMap<String, VariableInfo>, HashMap<String, Function>)>   
+    global_variables: HashMap<String, VariableInfo>,
+    functions: HashMap<String, Function>,
 }
 
 impl<'a> Parser<'a> {
@@ -27,68 +22,10 @@ impl<'a> Parser<'a> {
         Self { 
             tokens, 
             current: 0, 
-            in_function: false,
-            scopes: vec![(HashMap::new(), HashMap::new())]
+            global_variables: HashMap::new(), 
+            functions: HashMap::new(), 
+            in_function: false 
         }
-    }
-
-    // helper functions for managing scopes
-    // scopes pushed onto the stack will inherit from the previous scope
-    fn push_scope(&mut self) {
-        let (variables, functions) = self.scopes.last().unwrap().clone();
-        self.scopes.push((variables.clone(), functions.clone()));
-    }
-
-    fn pop_scope(&mut self) {
-        self.scopes.pop();
-    }
-
-    // helper functions for managing variables
-    // when you get a variable, you should check the current scope first, then the parent scope, and so on
-    fn get_variable(&self, name: &String) -> Option<VariableInfo> {
-        for (variables, _) in self.scopes.iter().rev() {
-            if let Some(var) = variables.get(name) {
-                return Some(var.clone());
-            }
-        }
-        None
-    }
-
-    fn set_variable(&mut self, name: String, var_info: VariableInfo) {
-        self.scopes.last_mut().unwrap().0.insert(name, var_info);
-    }
-
-    fn delete_variable(&mut self, name: String) -> Option<VariableInfo> {
-        for (variables, _) in self.scopes.iter_mut().rev() {
-            if let Some(var) = variables.remove(&name) {
-                return Some(var);
-            }
-        }
-        None
-    }
-
-    // helper functions for managing functions
-    // when you get a function, you should check the current scope first, then the parent scope, and so on
-    fn get_function(&self, name: &String) -> Option<Function> {
-        for (_, functions) in self.scopes.iter().rev() {
-            if let Some(func) = functions.get(name) {
-                return Some(func.clone());
-            }
-        }
-        None
-    }
-
-    fn set_function(&mut self, name: String, func: Function) {
-        self.scopes.last_mut().unwrap().1.insert(name, func);
-    }
-
-    fn delete_function(&mut self, name: String) -> Option<Function> {
-        for (_, functions) in self.scopes.iter_mut().rev() {
-            if let Some(func) = functions.remove(&name) {
-                return Some(func);
-            }
-        }
-        None
     }
 
     fn advance(&mut self, amount: usize) {
@@ -127,20 +64,12 @@ impl<'a> Parser<'a> {
                     let expr: Expr = check_type(&typ, expr)?;
                     self.expect(";")?;
                     let typ2: String = typ.clone();
-                    // self.global_variables.insert(
-                    //     name.clone(), 
-                    //     VariableInfo { 
-                    //         name: name.clone(), 
-                    //         typ, 
-                    //         value: Some(expr.clone()) 
-                    //     }
-                    // );
-                    self.set_variable(
-                        name.clone(),
-                        VariableInfo {
-                            name: name.clone(),
-                            typ: typ.clone(),
-                            value: Some(expr.clone())
+                    self.global_variables.insert(
+                        name.clone(), 
+                        VariableInfo { 
+                            name: name.clone(), 
+                            typ, 
+                            value: Some(expr.clone()) 
                         }
                     );
                     return Ok(Some(Expr::Let(name, Box::new(Expr::Type(typ2)), Box::new(expr))));
@@ -209,12 +138,7 @@ impl<'a> Parser<'a> {
                     let name: String = self.current_token().ok_or("Expected variable name")?.clone();
                     self.advance(1);
                     self.expect(";")?;
-                    // if self.global_variables.remove(&name).is_some() {
-                    //     return Ok(Some(Expr::Delete(name)));
-                    // } else {
-                    //     return Err(ErrorHandler::VariableNotFound(name).to_string());
-                    // }
-                    if self.delete_variable(name.clone()).is_some() {
+                    if self.global_variables.remove(&name).is_some() {
                         return Ok(Some(Expr::Delete(name)));
                     } else {
                         return Err(ErrorHandler::VariableNotFound(name).to_string());
@@ -259,24 +183,14 @@ impl<'a> Parser<'a> {
                     let args2: Vec<(String, String)> = args.clone();
                     let return_type2: String = return_type.clone();
                     let body2: Vec<Expr> = body.clone();
-                    // self.functions.insert(
-                    //     name.clone(),
-                    //     Function { 
-                    //         name: name.clone(), 
-                    //         recursive: false, 
-                    //         params: args, 
-                    //         return_type, 
-                    //         body 
-                    //     }
-                    // );
-                    self.set_function(
+                    self.functions.insert(
                         name.clone(),
-                        Function {
-                            name: name.clone(),
-                            recursive: false,
-                            params: args,
-                            return_type,
-                            body
+                        Function { 
+                            name: name.clone(), 
+                            recursive: false, 
+                            params: args, 
+                            return_type, 
+                            body 
                         }
                     );
                     return Ok(Some(Expr::Func(name, false, args2, return_type2, body2))); 
@@ -366,29 +280,14 @@ impl<'a> Parser<'a> {
                         self.advance(1);
                         self.expect("=")?;
                         let expr: Expr = self.parse_expr()?;
-                        // if let Some(var_info) = self.global_variables.get(&name) {
-                        //     let expr: Expr = check_type(&var_info.typ, expr.clone())?;
-                        //     self.global_variables.insert(
-                        //         name.clone(), 
-                        //         VariableInfo { 
-                        //             name: name.clone(), 
-                        //             typ: var_info.typ.clone(), 
-                        //             value: Some(expr.clone()) 
-                        //         }
-                        //     );
-                        //     self.expect(";")?;
-                        //     return Ok(Some(Expr::Set(name, Box::new(expr))));
-                        // } else {
-                        //     return Err(ErrorHandler::VariableNotFound(name).to_string());
-                        // }
-                        if let Some(var_info) = self.get_variable(&name) {
+                        if let Some(var_info) = self.global_variables.get(&name) {
                             let expr: Expr = check_type(&var_info.typ, expr.clone())?;
-                            self.set_variable(
-                                name.clone(),
-                                VariableInfo {
-                                    name: name.clone(),
-                                    typ: var_info.typ.clone(),
-                                    value: Some(expr.clone())
+                            self.global_variables.insert(
+                                name.clone(), 
+                                VariableInfo { 
+                                    name: name.clone(), 
+                                    typ: var_info.typ.clone(), 
+                                    value: Some(expr.clone()) 
                                 }
                             );
                             self.expect(";")?;
@@ -399,42 +298,20 @@ impl<'a> Parser<'a> {
                     }
                     
                     // Handle variable assignment
-                    // if self.global_variables.contains_key(token) {
-                    //     let name: String = token.clone();
-                    //     self.advance(1);
-                    //     self.expect("=")?;
-                    //     let expr: Expr = self.parse_expr()?;
-                        
-                    //     if let Some(var_info) = self.global_variables.get(&name) {
-                    //         let expr: Expr = check_type(&var_info.typ, expr.clone())?;
-                    //         self.global_variables.insert(
-                    //             name.clone(), 
-                    //             VariableInfo { 
-                    //                 name: name.clone(), 
-                    //                 typ: var_info.typ.clone(), 
-                    //                 value: Some(expr.clone()) 
-                    //             }
-                    //         );
-                    //         self.expect(";")?;
-                    //         return Ok(Some(Expr::Set(name, Box::new(expr))));
-                    //     } else {
-                    //         return Err(ErrorHandler::VariableNotFound(name).to_string());
-                    //     }
-                    // }
-                    if self.get_variable(token).is_some() {
+                    if self.global_variables.contains_key(token) {
                         let name: String = token.clone();
                         self.advance(1);
                         self.expect("=")?;
                         let expr: Expr = self.parse_expr()?;
                         
-                        if let Some(var_info) = self.get_variable(&name) {
+                        if let Some(var_info) = self.global_variables.get(&name) {
                             let expr: Expr = check_type(&var_info.typ, expr.clone())?;
-                            self.set_variable(
-                                name.clone(),
-                                VariableInfo {
-                                    name: name.clone(),
-                                    typ: var_info.typ.clone(),
-                                    value: Some(expr.clone())
+                            self.global_variables.insert(
+                                name.clone(), 
+                                VariableInfo { 
+                                    name: name.clone(), 
+                                    typ: var_info.typ.clone(), 
+                                    value: Some(expr.clone()) 
                                 }
                             );
                             self.expect(";")?;
@@ -545,35 +422,9 @@ impl<'a> Parser<'a> {
                 self.advance(1);
                 Expr::Bool(false)
             }
-            // _ if self.global_variables.contains_key(&token) => {
-            //     self.advance(1);
-            //     if let Some(var_info) = self.global_variables.get(&token) {
-            //         if let Some(value) = &var_info.value {
-            //             value.clone()
-            //         } else {
-            //             return Err(ErrorHandler::VariableNotFound(token).to_string());
-            //         }
-            //     } else {
-            //         return Err(ErrorHandler::VariableNotFound(token).to_string());
-            //     }
-            // }
-
-            // _ if self.functions.contains_key(&token) => {
-            //     self.advance(1);
-            //     let mut args: Vec<Expr> = Vec::new();
-            //     self.expect("(")?;
-            //     while self.current_token().map(|t: &String| t.clone()) != Some(")".to_string()) {
-            //         args.push(self.parse_expr()?);
-            //         if self.current_token().map(|t: &String| t.clone()) == Some(",".to_string()) {
-            //             self.advance(1);
-            //         }
-            //     }
-            //     self.expect(")")?;
-            //     Expr::FuncApp(token, args)
-            // }
-            _ if self.get_variable(&token).is_some() => {
+            _ if self.global_variables.contains_key(&token) => {
                 self.advance(1);
-                if let Some(var_info) = self.get_variable(&token) {
+                if let Some(var_info) = self.global_variables.get(&token) {
                     if let Some(value) = &var_info.value {
                         value.clone()
                     } else {
@@ -583,7 +434,8 @@ impl<'a> Parser<'a> {
                     return Err(ErrorHandler::VariableNotFound(token).to_string());
                 }
             }
-            _ if self.get_function(&token).is_some() => {
+
+            _ if self.functions.contains_key(&token) => {
                 self.advance(1);
                 let mut args: Vec<Expr> = Vec::new();
                 self.expect("(")?;
