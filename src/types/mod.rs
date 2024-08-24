@@ -4,7 +4,7 @@ pub enum Type {
     FloatType,
     BoolType,
     ListType,
-    VoidType,
+    // VoidType,
     // TupleType(Vec<Type>),
     RefType(Box<Type>),
 }
@@ -16,7 +16,7 @@ impl Type {
             Type::FloatType => "float".to_string(),
             Type::BoolType => "bool".to_string(),
             Type::ListType => "list".to_string(),
-            Type::VoidType => "void".to_string(),
+            // Type::VoidType => "void".to_string(),
             // Type::TupleType(t) => {
             //     let mut s: String = "tuple(".to_string();
             //     for t in t {

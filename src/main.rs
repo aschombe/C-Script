@@ -118,9 +118,9 @@ static CODE: &str = r#"
 // x = 3.0;
 // del x;
 // let y:float = 1.0 + x;
-// func add(a:float, b:float):float {
-//     return a + b;
-// }
+func add(a:float, b:float):float {
+    return a + b;
+}
 
 // let x:float = add(1.0, 2.0);
 
@@ -143,10 +143,10 @@ static CODE: &str = r#"
 //     let c:float = 4;
 // }
 
-let x:int = 0;
-for (i; i < 10; i = i + 1) { 
-    1 + 1;
-}
+// let x:int = 0;
+// for (i; i < 10; i = i + 1) { 
+//     1 + 1;
+// }
 
 // let x:int = 5;
 // while (x > 0) {
