@@ -119,6 +119,7 @@ static CODE: &str = r#"
 // del x;
 // let y:float = 1.0 + x;
 
+// return statement body is not parsing correctly
 // func myst(a:float, b:float):float {
 //     let x:int = 1;
 //     return x + c;
@@ -127,13 +128,14 @@ static CODE: &str = r#"
 
 // let x:float = myst(1.0, 2.0);
 
-/*func factorial(n:int):int {
-    if (n == 0) {
-        return 1;
-    } else {
-        return n * factorial(n - 1);
-    }
-}*/
+// broken (doesnt understand ==)
+// func factorial(n:int):int {
+//     if (n == 0) {
+//         return 1;
+//     } else {
+//         return n * factorial(n - 1);
+//     }
+// }
 
 // if (1 != 1) {
 //     let x:int = 1;

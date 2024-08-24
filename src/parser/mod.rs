@@ -233,7 +233,7 @@ impl<'a> Parser<'a> {
         // Handle function calls first
         if let Some(token) = self.current_token() {
             if token.chars().all(|c| c.is_alphabetic()) {
-                let name = token.clone();
+                let name: String = token.clone();
                 self.advance(1);
                 self.expect("(")?;
                 let mut args: Vec<Expr> = Vec::new();
@@ -249,13 +249,13 @@ impl<'a> Parser<'a> {
         }
     
         // Handle other expressions
-        let mut left = self.parse_term()?;
+        let mut left: Expr = self.parse_term()?;
     
         while let Some(op) = self.current_token().map(|t: &String| t.clone()) {
             match op.as_str() {
                 "==" | "!=" | "<" | "<=" | ">" | ">=" => {
                     self.advance(1);
-                    let right = self.parse_term()?;
+                    let right: Expr = self.parse_term()?;
                     left = match op.as_str() {
                         "==" => Expr::IsEqual(Box::new(left), Box::new(right)),
                         "!=" => Expr::IsNE(Box::new(left), Box::new(right)),
@@ -268,7 +268,7 @@ impl<'a> Parser<'a> {
                 },
                 "+" | "-" => {
                     self.advance(1);
-                    let right = self.parse_term()?;
+                    let right: Expr = self.parse_term()?;
                     left = match op.as_str() {
                         "+" => Expr::Add(Box::new(left), Box::new(right)),
                         "-" => Expr::Sub(Box::new(left), Box::new(right)),
@@ -288,7 +288,7 @@ impl<'a> Parser<'a> {
             match op.as_str() {
                 "*" | "/" | "^" => {
                     self.advance(1);
-                    let right = self.parse_factor()?;
+                    let right: Expr = self.parse_factor()?;
                     left = match op.as_str() {
                         "*" => Expr::Mul(Box::new(left), Box::new(right)),
                         "/" => Expr::Div(Box::new(left), Box::new(right)),
@@ -307,24 +307,24 @@ impl<'a> Parser<'a> {
             match token.as_str() {
                 "(" => {
                     self.advance(1);
-                    let expr = self.parse_expr()?;
+                    let expr: Expr = self.parse_expr()?;
                     self.expect(")")?;
                     Ok(expr)
                 },
-                _ if token.chars().all(|c| c.is_digit(10) || c == '.') => {
+                _ if token.chars().all(|c: char| c.is_digit(10) || c == '.') => {
                     // Check if the token contains a dot to differentiate float from int
                     if token.contains('.') {
-                        let value = token.parse::<f64>().map_err(|e| e.to_string())?;
+                        let value: f64 = token.parse::<f64>().map_err(|e| e.to_string())?;
                         self.advance(1);
                         Ok(Expr::Float(value))
                     } else {
-                        let value = token.parse::<i64>().map_err(|e| e.to_string())?;
+                        let value: i64 = token.parse::<i64>().map_err(|e| e.to_string())?;
                         self.advance(1);
                         Ok(Expr::Int(value))
                     }
                 },
-                _ if token.chars().all(|c| c.is_alphabetic()) => {
-                    let name = token.clone();
+                _ if token.chars().all(|c: char| c.is_alphabetic()) => {
+                    let name: String = token.clone();
                     self.advance(1);
                     Ok(Expr::VarRef(name))
                 },
@@ -341,7 +341,7 @@ impl<'a> Parser<'a> {
             if let Some(expr) = self.parse_keyword()? {
                 ast.push(expr);
             } else {
-                let expr = self.parse_expr()?;
+                let expr: Expr = self.parse_expr()?;
                 ast.push(expr);
     
                 // Only expect a semicolon if the current token is not a closing brace
