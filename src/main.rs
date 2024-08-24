@@ -127,13 +127,13 @@ static CODE: &str = r#"
 
 // let x:float = myst(1.0, 2.0);
 
-func factorial(n:int):int {
+/*func factorial(n:int):int {
     if (n == 0) {
         return 1;
     } else {
         return n * factorial(n - 1);
     }
-}
+}*/
 
 // if (1 != 1) {
 //     let x:int = 1;
