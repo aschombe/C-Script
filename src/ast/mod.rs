@@ -1,6 +1,6 @@
 // type Ast = Vec<Expr>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     // Variables
     Let(String, Box<Expr>, Box<Expr>),
@@ -61,12 +61,10 @@ pub enum Expr {
 
     // loops
     // for(var; condition; increment) { body }
-    // For(var, condition, increment, body)
-    // For(Box<Expr>, Box<Expr>, Box<Expr>, Vec<Expr>),
-    // make the first arg the Name, Box<Expr>
-    // (name, value), condition, increment, body
-    For((String, Box<Expr>), Box<Expr>, Box<Expr>, Vec<Expr>),
-    
+    // var, condition, increment, body
+    // For(String, Box<Expr>, Box<Expr>, Vec<Expr>),
+    For(String, String, String, Vec<Expr>),
+
     // while(condition) { body }
     While(Box<Expr>, Vec<Expr>),
 
@@ -240,7 +238,7 @@ impl Expr {
             Expr::Return(e) => "Return(".to_string() + &e.to_ast() + ")",
 
             Expr::For(v1, v2, v3, v4) => {
-                let mut s: String = "For(".to_string() + &v1.0 + ", " + &v2.to_ast() + ", " + &v3.to_ast() + ", ";
+                let mut s: String = "For(".to_string() + v1 + ", " + v2 + ", " + v3 + ", ";
                 for e in v4 {
                     s += &e.to_ast();
                     s += ", ";
@@ -404,7 +402,7 @@ impl std::fmt::Display for Expr {
             Expr::Return(e) => write!(f, "Return({})", e),
 
             Expr::For(v1, v2, v3, v4) => {
-                write!(f, "For({}, {}, {}, ", v1.0, v2, v3)?;
+                write!(f, "For({}, {}, {}, ", v1, v2, v3)?;
                 for e in v4 {
                     write!(f, "{}, ", e)?;
                 }

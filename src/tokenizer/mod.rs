@@ -4,7 +4,7 @@ pub fn tokenize(input: &str) -> Vec<String> {
     // Updated regex pattern to include more operators
     let re: Regex = Regex::new(r"(?P<comment>//[^\n]*)|(?P<whitespace>\s+)|(?P<operator>==|!=|<=|>=|[+\-*/%<>])|(?P<assign>=)|(?P<colon>:)|(?P<identifier>[a-zA-Z_][a-zA-Z0-9_]*)|(?P<number>\d+)|(?P<punctuation>[(){};])").unwrap();
    
-    let mut tokens = Vec::new();
+    let mut tokens: Vec<String> = Vec::new();
     for cap in re.captures_iter(input) {
         if cap.name("comment").is_some() {
             continue; // Ignore comments

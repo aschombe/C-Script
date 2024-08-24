@@ -31,12 +31,11 @@ The file should have the extension `.rss` or `.ll`. You can find some example fi
 More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 ## Features
-- [x] AST (Arithmetic, Variable, Type System, Control Flow, While Loop)
+- [x] AST (Arithmetic, Variable, Type System, Control Flow, Loops)
 
 
 ## Todo
-- [ ] For loop can't parse condition
-- [ ] For loop AST
+- [ ] For loop AST needs fixing (condition and increment have strings instead of AST)
 - [ ] Functions (declaration, calling, recursion, scoping) AST
 - [ ] Error handling
 - [ ] Standard library (very basic stdlib) AST
@@ -44,6 +43,7 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 - [ ] Compiler
  
 ## Notes
+
 What should I do if a func param has the same name as a global variable?
 Ideas:
 - [ ] Local variable takes precedence

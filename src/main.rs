@@ -145,7 +145,7 @@ static CODE: &str = r#"
 
 let x:int = 0;
 for (i; i < 10; i = i + 1) { 
-    1 + 1
+    1 + 1;
 }
 
 // let x:int = 5;
