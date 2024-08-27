@@ -115,7 +115,7 @@ use rss::error_handler::ErrorHandler;
 use rss::interp::Interpreter;
 
 static CODE: &str = r#"
-let x:float = (5.0 + 1.0) * 2.0;
+// let x:float = (5.0 + 1.0) * 2.0;
 // x = 3.0;
 // del x;
 // let y:float = 1.0 + x;
@@ -149,11 +149,13 @@ let x:float = (5.0 + 1.0) * 2.0;
 //     let c:float = 4;
 // }
 
+// AST for condition and step is wrong
 // let x:int = 0;
 // for (i; j < 10; k = i + 1) { 
 //     1 + 1;
 // }
 
+// Doesn't like the body of the for loop, also AST for condition is wrong
 // let x:int = 5;
 // while (x > 0) {
 //     x = x - 1;
@@ -176,18 +178,23 @@ fn main() {
     // parse and interpret
     println!("Parsed:");
     let mut parser: rss::parser::Parser = rss::parser::Parser::new(&tokens);
+    // match parser.parse() {
+    //     Ok(ast) => {
+    //         println!("{:#?}", ast);
+    //         let mut interpreter: Interpreter = Interpreter::new();
+    //         // loop through the ast and interpret each node
+    //         for node in ast {
+    //             match interpreter.interp(node) {
+    //                 Ok(_) => {}
+    //                 Err(err) => println!("{}", err),
+    //             }
+    //         }
+    //     }
+    //     Err(err) => println!("{}", err),
+    // }
+    // just output AST for now
     match parser.parse() {
-        Ok(ast) => {
-            println!("{:#?}", ast);
-            let mut interpreter: Interpreter = Interpreter::new();
-            // loop through the ast and interpret each node
-            for node in ast {
-                match interpreter.interp(node) {
-                    Ok(_) => {}
-                    Err(err) => println!("{}", err),
-                }
-            }
-        }
+        Ok(ast) => println!("{:#?}", ast),
         Err(err) => println!("{}", err),
     }
 

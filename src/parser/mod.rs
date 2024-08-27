@@ -1,7 +1,6 @@
 use crate::ast::Expr;
 use crate::error_handler::ErrorHandler;
 
-use regex::Regex;
 
 #[derive(Clone)]
 pub struct Parser<'a> {

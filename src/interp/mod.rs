@@ -1067,12 +1067,12 @@
 
 use std::collections::HashMap;
 
-use crate::{ast::{self, Expr}, error_handler::ErrorHandler, var_func::VariableInfo};
+use crate::{ast::{self, Expr}, error_handler::ErrorHandler, var_func::{Function, VariableInfo}};
 
 pub struct Interpreter {
     // pub variables: HashMap<String, Type>,
     // pub functions: HashMap<String, Function>,
-    pub scopes: Vec<(HashMap<String, VariableInfo>, HashMap<String, VariableInfo>)>,
+    pub scopes: Vec<(HashMap<String, VariableInfo>, HashMap<String, Function>)>,
     pub output: Vec<String>,
 }
 
