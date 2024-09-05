@@ -63,7 +63,7 @@ pub enum Expr {
     // for(var; condition; increment) { body }
     // var, condition, increment, body
     // For(String, Box<Expr>, Box<Expr>, Vec<Expr>),
-    For(String, Box<Expr>, String, Vec<Expr>),
+    For(String, String, String, Vec<Expr>),
 
     // while(condition) { body }
     While(String, Vec<Expr>),
@@ -237,7 +237,7 @@ impl Expr {
             Expr::Return(e) => "Return(".to_string() + &e.to_ast() + ")",
 
             Expr::For(v1, v2, v3, v4) => {
-                let mut s: String = "For(".to_string() + v1 + ", " + &v2.to_ast() + ", " + v3 + ", ";
+                let mut s: String = "For(".to_string() + v1 + ", " + v2 + ", " + v3 + ", ";
                 for e in v4 {
                     s += &e.to_ast();
                     s += ", ";

@@ -159,10 +159,24 @@ impl<'a> Parser<'a> {
                     self.advance(1);
                     self.expect(";")?;
 
-                    let condition: Expr = self.parse_expr()?;
+                    // let condition: Expr = self.parse_expr()?;
+                    let mut condition: Vec<String> = Vec::new();
+                    while self.current_token() != Some(&";".to_string()) {
+                        condition.push(self.current_token().ok_or("Expected condition")?.clone());
+                        self.advance(1);
+                    }
+                    let condition: String = condition.join(" ");
+
                     self.expect(";")?;
 
-                    let increment: Expr = self.parse_expr()?;
+                    // let increment: Expr = self.parse_expr()?;
+                    let mut increment: Vec<String> = Vec::new();
+                    while self.current_token() != Some(&")".to_string()) {
+                        increment.push(self.current_token().ok_or("Expected increment")?.clone());
+                        self.advance(1);
+                    }
+                    let increment: String = increment.join(" ");
+                    
                     self.expect(")")?;
 
                     self.expect("{")?;
@@ -176,7 +190,7 @@ impl<'a> Parser<'a> {
                         }
                     }
                     self.expect("}")?;
-                    return Ok(Some(Expr::For(var, Box::new(condition), increment.to_string(), body)));
+                    return Ok(Some(Expr::For(var, condition, increment.to_string(), body)));
                 },
                 "while" => {
                     self.advance(1);
