@@ -18,6 +18,7 @@ pub enum ErrorHandler {
     ReturnOutsideFunction,
     UnexpectedEndOfProgram,
     VariableAlreadyExists(String),
+    InvalidCondition(String),
 }
 
 impl fmt::Display for ErrorHandler {
@@ -38,6 +39,7 @@ impl fmt::Display for ErrorHandler {
             ErrorHandler::ReturnOutsideFunction => write!(f, "Return statement outside function!"),
             ErrorHandler::UnexpectedEndOfProgram => write!(f, "Unexpected end of program!"),
             ErrorHandler::VariableAlreadyExists(var) => write!(f, "Variable already exists: {}", var),
+            ErrorHandler::InvalidCondition(cond) => write!(f, "Invalid condition: {}", cond),
         }
     }
 }

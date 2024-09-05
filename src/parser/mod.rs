@@ -152,33 +152,20 @@ impl<'a> Parser<'a> {
                     return Ok(Some(Expr::Func(name, args, return_type, body))); 
                 },
                 "for" => {
-                    self.advance(1);
+                    self.advance(1); // Skip past 'for'
                     self.expect("(")?;
+
                     let var: String = self.current_token().ok_or("Expected variable name")?.clone();
                     self.advance(1);
                     self.expect(";")?;
 
-                    // Collect condition
-                    let mut condition: Vec<String> = Vec::new();
-                    while self.current_token() != Some(&";".to_string()) {
-                        condition.push(self.current_token().ok_or("Expected condition")?.clone());
-                        self.advance(1);
-                    }
-                    let condition: String = condition.join(" ");
-
+                    let condition: Expr = self.parse_expr()?;
                     self.expect(";")?;
 
-                    // Collect increment
-                    let mut increment: Vec<String> = Vec::new();
-                    while self.current_token() != Some(&")".to_string()) {
-                        increment.push(self.current_token().ok_or("Expected increment")?.clone());
-                        self.advance(1);
-                    }
-                    let increment: String = increment.join(" ");
-
+                    let increment: Expr = self.parse_expr()?;
                     self.expect(")")?;
-                    self.expect("{")?;
 
+                    self.expect("{")?;
                     let mut body: Vec<Expr> = Vec::new();
                     while self.current_token() != Some(&"}".to_string()) {
                         if let Some(expr) = self.parse_keyword()? {
@@ -189,7 +176,7 @@ impl<'a> Parser<'a> {
                         }
                     }
                     self.expect("}")?;
-                    return Ok(Some(Expr::For(var, condition, increment, body)));
+                    return Ok(Some(Expr::For(var, Box::new(condition), increment.to_string(), body)));
                 },
                 "while" => {
                     self.advance(1);
@@ -252,7 +239,7 @@ impl<'a> Parser<'a> {
                 return Ok(Expr::FuncApp(name, args));
             }
         }
-
+    
         // Handle string literals
         if let Some(token) = self.current_token() {
             if token.chars().next() == Some('"') {
@@ -261,10 +248,11 @@ impl<'a> Parser<'a> {
                 return Ok(Expr::String(value));
             }
         }
+
+        // Handle other expressions (including comparisons)
+        let mut left: Expr = self.parse_term()?; // parse_term handles basic expressions
     
-        // Handle other expressions
-        let mut left: Expr = self.parse_term()?;
-    
+        // Parse comparison and arithmetic operators
         while let Some(op) = self.current_token().map(|t: &String| t.clone()) {
             match op.as_str() {
                 "==" | "!=" | "<" | "<=" | ">" | ">=" => {
@@ -273,9 +261,9 @@ impl<'a> Parser<'a> {
                     left = match op.as_str() {
                         "==" => Expr::IsEqual(Box::new(left), Box::new(right)),
                         "!=" => Expr::IsNE(Box::new(left), Box::new(right)),
-                        "<" => Expr::IsLT(Box::new(left), Box::new(right)),
+                        "<"  => Expr::IsLT(Box::new(left), Box::new(right)),
                         "<=" => Expr::IsLTE(Box::new(left), Box::new(right)),
-                        ">" => Expr::IsGT(Box::new(left), Box::new(right)),
+                        ">"  => Expr::IsGT(Box::new(left), Box::new(right)),
                         ">=" => Expr::IsGTE(Box::new(left), Box::new(right)),
                         _ => unreachable!(),
                     };
@@ -359,9 +347,9 @@ impl<'a> Parser<'a> {
                 ast.push(expr);
     
                 // Only expect a semicolon if the current token is not a closing brace
-                if self.current_token() != Some(&"}".to_string()) {
-                    self.expect(";")?;
-                }
+                // if self.current_token() != Some(&"}".to_string()) {
+                //     self.expect(";")?;
+                // }
             }
         }
         Ok(ast)

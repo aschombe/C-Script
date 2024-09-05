@@ -151,9 +151,9 @@ static CODE: &str = r#"
 
 // AST for condition and step is wrong
 // let x:int = 0;
-// for (i; j < 10; k = i + 1) { 
-//     1 + 1;
-// }
+for (i; j < 10; k = i + 1) { 
+    1 + 1;
+}
 
 // Doesn't like the body of the for loop, also AST for condition is wrong
 // let x:int = 5;
