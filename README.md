@@ -35,11 +35,11 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 
 ## Todo
-- [ ] Type system is all screwed up
-- [ ] AST for return statements
+- [ ] Return statement AST
 - [ ] For loop AST needs fixing (condition and increment have strings instead of AST)
 - [ ] While loop AST needs fixing (condition has string instead of AST, body can't parse)
-- [ ] Maybe enhance error handling
+- [ ] Type system is all screwed up
+- [ ] Maybe enhance error handling (line numbers)
 - [ ] Standard library (very basic stdlib) AST
 - [ ] Interpreter (scoping is important)
 - [ ] Compiler
