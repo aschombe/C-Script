@@ -1,0 +1,59 @@
+// Literals
+Int = {'0'..'9'};
+Float = {'0'..'9' | '.'};
+String = {'\"'} {'a'..'z' | 'A'..'Z' | '0'..'9' | ' ' | '.'} {'\"'};
+Bool = {'true' | 'false'};
+
+// Types
+Type = {'Int' | 'Float' | 'String' | 'Bool'};
+
+@string
+@no_skip_ws
+Ident = {'a'..'z' | 'A'..'Z' | '_' | '0'..'9'};
+
+LetDecl = 'let' Ident ':' Type '=' Expr ';';
+DelDecl = 'del' Ident ';';
+IfExpr = 'if' '(' Expr ')' '{' Expr* '}' ('elif' Expr '{' Expr* '}')* ('else' '{' Expr* '}' )?;
+ForExpr = 'for' '(' Ident ';' Expr ';' Expr ')' '{' Expr* '}';
+WhileExpr = 'while' '(' Expr ')' '{' Expr* '}';
+BreakExpr = 'break' ';';
+ContinueExpr = 'continue' ';';
+FuncDecl = 'func' Ident '(' (Ident ':' Type (',' Ident ':' Type)*)? ')' ':' Type '{' Expr* '}';
+FuncApp = Ident '(' Expr* ')';
+ReturnExpr = 'return' Expr ';';
+TrueExpr = 'true';
+FalseExpr = 'false';
+ParenExpr = '(' Expr ')';
+StringExpr = String;
+IntExpr = Int;
+FloatExpr = Float;
+BoolExpr = Bool;
+VarRef = Ident;
+
+@no_skip_ws
+Whitespace = {Comment | ' ' | '\n' | '\t'};
+
+@no_skip_ws
+Comment = '//' (!'\n' .)* '\n' | '/*' (!'*/' .)* '*/';
+
+@leftrec
+AS = @:Add | @:Sub | @:Term;
+Add = left:*AS '+' right:MD;
+Sub = left:*AS '-' right:MD;
+
+@leftrec
+MD = @:Mul | @:Div | @:Mod | @:Factor;
+Mul = left:*MD '*' right:Factor;
+Div = left:*MD '/' right:Factor;
+Mod = left:*MD '%' right:Factor;
+
+@memoize
+Factor = @:ParenExpr | @:Int | @:Float;
+
+@leftrec
+Expr = @:AS | @:LetDecl | @:DelDecl | @:IfExpr | @:ForExpr | @:WhileExpr | @:BreakExpr | @:ContinueExpr | @:FuncDecl | @:FuncApp | @:ReturnExpr | @:TrueExpr | @:FalseExpr | @:StringExpr | @:VarRef;
+
+@export
+@no_skip_ws
+Program = Expr*;
+

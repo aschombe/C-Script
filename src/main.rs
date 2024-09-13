@@ -176,8 +176,8 @@ fn main() {
     }
 
     // parse and interpret
-    println!("Parsed:");
-    let mut parser: rss::parser::Parser = rss::parser::Parser::new(&tokens);
+    // println!("Parsed:");
+    // let mut parser: rss::parser::Parser = rss::parser::Parser::new(&tokens);
     // match parser.parse() {
     //     Ok(ast) => {
     //         println!("{:#?}", ast);
@@ -193,9 +193,9 @@ fn main() {
     //     Err(err) => println!("{}", err),
     // }
     // just output AST for now
-    match parser.parse() {
-        Ok(ast) => println!("{:#?}", ast),
-        Err(err) => println!("{}", err),
-    }
+    // match parser.parse() {
+    //     Ok(ast) => println!("{:#?}", ast),
+    //     Err(err) => println!("{}", err),
+    // }
 
 }

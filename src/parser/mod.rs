@@ -1,371 +1,440 @@
-use crate::ast::Expr;
-use crate::error_handler::ErrorHandler;
+// use crate::ast::Expr;
+// use crate::error_handler::ErrorHandler;
 
 
-#[derive(Clone)]
-pub struct Parser<'a> {
-    tokens: &'a [String],
-    current: usize,
-}
+// #[derive(Clone)]
+// pub struct Parser<'a> {
+//     tokens: &'a [String],
+//     current: usize,
+// }
 
-impl<'a> Parser<'a> {
-    pub fn new(tokens: &'a [String]) -> Self {
-        Self { 
-            tokens, 
-            current: 0, 
-        }
-    }
+// impl<'a> Parser<'a> {
+//     pub fn new(tokens: &'a [String]) -> Self {
+//         Self { 
+//             tokens, 
+//             current: 0, 
+//         }
+//     }
 
-    fn advance(&mut self, amount: usize) {
-        self.current += amount;
-    }
+//     fn advance(&mut self, amount: usize) {
+//         self.current += amount;
+//     }
 
-    fn current_token(&self) -> Option<&String> {
-        self.tokens.get(self.current)
-    }
+//     fn current_token(&self) -> Option<&String> {
+//         self.tokens.get(self.current)
+//     }
 
-    fn expect(&mut self, expected: &str) -> Result<(), String> {
-        if let Some(token) = self.current_token() {
-            if token == expected {
-                self.advance(1);
-                Ok(())
-            } else {
-                Err(ErrorHandler::UnexpectedToken(expected.to_string(), token.clone()).to_string())
-            }
-        } else {
-            Err(ErrorHandler::UnexpectedToken(expected.to_string(), "end of input".to_string()).to_string())
-        }
-    }
+//     fn expect(&mut self, expected: &str) -> Result<(), String> {
+//         if let Some(token) = self.current_token() {
+//             if token == expected {
+//                 self.advance(1);
+//                 Ok(())
+//             } else {
+//                 Err(ErrorHandler::UnexpectedToken(expected.to_string(), token.clone()).to_string())
+//             }
+//         } else {
+//             Err(ErrorHandler::UnexpectedToken(expected.to_string(), "end of input".to_string()).to_string())
+//         }
+//     }
 
-    fn parse_keyword(&mut self) -> Result<Option<Expr>, String> {
-        if let Some(token) = self.current_token() {
-            match token.as_str() {
-                "let" => {
-                    self.advance(1);
-                    let name: String = self.current_token().ok_or("Expected variable name")?.clone();
-                    self.advance(1);
-                    self.expect(":")?;
-                    let typ: String = self.current_token().ok_or("Expected type")?.clone();
-                    self.advance(1);
-                    self.expect("=")?;
-                    let expr: Expr = self.parse_expr()?;
-                    self.expect(";")?;
-                    let typ2: String = typ.clone();
-                    return Ok(Some(Expr::Let(name, Box::new(Expr::Type(typ2)), Box::new(expr))));
-                },
-                "if" => {
-                    self.advance(1);
-                    let if_condition: Expr = self.parse_expr()?;
-                    self.expect("{")?;
-                    let mut if_body: Vec<Expr> = Vec::new();
-                    while self.current_token() != Some(&"}".to_string()) {
-                        if let Some(expr) = self.parse_keyword()? {
-                            if_body.push(expr);
-                        } else {
-                            if_body.push(self.parse_expr()?);
-                            self.expect(";")?;
-                        }
-                    }
-                    self.expect("}")?;
-                    let mut elifs: Vec<(Expr, Vec<Expr>)> = Vec::new();
-                    while self.current_token() == Some(&"elif".to_string()) {
-                        self.advance(1);
-                        let elif_condition: Expr = self.parse_expr()?;
-                        self.expect("{")?;
-                        let mut elif_body: Vec<Expr> = Vec::new();
-                        while self.current_token() != Some(&"}".to_string()) {
-                            if let Some(expr) = self.parse_keyword()? {
-                                elif_body.push(expr);
-                            } else {
-                                elif_body.push(self.parse_expr()?);
-                                self.expect(";")?;
-                            }
-                        }
-                        self.expect("}")?;
-                        elifs.push((elif_condition, elif_body));
-                    }
-                    let mut else_body: Vec<Expr> = Vec::new();
-                    if self.current_token() == Some(&"else".to_string()) {
-                        self.advance(1);
-                        self.expect("{")?;
-                        while self.current_token() != Some(&"}".to_string()) {
-                            if let Some(expr) = self.parse_keyword()? {
-                                else_body.push(expr);
-                            } else {
-                                else_body.push(self.parse_expr()?);
-                                self.expect(";")?;
-                            }
-                        }
-                        self.expect("}")?;
-                    }
-                    return Ok(Some(Expr::IEE(Box::new(if_condition), if_body, Some(elifs), Some(else_body))));
-                },
-                "return" => {
-                    self.advance(1);
-                    let expr: Expr = self.parse_expr()?;
-                    self.expect(";")?;
-                    return Ok(Some(Expr::Return(Box::new(expr))));
-                },
-                "del" => {
-                    self.advance(1);
-                    let name: String = self.current_token().ok_or("Expected variable name")?.clone();
-                    self.advance(1);
-                    self.expect(";")?;
-                    return Ok(Some(Expr::Delete(name)));
-                },
-                "func" => {
-                    println!("Current token: {:?}", self.current_token());
-                    self.advance(1);
+//     fn parse_keyword(&mut self) -> Result<Option<Expr>, String> {
+//         if let Some(token) = self.current_token() {
+//             match token.as_str() {
+//                 "let" => {
+//                     self.advance(1);
+//                     let name: String = self.current_token().ok_or("Expected variable name")?.clone();
+//                     self.advance(1);
+//                     self.expect(":")?;
+//                     let typ: String = self.current_token().ok_or("Expected type")?.clone();
+//                     self.advance(1);
+//                     self.expect("=")?;
+//                     let expr: Expr = self.parse_expr()?;
+//                     self.expect(";")?;
+//                     let typ2: String = typ.clone();
+//                     return Ok(Some(Expr::Let(name, Box::new(Expr::Type(typ2)), Box::new(expr))));
+//                 },
+//                 "if" => {
+//                     self.advance(1);
+//                     let if_condition: Expr = self.parse_expr()?;
+//                     self.expect("{")?;
+//                     let mut if_body: Vec<Expr> = Vec::new();
+//                     while self.current_token() != Some(&"}".to_string()) {
+//                         if let Some(expr) = self.parse_keyword()? {
+//                             if_body.push(expr);
+//                         } else {
+//                             if_body.push(self.parse_expr()?);
+//                             self.expect(";")?;
+//                         }
+//                     }
+//                     self.expect("}")?;
+//                     let mut elifs: Vec<(Expr, Vec<Expr>)> = Vec::new();
+//                     while self.current_token() == Some(&"elif".to_string()) {
+//                         self.advance(1);
+//                         let elif_condition: Expr = self.parse_expr()?;
+//                         self.expect("{")?;
+//                         let mut elif_body: Vec<Expr> = Vec::new();
+//                         while self.current_token() != Some(&"}".to_string()) {
+//                             if let Some(expr) = self.parse_keyword()? {
+//                                 elif_body.push(expr);
+//                             } else {
+//                                 elif_body.push(self.parse_expr()?);
+//                                 self.expect(";")?;
+//                             }
+//                         }
+//                         self.expect("}")?;
+//                         elifs.push((elif_condition, elif_body));
+//                     }
+//                     let mut else_body: Vec<Expr> = Vec::new();
+//                     if self.current_token() == Some(&"else".to_string()) {
+//                         self.advance(1);
+//                         self.expect("{")?;
+//                         while self.current_token() != Some(&"}".to_string()) {
+//                             if let Some(expr) = self.parse_keyword()? {
+//                                 else_body.push(expr);
+//                             } else {
+//                                 else_body.push(self.parse_expr()?);
+//                                 self.expect(";")?;
+//                             }
+//                         }
+//                         self.expect("}")?;
+//                     }
+//                     return Ok(Some(Expr::IEE(Box::new(if_condition), if_body, Some(elifs), Some(else_body))));
+//                 },
+//                 "return" => {
+//                     self.advance(1);
+//                     let expr: Expr = self.parse_expr()?;
+//                     self.expect(";")?;
+//                     return Ok(Some(Expr::Return(Box::new(expr))));
+//                 },
+//                 "del" => {
+//                     self.advance(1);
+//                     let name: String = self.current_token().ok_or("Expected variable name")?.clone();
+//                     self.advance(1);
+//                     self.expect(";")?;
+//                     return Ok(Some(Expr::Delete(name)));
+//                 },
+//                 "func" => {
+//                     println!("Current token: {:?}", self.current_token());
+//                     self.advance(1);
 
-                    let name: String = self.current_token().ok_or("Expected function name")?.clone();
-                    self.advance(1);
+//                     let name: String = self.current_token().ok_or("Expected function name")?.clone();
+//                     self.advance(1);
 
-                    self.expect("(")?;
-                    let mut args: Vec<(String, String)> = Vec::new();
-                    while self.current_token() != Some(&")".to_string()) {
-                        let arg_name: String = self.current_token().ok_or("Expected argument name")?.clone();
-                        self.advance(1);
-                        self.expect(":")?;
-                        let arg_type: String = self.current_token().ok_or("Expected argument type")?.clone();
-                        self.advance(1);
-                        args.push((arg_name, arg_type));
-                        if self.current_token() == Some(&",".to_string()) {
-                            self.advance(1);
-                        }
-                    }
-                    self.expect(")")?;
-                    self.expect(":")?;
-                    let return_type: String = self.current_token().ok_or("Expected return type")?.clone();
-                    self.advance(1);
-                    self.expect("{")?;
-                    let mut body: Vec<Expr> = Vec::new();
-                    while self.current_token() != Some(&"}".to_string()) {
-                        if let Some(expr) = self.parse_keyword()? {
-                            body.push(expr);
-                        } else {
-                            body.push(self.parse_expr()?);
-                            self.expect(";")?;
-                        }
-                    }
+//                     self.expect("(")?;
+//                     let mut args: Vec<(String, String)> = Vec::new();
+//                     while self.current_token() != Some(&")".to_string()) {
+//                         let arg_name: String = self.current_token().ok_or("Expected argument name")?.clone();
+//                         self.advance(1);
+//                         self.expect(":")?;
+//                         let arg_type: String = self.current_token().ok_or("Expected argument type")?.clone();
+//                         self.advance(1);
+//                         args.push((arg_name, arg_type));
+//                         if self.current_token() == Some(&",".to_string()) {
+//                             self.advance(1);
+//                         }
+//                     }
+//                     self.expect(")")?;
+//                     self.expect(":")?;
+//                     let return_type: String = self.current_token().ok_or("Expected return type")?.clone();
+//                     self.advance(1);
+//                     self.expect("{")?;
+//                     let mut body: Vec<Expr> = Vec::new();
+//                     while self.current_token() != Some(&"}".to_string()) {
+//                         if let Some(expr) = self.parse_keyword()? {
+//                             body.push(expr);
+//                         } else {
+//                             body.push(self.parse_expr()?);
+//                             self.expect(";")?;
+//                         }
+//                     }
                     
-                    self.expect("}")?;
-                    return Ok(Some(Expr::Func(name, args, return_type, body))); 
-                },
-                "for" => {
-                    self.advance(1); // Skip past 'for'
-                    self.expect("(")?;
+//                     self.expect("}")?;
+//                     return Ok(Some(Expr::Func(name, args, return_type, body))); 
+//                 },
+//                 "for" => {
+//                     self.advance(1); // Skip past 'for'
+//                     self.expect("(")?;
 
-                    let var: String = self.current_token().ok_or("Expected variable name")?.clone();
-                    self.advance(1);
-                    self.expect(";")?;
+//                     let var: String = self.current_token().ok_or("Expected variable name")?.clone();
+//                     self.advance(1);
+//                     self.expect(";")?;
 
-                    // let condition: Expr = self.parse_expr()?;
-                    let mut condition: Vec<String> = Vec::new();
-                    while self.current_token() != Some(&";".to_string()) {
-                        condition.push(self.current_token().ok_or("Expected condition")?.clone());
-                        self.advance(1);
-                    }
-                    let condition: String = condition.join(" ");
+//                     // let condition: Expr = self.parse_expr()?;
+//                     let mut condition: Vec<String> = Vec::new();
+//                     while self.current_token() != Some(&";".to_string()) {
+//                         condition.push(self.current_token().ok_or("Expected condition")?.clone());
+//                         self.advance(1);
+//                     }
+//                     let condition: String = condition.join(" ");
 
-                    self.expect(";")?;
+//                     self.expect(";")?;
 
-                    // let increment: Expr = self.parse_expr()?;
-                    let mut increment: Vec<String> = Vec::new();
-                    while self.current_token() != Some(&")".to_string()) {
-                        increment.push(self.current_token().ok_or("Expected increment")?.clone());
-                        self.advance(1);
-                    }
-                    let increment: String = increment.join(" ");
+//                     // let increment: Expr = self.parse_expr()?;
+//                     let mut increment: Vec<String> = Vec::new();
+//                     while self.current_token() != Some(&")".to_string()) {
+//                         increment.push(self.current_token().ok_or("Expected increment")?.clone());
+//                         self.advance(1);
+//                     }
+//                     let increment: String = increment.join(" ");
                     
-                    self.expect(")")?;
+//                     self.expect(")")?;
 
-                    self.expect("{")?;
-                    let mut body: Vec<Expr> = Vec::new();
-                    while self.current_token() != Some(&"}".to_string()) {
-                        if let Some(expr) = self.parse_keyword()? {
-                            body.push(expr);
-                        } else {
-                            body.push(self.parse_expr()?);
-                            self.expect(";")?;
-                        }
-                    }
-                    self.expect("}")?;
-                    return Ok(Some(Expr::For(var, condition, increment.to_string(), body)));
-                },
-                "while" => {
-                    self.advance(1);
-                    self.expect("(")?;
-                    // let condition: Expr = self.parse_expr()?;
-                    let mut condition: Vec<String> = Vec::new();
-                    while self.current_token() != Some(&")".to_string()) {
-                        condition.push(self.current_token().ok_or("Expected condition")?.clone());
-                        self.advance(1);
-                    }
-                    let condition: String = condition.join(" ");
-                    self.expect(")")?;
-                    self.expect("{")?;
-                    let mut body: Vec<Expr> = Vec::new();
-                    while self.current_token() != Some(&"}".to_string()) {
-                        if let Some(expr) = self.parse_keyword()? {
-                            body.push(expr);
-                        } else {
-                            body.push(self.parse_expr()?);
-                            self.expect(";")?;
-                        }
-                    }
-                    self.expect("}")?;
-                    return Ok(Some(Expr::While(condition, body)));
-                }
-                _ => {
-                    if let Some(next_token) = self.tokens.get(self.current + 1) {
-                        if next_token == "=" {
-                            let name: String = token.clone();
-                            self.advance(2);
-                            let expr: Expr = self.parse_expr()?;
-                            self.expect(";")?;
-                            return Ok(Some(Expr::Set(name, Box::new(expr))));
-                        }
-                    }
-                }
-            }
+//                     self.expect("{")?;
+//                     let mut body: Vec<Expr> = Vec::new();
+//                     while self.current_token() != Some(&"}".to_string()) {
+//                         if let Some(expr) = self.parse_keyword()? {
+//                             body.push(expr);
+//                         } else {
+//                             body.push(self.parse_expr()?);
+//                             self.expect(";")?;
+//                         }
+//                     }
+//                     self.expect("}")?;
+//                     return Ok(Some(Expr::For(var, condition, increment.to_string(), body)));
+//                 },
+//                 "while" => {
+//                     self.advance(1);
+//                     self.expect("(")?;
+//                     // let condition: Expr = self.parse_expr()?;
+//                     let mut condition: Vec<String> = Vec::new();
+//                     while self.current_token() != Some(&")".to_string()) {
+//                         condition.push(self.current_token().ok_or("Expected condition")?.clone());
+//                         self.advance(1);
+//                     }
+//                     let condition: String = condition.join(" ");
+//                     self.expect(")")?;
+//                     self.expect("{")?;
+//                     let mut body: Vec<Expr> = Vec::new();
+//                     while self.current_token() != Some(&"}".to_string()) {
+//                         if let Some(expr) = self.parse_keyword()? {
+//                             body.push(expr);
+//                         } else {
+//                             body.push(self.parse_expr()?);
+//                             self.expect(";")?;
+//                         }
+//                     }
+//                     self.expect("}")?;
+//                     return Ok(Some(Expr::While(condition, body)));
+//                 }
+//                 _ => {
+//                     if let Some(next_token) = self.tokens.get(self.current + 1) {
+//                         if next_token == "=" {
+//                             let name: String = token.clone();
+//                             self.advance(2);
+//                             let expr: Expr = self.parse_expr()?;
+//                             self.expect(";")?;
+//                             return Ok(Some(Expr::Set(name, Box::new(expr))));
+//                         }
+//                     }
+//                 }
+//             }
 
-            Ok(None)
-        } else {
-            Err(ErrorHandler::UnexpectedEndOfProgram.to_string())
-        }
-    }
+//             Ok(None)
+//         } else {
+//             Err(ErrorHandler::UnexpectedEndOfProgram.to_string())
+//         }
+//     }
 
-    fn parse_expr(&mut self) -> Result<Expr, String> {
-        // Handle function calls first
-        if let Some(token) = self.current_token() {
-            if token.chars().all(|c| c.is_alphabetic()) {
-                let name: String = token.clone();
-                self.advance(1);
-                self.expect("(")?;
-                let mut args: Vec<Expr> = Vec::new();
-                while self.current_token() != Some(&")".to_string()) {
-                    args.push(self.parse_expr()?);
-                    if self.current_token() == Some(&",".to_string()) {
-                        self.advance(1);
-                    }
-                }
-                self.expect(")")?;
-                return Ok(Expr::FuncApp(name, args));
-            }
-        }
+//     fn parse_expr(&mut self) -> Result<Expr, String> {
+//         // Handle function calls first
+//         if let Some(token) = self.current_token() {
+//             if token.chars().all(|c| c.is_alphabetic()) {
+//                 let name: String = token.clone();
+//                 self.advance(1);
+//                 self.expect("(")?;
+//                 let mut args: Vec<Expr> = Vec::new();
+//                 while self.current_token() != Some(&")".to_string()) {
+//                     args.push(self.parse_expr()?);
+//                     if self.current_token() == Some(&",".to_string()) {
+//                         self.advance(1);
+//                     }
+//                 }
+//                 self.expect(")")?;
+//                 return Ok(Expr::FuncApp(name, args));
+//             }
+//         }
     
-        // Handle string literals
-        if let Some(token) = self.current_token() {
-            if token.chars().next() == Some('"') {
-                let value: String = token.clone();
-                self.advance(1);
-                return Ok(Expr::String(value));
-            }
-        }
+//         // Handle string literals
+//         if let Some(token) = self.current_token() {
+//             if token.chars().next() == Some('"') {
+//                 let value: String = token.clone();
+//                 self.advance(1);
+//                 return Ok(Expr::String(value));
+//             }
+//         }
 
-        // Handle other expressions (including comparisons)
-        let mut left: Expr = self.parse_term()?; // parse_term handles basic expressions
+//         // Handle other expressions (including comparisons)
+//         let mut left: Expr = self.parse_term()?; // parse_term handles basic expressions
     
-        // Parse comparison and arithmetic operators
-        while let Some(op) = self.current_token().map(|t: &String| t.clone()) {
-            match op.as_str() {
-                "==" | "!=" | "<" | "<=" | ">" | ">=" => {
-                    self.advance(1);
-                    let right: Expr = self.parse_term()?;
-                    left = match op.as_str() {
-                        "==" => Expr::IsEqual(Box::new(left), Box::new(right)),
-                        "!=" => Expr::IsNE(Box::new(left), Box::new(right)),
-                        "<"  => Expr::IsLT(Box::new(left), Box::new(right)),
-                        "<=" => Expr::IsLTE(Box::new(left), Box::new(right)),
-                        ">"  => Expr::IsGT(Box::new(left), Box::new(right)),
-                        ">=" => Expr::IsGTE(Box::new(left), Box::new(right)),
-                        _ => unreachable!(),
-                    };
-                },
-                "+" | "-" => {
-                    self.advance(1);
-                    let right: Expr = self.parse_term()?;
-                    left = match op.as_str() {
-                        "+" => Expr::Add(Box::new(left), Box::new(right)),
-                        "-" => Expr::Sub(Box::new(left), Box::new(right)),
-                        _ => unreachable!(),
-                    };
-                },
-                _ => break,
-            }
-        }
-        Ok(left)
-    }
+//         // Parse comparison and arithmetic operators
+//         while let Some(op) = self.current_token().map(|t: &String| t.clone()) {
+//             match op.as_str() {
+//                 "==" | "!=" | "<" | "<=" | ">" | ">=" => {
+//                     self.advance(1);
+//                     let right: Expr = self.parse_term()?;
+//                     left = match op.as_str() {
+//                         "==" => Expr::IsEqual(Box::new(left), Box::new(right)),
+//                         "!=" => Expr::IsNE(Box::new(left), Box::new(right)),
+//                         "<"  => Expr::IsLT(Box::new(left), Box::new(right)),
+//                         "<=" => Expr::IsLTE(Box::new(left), Box::new(right)),
+//                         ">"  => Expr::IsGT(Box::new(left), Box::new(right)),
+//                         ">=" => Expr::IsGTE(Box::new(left), Box::new(right)),
+//                         _ => unreachable!(),
+//                     };
+//                 },
+//                 "+" | "-" => {
+//                     self.advance(1);
+//                     let right: Expr = self.parse_term()?;
+//                     left = match op.as_str() {
+//                         "+" => Expr::Add(Box::new(left), Box::new(right)),
+//                         "-" => Expr::Sub(Box::new(left), Box::new(right)),
+//                         _ => unreachable!(),
+//                     };
+//                 },
+//                 _ => break,
+//             }
+//         }
+//         Ok(left)
+//     }
 
-    fn parse_term(&mut self) -> Result<Expr, String> {
-        let mut left: Expr = self.parse_factor()?;
+//     fn parse_term(&mut self) -> Result<Expr, String> {
+//         let mut left: Expr = self.parse_factor()?;
         
-        while let Some(op) = self.current_token().map(|t: &String| t.clone()) {
-            match op.as_str() {
-                "*" | "/" | "^" => {
-                    self.advance(1);
-                    let right: Expr = self.parse_factor()?;
-                    left = match op.as_str() {
-                        "*" => Expr::Mul(Box::new(left), Box::new(right)),
-                        "/" => Expr::Div(Box::new(left), Box::new(right)),
-                        "^" => Expr::Pow(Box::new(left), Box::new(right)),
-                        _ => unreachable!(),
-                    };
-                },
-                _ => break,
-            }
-        }
-        Ok(left)
-    }
+//         while let Some(op) = self.current_token().map(|t: &String| t.clone()) {
+//             match op.as_str() {
+//                 "*" | "/" | "^" => {
+//                     self.advance(1);
+//                     let right: Expr = self.parse_factor()?;
+//                     left = match op.as_str() {
+//                         "*" => Expr::Mul(Box::new(left), Box::new(right)),
+//                         "/" => Expr::Div(Box::new(left), Box::new(right)),
+//                         "^" => Expr::Pow(Box::new(left), Box::new(right)),
+//                         _ => unreachable!(),
+//                     };
+//                 },
+//                 _ => break,
+//             }
+//         }
+//         Ok(left)
+//     }
 
-    fn parse_factor(&mut self) -> Result<Expr, String> {
-        if let Some(token) = self.current_token() {
-            match token.as_str() {
-                "(" => {
-                    self.advance(1);
-                    let expr: Expr = self.parse_expr()?;
-                    self.expect(")")?;
-                    Ok(expr)
-                },
-                _ if token.chars().all(|c: char| c.is_digit(10) || c == '.') => {
-                    // Check if the token contains a dot to differentiate float from int
-                    if token.contains('.') {
-                        let value: f64 = token.parse::<f64>().map_err(|e| e.to_string())?;
-                        self.advance(1);
-                        Ok(Expr::Float(value))
-                    } else {
-                        let value: i64 = token.parse::<i64>().map_err(|e| e.to_string())?;
-                        self.advance(1);
-                        Ok(Expr::Int(value))
-                    }
-                },
-                _ if token.chars().all(|c: char| c.is_alphabetic()) => {
-                    let name: String = token.clone();
-                    self.advance(1);
-                    Ok(Expr::VarRef(name))
-                },
-                _ => Err(format!("Unexpected token: {}", token)),
-            }
-        } else {
-            Err("Unexpected end of input".to_string())
-        }
-    }
+//     fn parse_factor(&mut self) -> Result<Expr, String> {
+//         if let Some(token) = self.current_token() {
+//             match token.as_str() {
+//                 "(" => {
+//                     self.advance(1);
+//                     let expr: Expr = self.parse_expr()?;
+//                     self.expect(")")?;
+//                     Ok(expr)
+//                 },
+//                 _ if token.chars().all(|c: char| c.is_digit(10) || c == '.') => {
+//                     // Check if the token contains a dot to differentiate float from int
+//                     if token.contains('.') {
+//                         let value: f64 = token.parse::<f64>().map_err(|e| e.to_string())?;
+//                         self.advance(1);
+//                         Ok(Expr::Float(value))
+//                     } else {
+//                         let value: i64 = token.parse::<i64>().map_err(|e| e.to_string())?;
+//                         self.advance(1);
+//                         Ok(Expr::Int(value))
+//                     }
+//                 },
+//                 _ if token.chars().all(|c: char| c.is_alphabetic()) => {
+//                     let name: String = token.clone();
+//                     self.advance(1);
+//                     Ok(Expr::VarRef(name))
+//                 },
+//                 _ => Err(format!("Unexpected token: {}", token)),
+//             }
+//         } else {
+//             Err("Unexpected end of input".to_string())
+//         }
+//     }
 
-    pub fn parse(&mut self) -> Result<Vec<Expr>, String> {
-        let mut ast: Vec<Expr> = Vec::new();
-        while self.current_token().is_some() {
-            if let Some(expr) = self.parse_keyword()? {
-                ast.push(expr);
-            } else {
-                let expr: Expr = self.parse_expr()?;
-                ast.push(expr);
+//     pub fn parse(&mut self) -> Result<Vec<Expr>, String> {
+//         let mut ast: Vec<Expr> = Vec::new();
+//         while self.current_token().is_some() {
+//             if let Some(expr) = self.parse_keyword()? {
+//                 ast.push(expr);
+//             } else {
+//                 let expr: Expr = self.parse_expr()?;
+//                 ast.push(expr);
     
-                // Only expect a semicolon if the current token is not a closing brace
-                // if self.current_token() != Some(&"}".to_string()) {
-                //     self.expect(";")?;
-                // }
-            }
-        }
-        Ok(ast)
-    }
+//                 // Only expect a semicolon if the current token is not a closing brace
+//                 // if self.current_token() != Some(&"}".to_string()) {
+//                 //     self.expect(";")?;
+//                 // }
+//             }
+//         }
+//         Ok(ast)
+//     }
+// }
+
+use peginator::PegParser;
+use peginator_macro::peginate;
+
+peginate!("
+// Literals
+Int = {'0'..'9'};
+Float = {'0'..'9' | '.'};
+String = {'\"'} {'a'..'z' | 'A'..'Z' | '0'..'9' | ' ' | '.'} {'\"'};
+Bool = {'true' | 'false'};
+
+// Types
+Type = {'Int' | 'Float' | 'String' | 'Bool'};
+
+@string
+@no_skip_ws
+Ident = {'a'..'z' | 'A'..'Z' | '_' | '0'..'9'};
+
+LetDecl = 'let' Ident ':' Type '=' Expr ';';
+DelDecl = 'del' Ident ';';
+IfExpr = 'if' '(' Expr ')' '{' Expr* '}' ('elif' Expr '{' Expr* '}')* ('else' '{' Expr* '}' )?;
+ForExpr = 'for' '(' Ident ';' Expr ';' Expr ')' '{' Expr* '}';
+WhileExpr = 'while' '(' Expr ')' '{' Expr* '}';
+BreakExpr = 'break' ';';
+ContinueExpr = 'continue' ';';
+FuncDecl = 'func' Ident '(' (Ident ':' Type (',' Ident ':' Type)*)? ')' ':' Type '{' Expr* '}';
+FuncApp = Ident '(' Expr* ')';
+ReturnExpr = 'return' Expr ';';
+TrueExpr = 'true';
+FalseExpr = 'false';
+ParenExpr = '(' Expr ')';
+StringExpr = String;
+IntExpr = Int;
+FloatExpr = Float;
+BoolExpr = Bool;
+VarRef = Ident;
+
+@no_skip_ws
+Whitespace = {Comment | ' ' | '\n' | '\t'};
+
+@no_skip_ws
+Comment = '//' (!'\n' .)* '\n' | '/*' (!'*/' .)* '*/';
+
+@leftrec
+AS = @:Add | @:Sub | @:Term;
+Add = left:*AS '+' right:MD;
+Sub = left:*AS '-' right:MD;
+
+@leftrec
+MD = @:Mul | @:Div | @:Mod | @:Factor;
+Mul = left:*MD '*' right:Factor;
+Div = left:*MD '/' right:Factor;
+Mod = left:*MD '%' right:Factor;
+
+@memoize
+Factor = @:ParenExpr | @:Int | @:Float;
+
+@leftrec
+Expr = @:AS | @:LetDecl | @:DelDecl | @:IfExpr | @:ForExpr | @:WhileExpr | @:BreakExpr | @:ContinueExpr | @:FuncDecl | @:FuncApp | @:ReturnExpr | @:TrueExpr | @:FalseExpr | @:StringExpr | @:VarRef;
+
+@export
+@no_skip_ws
+Program = Expr*;
+");
+
+fn main() {
+    let result = Program::parse("1+1");
+    println!("{:?}", result);
 }
