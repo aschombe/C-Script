@@ -1,463 +1,212 @@
-// use crate::ast::Expr;
-// use crate::error_handler::ErrorHandler;
+/*
+Precedence (highest (0) to lowest (9)):
+0: Function Calls, Parentheses, List Indexing (not implemented), Member Access (not implemented)
+1: Unary Operators (Negation, Not)
+2: Exponentiation
+3: Multiplication, Division, Modulus
+4: Addition, Subtraction
+5: Comparison (<, <=, >, >=)
+6: Equality (==, !=)
+7: Logical And
+8: Logical Or
+9: Assignment (=, +=, -=, *=, /=, %=, ^=)
+Heres my pest file:
+// Tokens
+Integer = @{ ASCII_DIGIT+ }
+Float = @{ Integer ~ ("." ~ ASCII_DIGIT*)? }
+String = { "\"" ~ (!"\"" ~ ANY)* ~ "\"" }
+Bool = { "true" | "false" }
+ident = @{ ASCII_ALPHA ~ (ASCII_ALPHA | ASCII_DIGIT)* }
+type = { "int" | "Float" | "string" | "bool" }
 
+bin_ops = { add | sub | mul | div | modulus | pow | and | or | eq | neq | gt | lt | gte | lte }
+add     =  { "+" }
+sub     =  { "-" }
+mul     =  { "*" }
+div     =  { "/" }
+modulus =  { "%" }
+pow     =  { "^" }
+and     =  { "&&" }
+or      =  { "||" }
+eq      =  { "==" }
+neq     =  { "!=" }
+gt      =  { ">" }
+gte     =  { ">=" }
+lte     =  { "<=" }
+lt      =  { "<" }
 
-// #[derive(Clone)]
-// pub struct Parser<'a> {
-//     tokens: &'a [String],
-//     current: usize,
+un_ops = { neg | not }
+neg = { "-" }
+not = { "!" }
+
+assignment = { eq_assign | add_eq | sub_eq | mul_eq | div_eq | mod_eq | pow_eq }
+eq_assign = { "=" }
+add_eq = { "+=" }
+sub_eq = { "-=" }
+mul_eq = { "*=" }
+div_eq = { "/=" }
+mod_eq = { "%=" }
+pow_eq = { "^=" }
+
+// Statements
+let_stmt = { "let" ~ ident ~ ":" ~ type ~ "=" ~ expr ~ ";" }
+set_stmt = { ident ~ "=" ~ expr ~ ";" }
+del_stmt = { "del" ~ ident ~ ";" }
+var_ref = { ident }
+
+// Literals
+int = { Integer }
+float = { Float }
+string = { String }
+bool = { Bool }
+
+// Expressions
+
+// Base expressions
+factor = _{ int | float | string | bool | "(" ~ expr ~ ")" | var_ref | func_call }
+
+// Unary Operators (Precedence 1)
+unary_expr = _{ (neg | not) ~ factor }
+
+// Exponentiation (Precedence 2)
+exponent_expr = _{ unary_expr ~ (pow ~ unary_expr)* }
+
+// Multiplication, Division, Modulus (Precedence 3)
+term = _{ exponent_expr ~ (mul | div | modulus) ~ exponent_expr }
+
+// Addition, Subtraction (Precedence 4)
+expression = _{ term ~ (add | sub) ~ term }
+
+// Comparison (Precedence 5)
+comparison_expr = _{ expression ~ (lt | lte | gt | gte) ~ expression }
+
+// Equality (Precedence 6)
+equality_expr = _{ comparison_expr ~ (eq | neq) ~ comparison_expr }
+
+// Logical And (Precedence 7)
+and_expr = _{ equality_expr ~ (and ~ equality_expr)* }
+
+// Logical Or (Precedence 8)
+or_expr = _{ and_expr ~ (or ~ and_expr)* }
+
+// Assignment (Precedence 9)
+assignment_expr = _{ or_expr ~ (eq_assign | add_eq | sub_eq | mul_eq | div_eq | mod_eq | pow_eq) ~ or_expr }
+
+// Top-Level Expression
+expr = _{ assignment_expr | func_call | "(" ~ expr ~ ")" }
+
+// Control Flow
+iee = { "if" ~ "(" ~ expr ~ ")" ~ "{" ~ stmt* ~ "}" ~ elif* ~ else_? }
+elif = { "elif" ~ "(" ~ expr ~ ")" ~ "{" ~ stmt* ~ "}" }
+else_ = { "else" ~ "{" ~ stmt* ~ "}" }
+
+switch = { "switch" ~ "(" ~ expr ~ ")" ~ "{" ~ case* ~ default? ~ "}" }
+case = { "case" ~ expr ~ ":" ~ "{" ~ stmt* ~ "}" }
+default = { "default" ~ ":" ~ "{" ~ stmt* ~ "}" }
+
+// Loops
+for_loop = { "for" ~ "(" ~ stmt ~ ";" ~ expr ~ ";" ~ stmt ~ ")" ~ "{" ~ stmt* ~ "}" }
+while_loop = { "while" ~ "(" ~ expr ~ ")" ~ "{" ~ stmt* ~ "}" }
+continue_stmt = { "continue" ~ ";" }
+break_stmt = { "break" ~ ";" }
+
+// Functions
+func_def = { "fn" ~ ident ~ "(" ~ params ~ ")" ~ ":" ~ type ~ "{" ~ stmt* ~ "}" }
+params = { (ident ~ ":" ~ type) ~ ("," ~ ident ~ ":" ~ type)* }
+func_call = { ident ~ "(" ~ exprs ~ ")" }
+exprs = { expr ~ ("," ~ expr)* }
+return_stmt = { "return" ~ expr ~ ";" }
+
+// Statements
+stmt = _{ let_stmt | set_stmt | del_stmt | expr | iee | switch | for_loop | while_loop | continue_stmt | break_stmt | func_def | func_call | return_stmt }
+program = _{ stmt* }
+
+// Whitespace
+WHITESPACE = _{ " " | "\n" | "\t" | ("//" ~ (!"\n" ~ ANY)*) | ("/*" ~ (!"*/" ~ ANY)* ~ "*\/") }
+*/
+
+use pest_derive::Parser;
+use pest::Parser;
+// import the pratt parser
+// use pest::{iterators::Pairs, pratt_parser::{Assoc, Op, PrattParser}};
+// use lazy_static::lazy_static;
+
+use crate::ast::ASTNode;
+
+#[derive(Parser)]
+#[grammar = "grammar.pest"]
+struct RssParser;
+
+// lazy_static! {
+//     static ref PRATT_PARSER: PrattParser<Rule> = {
+//         use Rule::*;
+//         use Assoc::*;
+
+//         PrattParser::new()
+//             .op(Op::infix(add, Left) | Op::infix(sub, Left))
+//             .op(Op::infix(mul, Left) | Op::infix(div, Left))
+//             .op(Op::infix(modulus, Left))
+//             .op(Op::infix(pow, Right))
+//             .op(Op::infix(eq, Left) | Op::infix(neq, Left))
+//             .op(Op::infix(gt, Left) | Op::infix(gte, Left) | Op::infix(lt, Left) | Op::infix(lte, Left))
+//             .op(Op::infix(and, Left))
+//             .op(Op::infix(or, Left))
+//             .op(Op::prefix(neg) | Op::prefix(not))
+//             .op(Op::infix(eq_assign, Right) | Op::infix(add_eq, Right) | Op::infix(sub_eq, Right) | Op::infix(mul_eq, Right) | Op::infix(div_eq, Right) | Op::infix(mod_eq, Right) | Op::infix(pow_eq, Right))
+//     };
 // }
 
-// impl<'a> Parser<'a> {
-//     pub fn new(tokens: &'a [String]) -> Self {
-//         Self { 
-//             tokens, 
-//             current: 0, 
-//         }
-//     }
-
-//     fn advance(&mut self, amount: usize) {
-//         self.current += amount;
-//     }
-
-//     fn current_token(&self) -> Option<&String> {
-//         self.tokens.get(self.current)
-//     }
-
-//     fn expect(&mut self, expected: &str) -> Result<(), String> {
-//         if let Some(token) = self.current_token() {
-//             if token == expected {
-//                 self.advance(1);
-//                 Ok(())
-//             } else {
-//                 Err(ErrorHandler::UnexpectedToken(expected.to_string(), token.clone()).to_string())
-//             }
-//         } else {
-//             Err(ErrorHandler::UnexpectedToken(expected.to_string(), "end of input".to_string()).to_string())
-//         }
-//     }
-
-//     fn parse_keyword(&mut self) -> Result<Option<Expr>, String> {
-//         if let Some(token) = self.current_token() {
-//             match token.as_str() {
-//                 "let" => {
-//                     self.advance(1);
-//                     let name: String = self.current_token().ok_or("Expected variable name")?.clone();
-//                     self.advance(1);
-//                     self.expect(":")?;
-//                     let typ: String = self.current_token().ok_or("Expected type")?.clone();
-//                     self.advance(1);
-//                     self.expect("=")?;
-//                     let expr: Expr = self.parse_expr()?;
-//                     self.expect(";")?;
-//                     let typ2: String = typ.clone();
-//                     return Ok(Some(Expr::Let(name, Box::new(Expr::Type(typ2)), Box::new(expr))));
-//                 },
-//                 "if" => {
-//                     self.advance(1);
-//                     let if_condition: Expr = self.parse_expr()?;
-//                     self.expect("{")?;
-//                     let mut if_body: Vec<Expr> = Vec::new();
-//                     while self.current_token() != Some(&"}".to_string()) {
-//                         if let Some(expr) = self.parse_keyword()? {
-//                             if_body.push(expr);
-//                         } else {
-//                             if_body.push(self.parse_expr()?);
-//                             self.expect(";")?;
-//                         }
-//                     }
-//                     self.expect("}")?;
-//                     let mut elifs: Vec<(Expr, Vec<Expr>)> = Vec::new();
-//                     while self.current_token() == Some(&"elif".to_string()) {
-//                         self.advance(1);
-//                         let elif_condition: Expr = self.parse_expr()?;
-//                         self.expect("{")?;
-//                         let mut elif_body: Vec<Expr> = Vec::new();
-//                         while self.current_token() != Some(&"}".to_string()) {
-//                             if let Some(expr) = self.parse_keyword()? {
-//                                 elif_body.push(expr);
-//                             } else {
-//                                 elif_body.push(self.parse_expr()?);
-//                                 self.expect(";")?;
-//                             }
-//                         }
-//                         self.expect("}")?;
-//                         elifs.push((elif_condition, elif_body));
-//                     }
-//                     let mut else_body: Vec<Expr> = Vec::new();
-//                     if self.current_token() == Some(&"else".to_string()) {
-//                         self.advance(1);
-//                         self.expect("{")?;
-//                         while self.current_token() != Some(&"}".to_string()) {
-//                             if let Some(expr) = self.parse_keyword()? {
-//                                 else_body.push(expr);
-//                             } else {
-//                                 else_body.push(self.parse_expr()?);
-//                                 self.expect(";")?;
-//                             }
-//                         }
-//                         self.expect("}")?;
-//                     }
-//                     return Ok(Some(Expr::IEE(Box::new(if_condition), if_body, Some(elifs), Some(else_body))));
-//                 },
-//                 "return" => {
-//                     self.advance(1);
-//                     let expr: Expr = self.parse_expr()?;
-//                     self.expect(";")?;
-//                     return Ok(Some(Expr::Return(Box::new(expr))));
-//                 },
-//                 "del" => {
-//                     self.advance(1);
-//                     let name: String = self.current_token().ok_or("Expected variable name")?.clone();
-//                     self.advance(1);
-//                     self.expect(";")?;
-//                     return Ok(Some(Expr::Delete(name)));
-//                 },
-//                 "func" => {
-//                     println!("Current token: {:?}", self.current_token());
-//                     self.advance(1);
-
-//                     let name: String = self.current_token().ok_or("Expected function name")?.clone();
-//                     self.advance(1);
-
-//                     self.expect("(")?;
-//                     let mut args: Vec<(String, String)> = Vec::new();
-//                     while self.current_token() != Some(&")".to_string()) {
-//                         let arg_name: String = self.current_token().ok_or("Expected argument name")?.clone();
-//                         self.advance(1);
-//                         self.expect(":")?;
-//                         let arg_type: String = self.current_token().ok_or("Expected argument type")?.clone();
-//                         self.advance(1);
-//                         args.push((arg_name, arg_type));
-//                         if self.current_token() == Some(&",".to_string()) {
-//                             self.advance(1);
-//                         }
-//                     }
-//                     self.expect(")")?;
-//                     self.expect(":")?;
-//                     let return_type: String = self.current_token().ok_or("Expected return type")?.clone();
-//                     self.advance(1);
-//                     self.expect("{")?;
-//                     let mut body: Vec<Expr> = Vec::new();
-//                     while self.current_token() != Some(&"}".to_string()) {
-//                         if let Some(expr) = self.parse_keyword()? {
-//                             body.push(expr);
-//                         } else {
-//                             body.push(self.parse_expr()?);
-//                             self.expect(";")?;
-//                         }
-//                     }
-                    
-//                     self.expect("}")?;
-//                     return Ok(Some(Expr::Func(name, args, return_type, body))); 
-//                 },
-//                 "for" => {
-//                     self.advance(1); // Skip past 'for'
-//                     self.expect("(")?;
-
-//                     let var: String = self.current_token().ok_or("Expected variable name")?.clone();
-//                     self.advance(1);
-//                     self.expect(";")?;
-
-//                     // let condition: Expr = self.parse_expr()?;
-//                     let mut condition: Vec<String> = Vec::new();
-//                     while self.current_token() != Some(&";".to_string()) {
-//                         condition.push(self.current_token().ok_or("Expected condition")?.clone());
-//                         self.advance(1);
-//                     }
-//                     let condition: String = condition.join(" ");
-
-//                     self.expect(";")?;
-
-//                     // let increment: Expr = self.parse_expr()?;
-//                     let mut increment: Vec<String> = Vec::new();
-//                     while self.current_token() != Some(&")".to_string()) {
-//                         increment.push(self.current_token().ok_or("Expected increment")?.clone());
-//                         self.advance(1);
-//                     }
-//                     let increment: String = increment.join(" ");
-                    
-//                     self.expect(")")?;
-
-//                     self.expect("{")?;
-//                     let mut body: Vec<Expr> = Vec::new();
-//                     while self.current_token() != Some(&"}".to_string()) {
-//                         if let Some(expr) = self.parse_keyword()? {
-//                             body.push(expr);
-//                         } else {
-//                             body.push(self.parse_expr()?);
-//                             self.expect(";")?;
-//                         }
-//                     }
-//                     self.expect("}")?;
-//                     return Ok(Some(Expr::For(var, condition, increment.to_string(), body)));
-//                 },
-//                 "while" => {
-//                     self.advance(1);
-//                     self.expect("(")?;
-//                     // let condition: Expr = self.parse_expr()?;
-//                     let mut condition: Vec<String> = Vec::new();
-//                     while self.current_token() != Some(&")".to_string()) {
-//                         condition.push(self.current_token().ok_or("Expected condition")?.clone());
-//                         self.advance(1);
-//                     }
-//                     let condition: String = condition.join(" ");
-//                     self.expect(")")?;
-//                     self.expect("{")?;
-//                     let mut body: Vec<Expr> = Vec::new();
-//                     while self.current_token() != Some(&"}".to_string()) {
-//                         if let Some(expr) = self.parse_keyword()? {
-//                             body.push(expr);
-//                         } else {
-//                             body.push(self.parse_expr()?);
-//                             self.expect(";")?;
-//                         }
-//                     }
-//                     self.expect("}")?;
-//                     return Ok(Some(Expr::While(condition, body)));
-//                 }
-//                 _ => {
-//                     if let Some(next_token) = self.tokens.get(self.current + 1) {
-//                         if next_token == "=" {
-//                             let name: String = token.clone();
-//                             self.advance(2);
-//                             let expr: Expr = self.parse_expr()?;
-//                             self.expect(";")?;
-//                             return Ok(Some(Expr::Set(name, Box::new(expr))));
-//                         }
-//                     }
-//                 }
-//             }
-
-//             Ok(None)
-//         } else {
-//             Err(ErrorHandler::UnexpectedEndOfProgram.to_string())
-//         }
-//     }
-
-//     fn parse_expr(&mut self) -> Result<Expr, String> {
-//         // Handle function calls first
-//         if let Some(token) = self.current_token() {
-//             if token.chars().all(|c| c.is_alphabetic()) {
-//                 let name: String = token.clone();
-//                 self.advance(1);
-//                 self.expect("(")?;
-//                 let mut args: Vec<Expr> = Vec::new();
-//                 while self.current_token() != Some(&")".to_string()) {
-//                     args.push(self.parse_expr()?);
-//                     if self.current_token() == Some(&",".to_string()) {
-//                         self.advance(1);
-//                     }
-//                 }
-//                 self.expect(")")?;
-//                 return Ok(Expr::FuncApp(name, args));
-//             }
-//         }
+// pub fn parse(expression: Pairs<Rule>) -> ASTNode {
+//     // this will be for generating the AST
+//     PRATT_PARSER
+//         .map_primary(|primary| match primary.as_rule() {
+//             Rule::int => ASTNode::Int(primary.as_str().parse().unwrap()),
+//             Rule::float => ASTNode::Float(primary.as_str().parse().unwrap()),
+//             Rule::string => ASTNode::String(primary.as_str().to_string()),
+//             Rule::Bool => ASTNode::Boolean(primary.as_str().parse().unwrap()),
+//             Rule::var_ref => ASTNode::VarRef(primary.as_str().to_string()),
+//             Rule::expr => parse(primary.into_inner()),
+//             _ => unreachable!(),
+//         })
+//         .map_infix(|lhs, op, rhs| match op.as_rule() {
+//             Rule::add => ASTNode::Add(Box::new(lhs), Box::new(rhs)),
+//             Rule::sub => ASTNode::Sub(Box::new(lhs), Box::new(rhs)),
+//             Rule::mul => ASTNode::Mul(Box::new(lhs), Box::new(rhs)),
+//             Rule::div => ASTNode::Div(Box::new(lhs), Box::new(rhs)),
+//             Rule::modulus => ASTNode::Mod(Box::new(lhs), Box::new(rhs)),
+//             Rule::pow => ASTNode::Pow(Box::new(lhs), Box::new(rhs)),
+//             Rule::eq => ASTNode::Eq(Box::new(lhs), Box::new(rhs)),
+//             Rule::neq => ASTNode::Ne(Box::new(lhs), Box::new(rhs)),
+//             Rule::gt => ASTNode::Gt(Box::new(lhs), Box::new(rhs)),
+//             Rule::gte => ASTNode::Gte(Box::new(lhs), Box::new(rhs)),
+//             Rule::lt => ASTNode::Lt(Box::new(lhs), Box::new(rhs)),
+//             Rule::lte => ASTNode::Lte(Box::new(lhs), Box::new(rhs)),
+//             Rule::and => ASTNode::And(Box::new(lhs), Box::new(rhs)),
+//             Rule::or => ASTNode::Or(Box::new(lhs), Box::new(rhs)),
+//             Rule::eq_assign => ASTNode::Set(lhs.to_string(), Box::new(rhs)),
+//             Rule::add_eq => ASTNode::SetAdd(lhs.to_string(), Box::new(rhs)),
+//             Rule::sub_eq => ASTNode::SetSub(lhs.to_string(), Box::new(rhs)),
+//             Rule::mul_eq => ASTNode::SetMul(lhs.to_string(), Box::new(rhs)),
+//             Rule::div_eq => ASTNode::SetDiv(lhs.to_string(), Box::new(rhs)),
+//             Rule::mod_eq => ASTNode::SetMod(lhs.to_string(), Box::new(rhs)),
+//             Rule::pow_eq => ASTNode::SetPow(lhs.to_string(), Box::new(rhs)),
+//             _ => unreachable!(),
+//         })
+//         .map_prefix(|op, expr| match op.as_rule() {
+//             Rule::neg => ASTNode::Neg(Box::new(expr)),
+//             Rule::not => ASTNode::Not(Box::new(expr)),
+//             _ => unreachable!(),
+//         })
+//         .map_postfix(|expr, op| match op.as_rule() {
+//             Rule::func_call => ASTNode::FuncCall(expr.to_string(), vec![]),
+//             _ => unreachable!(),
+//         })
+//         .parse(expression);
     
-//         // Handle string literals
-//         if let Some(token) = self.current_token() {
-//             if token.chars().next() == Some('"') {
-//                 let value: String = token.clone();
-//                 self.advance(1);
-//                 return Ok(Expr::String(value));
-//             }
-//         }
-
-//         // Handle other expressions (including comparisons)
-//         let mut left: Expr = self.parse_term()?; // parse_term handles basic expressions
-    
-//         // Parse comparison and arithmetic operators
-//         while let Some(op) = self.current_token().map(|t: &String| t.clone()) {
-//             match op.as_str() {
-//                 "==" | "!=" | "<" | "<=" | ">" | ">=" => {
-//                     self.advance(1);
-//                     let right: Expr = self.parse_term()?;
-//                     left = match op.as_str() {
-//                         "==" => Expr::IsEqual(Box::new(left), Box::new(right)),
-//                         "!=" => Expr::IsNE(Box::new(left), Box::new(right)),
-//                         "<"  => Expr::IsLT(Box::new(left), Box::new(right)),
-//                         "<=" => Expr::IsLTE(Box::new(left), Box::new(right)),
-//                         ">"  => Expr::IsGT(Box::new(left), Box::new(right)),
-//                         ">=" => Expr::IsGTE(Box::new(left), Box::new(right)),
-//                         _ => unreachable!(),
-//                     };
-//                 },
-//                 "+" | "-" => {
-//                     self.advance(1);
-//                     let right: Expr = self.parse_term()?;
-//                     left = match op.as_str() {
-//                         "+" => Expr::Add(Box::new(left), Box::new(right)),
-//                         "-" => Expr::Sub(Box::new(left), Box::new(right)),
-//                         _ => unreachable!(),
-//                     };
-//                 },
-//                 _ => break,
-//             }
-//         }
-//         Ok(left)
-//     }
-
-//     fn parse_term(&mut self) -> Result<Expr, String> {
-//         let mut left: Expr = self.parse_factor()?;
-        
-//         while let Some(op) = self.current_token().map(|t: &String| t.clone()) {
-//             match op.as_str() {
-//                 "*" | "/" | "^" => {
-//                     self.advance(1);
-//                     let right: Expr = self.parse_factor()?;
-//                     left = match op.as_str() {
-//                         "*" => Expr::Mul(Box::new(left), Box::new(right)),
-//                         "/" => Expr::Div(Box::new(left), Box::new(right)),
-//                         "^" => Expr::Pow(Box::new(left), Box::new(right)),
-//                         _ => unreachable!(),
-//                     };
-//                 },
-//                 _ => break,
-//             }
-//         }
-//         Ok(left)
-//     }
-
-//     fn parse_factor(&mut self) -> Result<Expr, String> {
-//         if let Some(token) = self.current_token() {
-//             match token.as_str() {
-//                 "(" => {
-//                     self.advance(1);
-//                     let expr: Expr = self.parse_expr()?;
-//                     self.expect(")")?;
-//                     Ok(expr)
-//                 },
-//                 _ if token.chars().all(|c: char| c.is_digit(10) || c == '.') => {
-//                     // Check if the token contains a dot to differentiate float from int
-//                     if token.contains('.') {
-//                         let value: f64 = token.parse::<f64>().map_err(|e| e.to_string())?;
-//                         self.advance(1);
-//                         Ok(Expr::Float(value))
-//                     } else {
-//                         let value: i64 = token.parse::<i64>().map_err(|e| e.to_string())?;
-//                         self.advance(1);
-//                         Ok(Expr::Int(value))
-//                     }
-//                 },
-//                 _ if token.chars().all(|c: char| c.is_alphabetic()) => {
-//                     let name: String = token.clone();
-//                     self.advance(1);
-//                     Ok(Expr::VarRef(name))
-//                 },
-//                 _ => Err(format!("Unexpected token: {}", token)),
-//             }
-//         } else {
-//             Err("Unexpected end of input".to_string())
-//         }
-//     }
-
-//     pub fn parse(&mut self) -> Result<Vec<Expr>, String> {
-//         let mut ast: Vec<Expr> = Vec::new();
-//         while self.current_token().is_some() {
-//             if let Some(expr) = self.parse_keyword()? {
-//                 ast.push(expr);
-//             } else {
-//                 let expr: Expr = self.parse_expr()?;
-//                 ast.push(expr);
-    
-//                 // Only expect a semicolon if the current token is not a closing brace
-//                 // if self.current_token() != Some(&"}".to_string()) {
-//                 //     self.expect(";")?;
-//                 // }
-//             }
-//         }
-//         Ok(ast)
-//     }
+//     ASTNode::Unknown
 // }
 
-use peginator::PegParser;
-use peginator_macro::peginate;
-
-// peginate!("
-// // Literals
-// IntExpr = {'0'..'9'};
-// FloatExpr = {'0'..'9' | '.'};
-// StringExpr = {'\"'} {'a'..'z' | 'A'..'Z' | '0'..'9' | ' ' | '.'} {'\"'};
-// BoolExpr = {'true' | 'false'};
-
-// // Types
-// Type = {'Int' | 'Float' | 'String' | 'Bool'};
-
-// @string
-// @no_skip_ws
-// Ident = {'a'..'z' | 'A'..'Z' | '_' | '0'..'9'};
-
-// LetDecl = 'let' Ident ':' Type '=' Expr ';';
-// DelDecl = 'del' Ident ';';
-// IfExpr = 'if' '(' Expr ')' '{' Expr* '}' ('elif' Expr '{' Expr* '}')* ('else' '{' Expr* '}' )?;
-// ForExpr = 'for' '(' Ident ';' Expr ';' Expr ')' '{' Expr* '}';
-// WhileExpr = 'while' '(' Expr ')' '{' Expr* '}';
-// BreakExpr = 'break' ';';
-// ContinueExpr = 'continue' ';';
-// FuncDecl = 'func' Ident '(' (Ident ':' Type (',' Ident ':' Type)*)? ')' ':' Type '{' Expr* '}';
-// FuncApp = Ident '(' Expr* ')';
-// ReturnExpr = 'return' Expr ';';
-// TrueExpr = 'true';
-// FalseExpr = 'false';
-// ParenExpr = '(' Expr ')';
-// VarRef = Ident;
-
-// @no_skip_ws
-// Whitespace = {Comment | ' ' | '\n' | '\t'};
-
-// @no_skip_ws
-// Comment = '//' (!'\n' .)* '\n' | '/*' (!'*/' .)* '*/';
-
-// @leftrec
-// AS = @:Add | @:Sub | @:Term;
-// Add = left:*AS '+' right:MD;
-// Sub = left:*AS '-' right:MD;
-
-// @leftrec
-// MD = @:Mul | @:Div | @:Mod | @:Factor;
-// Mul = left:*MD '*' right:Factor;
-// Div = left:*MD '/' right:Factor;
-// Mod = left:*MD '%' right:Factor;
-
-// @memoize
-// Factor = @:ParenExpr | @:IntExpr | @:FloatExpr;
-
-// @leftrec
-// Expr = @:AS | @:LetDecl | @:DelDecl | @:IfExpr | @:ForExpr | @:WhileExpr | @:BreakExpr | @:ContinueExpr | @:FuncDecl | @:FuncApp | @:ReturnExpr | @:TrueExpr | @:FalseExpr | @:StringExpr | @:VarRef;
-
-// @export
-// Program = Expr*;
-// ");
-
-// fn main() {
-//     let result = Program::parse("1+1");
-//     println!("{:?}", result);
-// }
-
-peginate!("
-IntExpr = {'0'..'9'};
-
-@leftrec
-AS = @:Add | @:Sub | @:MD;
-Add = left:*AS '+' right:MD;
-Sub = left:*AS '-' right:MD;
-
-@leftrec
-MD = @:Mul | @:Div | @:Factor;
-Mul = left:*MD '*' right:Factor;
-Div = left:*MD '/' right:Factor;
-
-Factor = @:IntExpr | @:ParenExpr;
-ParenExpr = '(' AS ')';
-
-@export
-Expr = AS;
-");
-
-pub fn parse(input: &str) -> Result<Expr, String> {
-    let result = Expr::parse(input);
-    match result {
-        Ok(expr) => Ok(expr),
-        Err(e) => Err(e.to_string()),
-    }
+// use the regular pest parser not the pratt parser
+pub fn parse(expression: &str) {
+    
 }

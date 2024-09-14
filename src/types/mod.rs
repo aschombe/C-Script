@@ -1,32 +1,38 @@
 #[derive(Debug, Clone)]
 pub enum Type {
-    IntType,
-    FloatType,
-    BoolType,
-    ListType,
-    // VoidType,
-    // TupleType(Vec<Type>),
-    RefType(Box<Type>),
+    Int,
+    Float,
+    String,
+    Boolean,
+    Void,
+    List,
+    Tuple,
 }
 
+// implement to_string for Type
 impl Type {
     pub fn to_string(&self) -> String {
         match self {
-            Type::IntType => "int".to_string(),
-            Type::FloatType => "float".to_string(),
-            Type::BoolType => "bool".to_string(),
-            Type::ListType => "list".to_string(),
-            // Type::VoidType => "void".to_string(),
-            // Type::TupleType(t) => {
-            //     let mut s: String = "tuple(".to_string();
-            //     for t in t {
-            //         s += &t.to_string();
-            //         s += ", ";
-            //     }
-            //     s += ")";
-            //     s
-            // },
-            Type::RefType(t) => format!("ref {}", t.to_string()),
+            Type::Int => "int".to_string(),
+            Type::Float => "float".to_string(),
+            Type::String => "string".to_string(),
+            Type::Boolean => "bool".to_string(),
+            Type::Void => "void".to_string(),
+            Type::List => "list".to_string(),
+            Type::Tuple => "tuple".to_string(),
+        }
+    }
+
+    pub fn to_type(value: &str) -> Type {
+        match value {
+            "int" => Type::Int,
+            "float" => Type::Float,
+            "string" => Type::String,
+            "bool" => Type::Boolean,
+            "void" => Type::Void,
+            "list" => Type::List,
+            "tuple" => Type::Tuple,
+            _ => Type::Void,
         }
     }
 }
