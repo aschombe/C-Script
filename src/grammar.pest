@@ -42,45 +42,24 @@ del_stmt = { "del" ~ ident ~ ";" }
 var_ref = { ident }
 
 // Literals
-int = { Integer }
-float = { Float }
-string = { String }
-bool = { Bool }
+int = @{ Integer }
+float = @{ Float }
+string = @{ String }
+bool = @{ Bool }
 
 // Expressions
-
-// Base expressions
-factor = _{ int | float | string | bool | "(" ~ expr ~ ")" | var_ref | func_call }
-
-// Unary Operators (Precedence 1)
-unary_expr = _{ (neg | not) ~ factor }
-
-// Exponentiation (Precedence 2)
-exponent_expr = _{ unary_expr ~ (pow ~ unary_expr)* }
-
-// Multiplication, Division, Modulus (Precedence 3)
-term = _{ exponent_expr ~ (mul | div | modulus) ~ exponent_expr }
-
-// Addition, Subtraction (Precedence 4)
-expression = _{ term ~ (add | sub) ~ term }
-
-// Comparison (Precedence 5)
-comparison_expr = _{ expression ~ (lt | lte | gt | gte) ~ expression }
-
-// Equality (Precedence 6)
-equality_expr = _{ comparison_expr ~ (eq | neq) ~ comparison_expr }
-
-// Logical And (Precedence 7)
-and_expr = _{ equality_expr ~ (and ~ equality_expr)* }
-
-// Logical Or (Precedence 8)
+expr = _{ bin_expr | un_expr | int | float | string | bool | var_ref | func_call }
+bin_expr = _{ or_expr }
+un_expr = _{ un_ops ~ expr }
 or_expr = _{ and_expr ~ (or ~ and_expr)* }
-
-// Assignment (Precedence 9)
-assignment_expr = _{ or_expr ~ (eq_assign | add_eq | sub_eq | mul_eq | div_eq | mod_eq | pow_eq) ~ or_expr }
-
-// Top-Level Expression
-expr = _{ assignment_expr | func_call | "(" ~ expr ~ ")" }
+and_expr = _{ equality_expr ~ (and ~ equality_expr)* }
+equality_expr = _{ comparison_expr ~ (eq | neq ~ comparison_expr)* }
+comparison_expr = _{ additive_expr ~ (lt | lte | gt | gte ~ additive_expr)* }
+additive_expr = _{ multiplicative_expr ~ (add | sub ~ multiplicative_expr)* }
+multiplicative_expr = _{ power_expr ~ (mul | div | modulus ~ power_expr)* }
+power_expr = _{ unary_expr ~ (pow ~ unary_expr)* }
+unary_expr = _{ (not | neg)* ~ primary_expr }
+primary_expr = _{ int | float | string | bool | var_ref | func_call | "(" ~ expr ~ ")" }
 
 // Control Flow
 iee = { "if" ~ "(" ~ expr ~ ")" ~ "{" ~ stmt* ~ "}" ~ elif* ~ else_? }
@@ -105,7 +84,7 @@ exprs = { expr ~ ("," ~ expr)* }
 return_stmt = { "return" ~ expr ~ ";" }
 
 // Statements
-stmt = _{ let_stmt | set_stmt | del_stmt | expr | iee | switch | for_loop | while_loop | continue_stmt | break_stmt | func_def | func_call | return_stmt }
+stmt = _{"\n"* ~ (let_stmt | set_stmt | del_stmt | expr | iee | switch | for_loop | while_loop | continue_stmt | break_stmt | func_def | func_call | return_stmt) }
 program = _{ stmt* }
 
 // Whitespace

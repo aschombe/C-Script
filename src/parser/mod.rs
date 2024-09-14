@@ -127,86 +127,128 @@ WHITESPACE = _{ " " | "\n" | "\t" | ("//" ~ (!"\n" ~ ANY)*) | ("/*" ~ (!"*/" ~ A
 
 use pest_derive::Parser;
 use pest::Parser;
-// import the pratt parser
-// use pest::{iterators::Pairs, pratt_parser::{Assoc, Op, PrattParser}};
-// use lazy_static::lazy_static;
+use pest::iterators::Pairs;
+use pest::error::Error;
 
 use crate::ast::ASTNode;
+use crate::types::Type;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
 struct RssParser;
 
-// lazy_static! {
-//     static ref PRATT_PARSER: PrattParser<Rule> = {
-//         use Rule::*;
-//         use Assoc::*;
+pub fn parse(expression: &str) -> Vec<ASTNode> {
 
-//         PrattParser::new()
-//             .op(Op::infix(add, Left) | Op::infix(sub, Left))
-//             .op(Op::infix(mul, Left) | Op::infix(div, Left))
-//             .op(Op::infix(modulus, Left))
-//             .op(Op::infix(pow, Right))
-//             .op(Op::infix(eq, Left) | Op::infix(neq, Left))
-//             .op(Op::infix(gt, Left) | Op::infix(gte, Left) | Op::infix(lt, Left) | Op::infix(lte, Left))
-//             .op(Op::infix(and, Left))
-//             .op(Op::infix(or, Left))
-//             .op(Op::prefix(neg) | Op::prefix(not))
-//             .op(Op::infix(eq_assign, Right) | Op::infix(add_eq, Right) | Op::infix(sub_eq, Right) | Op::infix(mul_eq, Right) | Op::infix(div_eq, Right) | Op::infix(mod_eq, Right) | Op::infix(pow_eq, Right))
-//     };
-// }
-
-// pub fn parse(expression: Pairs<Rule>) -> ASTNode {
-//     // this will be for generating the AST
-//     PRATT_PARSER
-//         .map_primary(|primary| match primary.as_rule() {
-//             Rule::int => ASTNode::Int(primary.as_str().parse().unwrap()),
-//             Rule::float => ASTNode::Float(primary.as_str().parse().unwrap()),
-//             Rule::string => ASTNode::String(primary.as_str().to_string()),
-//             Rule::Bool => ASTNode::Boolean(primary.as_str().parse().unwrap()),
-//             Rule::var_ref => ASTNode::VarRef(primary.as_str().to_string()),
-//             Rule::expr => parse(primary.into_inner()),
-//             _ => unreachable!(),
-//         })
-//         .map_infix(|lhs, op, rhs| match op.as_rule() {
-//             Rule::add => ASTNode::Add(Box::new(lhs), Box::new(rhs)),
-//             Rule::sub => ASTNode::Sub(Box::new(lhs), Box::new(rhs)),
-//             Rule::mul => ASTNode::Mul(Box::new(lhs), Box::new(rhs)),
-//             Rule::div => ASTNode::Div(Box::new(lhs), Box::new(rhs)),
-//             Rule::modulus => ASTNode::Mod(Box::new(lhs), Box::new(rhs)),
-//             Rule::pow => ASTNode::Pow(Box::new(lhs), Box::new(rhs)),
-//             Rule::eq => ASTNode::Eq(Box::new(lhs), Box::new(rhs)),
-//             Rule::neq => ASTNode::Ne(Box::new(lhs), Box::new(rhs)),
-//             Rule::gt => ASTNode::Gt(Box::new(lhs), Box::new(rhs)),
-//             Rule::gte => ASTNode::Gte(Box::new(lhs), Box::new(rhs)),
-//             Rule::lt => ASTNode::Lt(Box::new(lhs), Box::new(rhs)),
-//             Rule::lte => ASTNode::Lte(Box::new(lhs), Box::new(rhs)),
-//             Rule::and => ASTNode::And(Box::new(lhs), Box::new(rhs)),
-//             Rule::or => ASTNode::Or(Box::new(lhs), Box::new(rhs)),
-//             Rule::eq_assign => ASTNode::Set(lhs.to_string(), Box::new(rhs)),
-//             Rule::add_eq => ASTNode::SetAdd(lhs.to_string(), Box::new(rhs)),
-//             Rule::sub_eq => ASTNode::SetSub(lhs.to_string(), Box::new(rhs)),
-//             Rule::mul_eq => ASTNode::SetMul(lhs.to_string(), Box::new(rhs)),
-//             Rule::div_eq => ASTNode::SetDiv(lhs.to_string(), Box::new(rhs)),
-//             Rule::mod_eq => ASTNode::SetMod(lhs.to_string(), Box::new(rhs)),
-//             Rule::pow_eq => ASTNode::SetPow(lhs.to_string(), Box::new(rhs)),
-//             _ => unreachable!(),
-//         })
-//         .map_prefix(|op, expr| match op.as_rule() {
-//             Rule::neg => ASTNode::Neg(Box::new(expr)),
-//             Rule::not => ASTNode::Not(Box::new(expr)),
-//             _ => unreachable!(),
-//         })
-//         .map_postfix(|expr, op| match op.as_rule() {
-//             Rule::func_call => ASTNode::FuncCall(expr.to_string(), vec![]),
-//             _ => unreachable!(),
-//         })
-//         .parse(expression);
-    
-//     ASTNode::Unknown
-// }
-
-// use the regular pest parser not the pratt parser
-pub fn parse(expression: &str) {
-    
+    let mut ast: Vec<ASTNode> = Vec::new();
+    let pairs: Result<Pairs<'_, Rule>, Error<Rule>> = RssParser::parse(Rule::stmt, expression);
+    // match pairs {
+    //     Ok(pairs) => {
+    //         for pair in pairs {
+    //             println!("{:?}", pair);
+    //         }
+    //     },
+    //     Err(e) => {
+    //         println!("{}", e);
+    //     }
+    // }
+    // lets actually generate AST now based on the pair rules
+    match pairs {
+        Ok(pairs) => {
+            for pair in pairs {
+                match pair.as_rule() {
+                    Rule::WHITESPACE => {},
+                    Rule::let_stmt => {
+                        let mut children: Pairs<'_, Rule> = pair.into_inner();
+                        let ident: &str = children.next().unwrap().as_str();
+                        let type_: &str = children.next().unwrap().as_str();
+                        let expr: &str = children.next().unwrap().as_str();
+                        ast.push(ASTNode::Let(ident.to_string(), *Box::new(Type::to_type(type_)), Box::new(ASTNode::Int(expr.parse().unwrap()))));
+                    },
+                    Rule::set_stmt => {
+                        let mut children: Pairs<'_, Rule> = pair.into_inner();
+                        let ident: &str = children.next().unwrap().as_str();
+                        let expr: &str = children.next().unwrap().as_str();
+                        ast.push(ASTNode::Set(ident.to_string(), Box::new(ASTNode::Int(expr.parse::<i64>().unwrap()))));
+                    },
+                    Rule::del_stmt => {
+                        let ident: &str = pair.into_inner().next().unwrap().as_str();
+                        ast.push(ASTNode::Del(ident.to_string()));
+                    },
+                    // Rule::var_ref => {
+                    //     let ident: &str = pair.as_str();
+                    //     ast.push(ASTNode::VarRef(ident.to_string()));
+                    // },
+                    // Rule::int => {
+                    //     let int: i64 = pair.as_str().parse::<i64>().unwrap();
+                    //     ast.push(ASTNode::Int(int));
+                    // },
+                    // Rule::float => {
+                    //     let float: f64 = pair.as_str().parse::<f64>().unwrap();
+                    //     ast.push(ASTNode::Float(float));
+                    // },
+                    // Rule::string => {
+                    //     let string: &str = pair.as_str();
+                    //     ast.push(ASTNode::String(string.to_string()));
+                    // },
+                    // Rule::Bool => {
+                    //     let bool_: bool = pair.as_str().parse::<bool>().unwrap();
+                    //     ast.push(ASTNode::Boolean(bool_));
+                    // },
+                    Rule::add | Rule::sub | Rule::mul | Rule::div | Rule::modulus | Rule::pow | Rule::and | Rule::or | Rule::eq | Rule::neq | Rule::gt | Rule::lt => {
+                        let mut children: Pairs<'_, Rule> = pair.clone().into_inner();
+                        let left: ASTNode = parse(children.next().unwrap().as_str())[0].clone();
+                        let right: ASTNode = parse(children.next().unwrap().as_str())[0].clone();
+                        match pair.as_rule() {
+                            Rule::add => {
+                                ast.push(ASTNode::Add(Box::new(left), Box::new(right)));
+                            },
+                            Rule::sub => {
+                                ast.push(ASTNode::Sub(Box::new(left), Box::new(right)));
+                            },
+                            Rule::mul => {
+                                ast.push(ASTNode::Mul(Box::new(left), Box::new(right)));
+                            },
+                            Rule::div => {
+                                ast.push(ASTNode::Div(Box::new(left), Box::new(right)));
+                            },
+                            Rule::modulus => {
+                                ast.push(ASTNode::Mod(Box::new(left), Box::new(right)));
+                            },
+                            Rule::pow => {
+                                ast.push(ASTNode::Pow(Box::new(left), Box::new(right)));
+                            },
+                            Rule::and => {
+                                ast.push(ASTNode::And(Box::new(left), Box::new(right)));
+                            },
+                            Rule::or => {
+                                ast.push(ASTNode::Or(Box::new(left), Box::new(right)));
+                            },
+                            Rule::eq => {
+                                ast.push(ASTNode::Eq(Box::new(left), Box::new(right)));
+                            },
+                            Rule::neq => {
+                                ast.push(ASTNode::Ne(Box::new(left), Box::new(right)));
+                            },
+                            Rule::gt => {
+                                ast.push(ASTNode::Gt(Box::new(left), Box::new(right)));
+                            },
+                            Rule::lt => {
+                                ast.push(ASTNode::Lt(Box::new(left), Box::new(right)));
+                            },
+                            _ => {
+                                println!("Rule not implemented yet");
+                            }
+                        }
+                    },
+                    _ => {
+                        println!("Rule not implemented yet");
+                    }
+                }
+            }
+        },
+        Err(e) => {
+            println!("{}", e);
+        }
+    }
+    ast
 }
