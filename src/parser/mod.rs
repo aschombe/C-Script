@@ -373,68 +373,91 @@
 use peginator::PegParser;
 use peginator_macro::peginate;
 
+// peginate!("
+// // Literals
+// IntExpr = {'0'..'9'};
+// FloatExpr = {'0'..'9' | '.'};
+// StringExpr = {'\"'} {'a'..'z' | 'A'..'Z' | '0'..'9' | ' ' | '.'} {'\"'};
+// BoolExpr = {'true' | 'false'};
+
+// // Types
+// Type = {'Int' | 'Float' | 'String' | 'Bool'};
+
+// @string
+// @no_skip_ws
+// Ident = {'a'..'z' | 'A'..'Z' | '_' | '0'..'9'};
+
+// LetDecl = 'let' Ident ':' Type '=' Expr ';';
+// DelDecl = 'del' Ident ';';
+// IfExpr = 'if' '(' Expr ')' '{' Expr* '}' ('elif' Expr '{' Expr* '}')* ('else' '{' Expr* '}' )?;
+// ForExpr = 'for' '(' Ident ';' Expr ';' Expr ')' '{' Expr* '}';
+// WhileExpr = 'while' '(' Expr ')' '{' Expr* '}';
+// BreakExpr = 'break' ';';
+// ContinueExpr = 'continue' ';';
+// FuncDecl = 'func' Ident '(' (Ident ':' Type (',' Ident ':' Type)*)? ')' ':' Type '{' Expr* '}';
+// FuncApp = Ident '(' Expr* ')';
+// ReturnExpr = 'return' Expr ';';
+// TrueExpr = 'true';
+// FalseExpr = 'false';
+// ParenExpr = '(' Expr ')';
+// VarRef = Ident;
+
+// @no_skip_ws
+// Whitespace = {Comment | ' ' | '\n' | '\t'};
+
+// @no_skip_ws
+// Comment = '//' (!'\n' .)* '\n' | '/*' (!'*/' .)* '*/';
+
+// @leftrec
+// AS = @:Add | @:Sub | @:Term;
+// Add = left:*AS '+' right:MD;
+// Sub = left:*AS '-' right:MD;
+
+// @leftrec
+// MD = @:Mul | @:Div | @:Mod | @:Factor;
+// Mul = left:*MD '*' right:Factor;
+// Div = left:*MD '/' right:Factor;
+// Mod = left:*MD '%' right:Factor;
+
+// @memoize
+// Factor = @:ParenExpr | @:IntExpr | @:FloatExpr;
+
+// @leftrec
+// Expr = @:AS | @:LetDecl | @:DelDecl | @:IfExpr | @:ForExpr | @:WhileExpr | @:BreakExpr | @:ContinueExpr | @:FuncDecl | @:FuncApp | @:ReturnExpr | @:TrueExpr | @:FalseExpr | @:StringExpr | @:VarRef;
+
+// @export
+// Program = Expr*;
+// ");
+
+// fn main() {
+//     let result = Program::parse("1+1");
+//     println!("{:?}", result);
+// }
+
 peginate!("
-// Literals
-Int = {'0'..'9'};
-Float = {'0'..'9' | '.'};
-String = {'\"'} {'a'..'z' | 'A'..'Z' | '0'..'9' | ' ' | '.'} {'\"'};
-Bool = {'true' | 'false'};
-
-// Types
-Type = {'Int' | 'Float' | 'String' | 'Bool'};
-
-@string
-@no_skip_ws
-Ident = {'a'..'z' | 'A'..'Z' | '_' | '0'..'9'};
-
-LetDecl = 'let' Ident ':' Type '=' Expr ';';
-DelDecl = 'del' Ident ';';
-IfExpr = 'if' '(' Expr ')' '{' Expr* '}' ('elif' Expr '{' Expr* '}')* ('else' '{' Expr* '}' )?;
-ForExpr = 'for' '(' Ident ';' Expr ';' Expr ')' '{' Expr* '}';
-WhileExpr = 'while' '(' Expr ')' '{' Expr* '}';
-BreakExpr = 'break' ';';
-ContinueExpr = 'continue' ';';
-FuncDecl = 'func' Ident '(' (Ident ':' Type (',' Ident ':' Type)*)? ')' ':' Type '{' Expr* '}';
-FuncApp = Ident '(' Expr* ')';
-ReturnExpr = 'return' Expr ';';
-TrueExpr = 'true';
-FalseExpr = 'false';
-ParenExpr = '(' Expr ')';
-StringExpr = String;
-IntExpr = Int;
-FloatExpr = Float;
-BoolExpr = Bool;
-VarRef = Ident;
-
-@no_skip_ws
-Whitespace = {Comment | ' ' | '\n' | '\t'};
-
-@no_skip_ws
-Comment = '//' (!'\n' .)* '\n' | '/*' (!'*/' .)* '*/';
+IntExpr = {'0'..'9'};
 
 @leftrec
-AS = @:Add | @:Sub | @:Term;
+AS = @:Add | @:Sub | @:MD;
 Add = left:*AS '+' right:MD;
 Sub = left:*AS '-' right:MD;
 
 @leftrec
-MD = @:Mul | @:Div | @:Mod | @:Factor;
+MD = @:Mul | @:Div | @:Factor;
 Mul = left:*MD '*' right:Factor;
 Div = left:*MD '/' right:Factor;
-Mod = left:*MD '%' right:Factor;
 
-@memoize
-Factor = @:ParenExpr | @:Int | @:Float;
-
-@leftrec
-Expr = @:AS | @:LetDecl | @:DelDecl | @:IfExpr | @:ForExpr | @:WhileExpr | @:BreakExpr | @:ContinueExpr | @:FuncDecl | @:FuncApp | @:ReturnExpr | @:TrueExpr | @:FalseExpr | @:StringExpr | @:VarRef;
+Factor = @:IntExpr | @:ParenExpr;
+ParenExpr = '(' AS ')';
 
 @export
-@no_skip_ws
-Program = Expr*;
+Expr = AS;
 ");
 
-fn main() {
-    let result = Program::parse("1+1");
-    println!("{:?}", result);
+pub fn parse(input: &str) -> Result<Expr, String> {
+    let result = Expr::parse(input);
+    match result {
+        Ok(expr) => Ok(expr),
+        Err(e) => Err(e.to_string()),
+    }
 }

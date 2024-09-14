@@ -113,6 +113,7 @@
 
 use rss::error_handler::ErrorHandler;
 use rss::interp::Interpreter;
+use rss::parser;
 
 static CODE: &str = r#"
 // let x:float = (5.0 + 1.0) * 2.0;
@@ -167,13 +168,13 @@ static CODE: &str = r#"
 
 fn main() {
     // tokenize the code
-    let tokens: Vec<String> = rss::tokenizer::tokenize(CODE);
-    println!("Tokenized: {:?}", tokens);
+    // let tokens: Vec<String> = rss::tokenizer::tokenize(CODE);
+    // println!("Tokenized: {:?}", tokens);
     
-    if tokens.is_empty() {
-        println!("{}", ErrorHandler::NoProgram);
-        return;
-    }
+    // if tokens.is_empty() {
+    //     println!("{}", ErrorHandler::NoProgram);
+    //     return;
+    // }
 
     // parse and interpret
     // println!("Parsed:");
@@ -197,5 +198,11 @@ fn main() {
     //     Ok(ast) => println!("{:#?}", ast),
     //     Err(err) => println!("{}", err),
     // }
+
+    // trying peginator
+    match parser::parse("1 + 1") {
+        Ok(ast) => println!("{:#?}", ast),
+        Err(err) => println!("{}", err),
+    }
 
 }

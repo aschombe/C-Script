@@ -275,6 +275,52 @@ impl Expr {
             Expr::WIP(s) => "WIP(".to_string() + s + ")",
         }
     }
+
+    // pub fn eval(&self) -> Result<f64, String> {
+    //     match self {
+    //         Expr::Int(i) => Ok(*i as f64),
+    //         Expr::Float(f) => Ok(*f),
+    //         Expr::Add(lhs, rhs) => {
+    //             let left = lhs.eval()?;
+    //             let right = rhs.eval()?;
+    //             Ok(left + right)
+    //         }
+    //         Expr::Sub(lhs, rhs) => {
+    //             let left = lhs.eval()?;
+    //             let right = rhs.eval()?;
+    //             Ok(left - right)
+    //         }
+    //         Expr::Mul(lhs, rhs) => {
+    //             let left = lhs.eval()?;
+    //             let right = rhs.eval()?;
+    //             Ok(left * right)
+    //         }
+    //         Expr::Div(lhs, rhs) => {
+    //             let left = lhs.eval()?;
+    //             let right = rhs.eval()?;
+    //             if right == 0.0 {
+    //                 Err("Division by zero".to_string())
+    //             } else {
+    //                 Ok(left / right)
+    //             }
+    //         }
+    //         Expr::Mod(lhs, rhs) => {
+    //             let left = lhs.eval()?;
+    //             let right = rhs.eval()?;
+    //             Ok(left % right)
+    //         }
+    //         Expr::Pow(lhs, rhs) => {
+    //             let left = lhs.eval()?;
+    //             let right = rhs.eval()?;
+    //             Ok(left.powf(right))
+    //         }
+    //         Expr::Abs(e) => {
+    //             let val = e.eval()?;
+    //             Ok(val.abs())
+    //         }
+    //         _ => Err("Unsupported operation".to_string()),
+    //     }
+    // }
 }
 
 // std::fmt::Display
@@ -434,5 +480,3 @@ impl std::fmt::Display for Expr {
         }
     }
 }
-
-            
