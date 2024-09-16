@@ -7,26 +7,68 @@ exception RunTimeError of string
 let env = create_scope ()
 
 let rec interp_ast = function
-  | Int n -> n
-  | Float f -> int_of_float f
-  | Bool b -> if b then 1 else 0
-  | Var v -> (try get_var v with Not_found -> raise (RunTimeError ("variable not found: " ^ v)))
+  | Int n -> return n
+  | Float f -> return (int_of_float f)
+  | Bool b -> return (if b then 1 else 0)
+  | Var v -> return (try Hashtbl.find var_env v with Not_found -> raise (RunTimeError ("variable not found: " ^ v)))
   | BinOp (op, e1, e2) -> (
     match op with
-    | Add -> v1 + v2
-    | Sub -> v1 - v2
-    | Mul -> v1 * v2
-    | Div -> if v2 = 0 then raise (RunTimeError "division by zero") else v1 / v2
-    | Mod -> if v2 = 0 then raise (RunTimeError "division by zero") else v1 mod v2
-    | Pow -> int_of_float (float_of_int v1 ** float_of_int v2)
-    | Eq -> if v1 = v2 then 1 else 0
-    | Neq -> if v1 <> v2 then 1 else 0
-    | Lt -> if v1 < v2 then 1 else 0
-    | Gt -> if v1 > v2 then 1 else 0
-    | Lte -> if v1 <= v2 then 1 else 0
-    | Gte -> if v1 >= v2 then 1 else 0
-    | And -> if v1 <> 0 && v2 <> 0 then 1 else 0
-    | Or -> if v1 <> 0 || v2 <> 0 then 1 else 0
+    | Add ->
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        v1 + v2
+    | Sub ->
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        v1 - v2
+    | Mul ->
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        v1 * v2
+    | Div ->
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        if v2 = 0 then raise (RunTimeError "division by zero") else v1 / v2
+    | Mod ->
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        if v2 = 0 then raise (RunTimeError "division by zero") else v1 mod v2
+    | Pow ->
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        int_of_float (float_of_int v1 ** float_of_int v2)
+    | Eq ->
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        if v1 = v2 then 1 else 0
+    | Neq ->
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        if v1 <> v2 then 1 else 0
+    | Lt -> 
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        if v1 < v2 then 1 else 0
+    | Gt -> 
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        if v1 > v2 then 1 else 0
+    | Lte -> 
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        if v1 <= v2 then 1 else 0
+    | Gte -> 
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        if v1 >= v2 then 1 else 0
+    | And -> 
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        if v1 <> 0 then v2 else 0
+    | Or -> 
+        let v1 = interp_ast e1 in
+        let v2 = interp_ast e2 in
+        if v1 <> 0 then 1 else v2
     )
   | UnOp (op, e) -> (
     let v = interp_ast e in
