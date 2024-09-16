@@ -15,11 +15,11 @@ let rec interp_ast = function
     let v1 = interp_ast e1 in
     let v2 = interp_ast e2 in
     match op with
-    | Add -> v1 + v2
-    | Sub -> v1 - v2
-    | Mul -> v1 * v2
-    | Div -> if v2 = 0.0 then raise (RunTimeError "division by zero") else v1 / v2
-    | Mod -> if v2 = 0.0 then raise (RunTimeError "division by zero") else v1 mod v2
+    | Add -> v1 +. v2
+    | Sub -> v1 -. v2
+    | Mul -> v1 *. v2
+    | Div -> if v2 = 0.0 then raise (RunTimeError "division by zero") else v1 /. v2
+    | Mod -> if v2 = 0.0 then raise (RunTimeError "division by zero") else v1 mod_float v2
     | Pow -> int_of_float (float_of_int v1 ** float_of_int v2)
     | Eq  -> if v1 = v2 then 1.0 else 0.0
     | Neq -> if v1 <> v2 then 1.0 else 0.0
@@ -122,5 +122,3 @@ let interp (path: string) : int =
   let lexbuf = Lexing.from_string content in
   let ast = Parser.main Lexer.tokenizer lexbuf in
   interp_ast ast
-
-
