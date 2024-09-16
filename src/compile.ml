@@ -1,4 +1,8 @@
-(* WIP COMPILERS *)
+(* WIP COMPILER
+This will compile to llvm ir code
+*)
+
+open Ast
 
 let compile (path: string) : unit =
   let content = read_file path in
@@ -7,4 +11,4 @@ let compile (path: string) : unit =
   compile_ast ast
 
 let rec compile_ast = function
-  _ -> print_endline "Not implemented yet"
+  | _ -> print_endline "Not implemented yet"

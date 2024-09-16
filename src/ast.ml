@@ -1,6 +1,5 @@
 (* ast.ml *)
 
-
 type bin_op = 
 | Add 
 | Sub 
@@ -43,9 +42,6 @@ type func_types =
 | StringType
 | VoidType
 
-(* type prog = expr list
-and 
-type expr = *)
 type expr =
 | Int of int
 | Float of float
