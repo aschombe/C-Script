@@ -54,7 +54,6 @@ and expr =
 | Let of string * var_types * expr
 | Set of string * assign_op * expr
 | Del of string
-| Get of string
   (* 
     if (cond) {
       expr1
@@ -161,7 +160,6 @@ let rec string_of_expr e =
     | Some e -> "(" ^ (string_of_expr e) ^ ")"
     | None -> "None") ^ ")"
   | Exit e -> "Exit(" ^ (string_of_expr e) ^ ")"
-  | _ -> "Not implemented"
 and string_of_type = function
   | IntType -> "int"
   | FloatType -> "float"
