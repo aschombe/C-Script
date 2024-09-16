@@ -111,5 +111,6 @@ let rec interp = function
   )
   | Break -> raise (RunTimeError "break")
   | Continue -> raise (RunTimeError "continue")
-  | Return e -> (match e with Some e -> interp e | None -> 0)
+  | Return e -> (mat
+  ch e with Some e -> interp e | None -> 0)
   | Exit e -> raise (RunTimeError ("exit: " ^ string_of_int (interp e)))
