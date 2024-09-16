@@ -31,22 +31,22 @@ rule tokenizer = parse
     | "%=" { MOD_EQ }
     | "^=" { POW_EQ }
     | "!" { NOT }
-    | "~" { NEG }
+    (* | "~" { NEG } *)
     | "let" { LET }
     | "del" { DEL }
-    | "if" { IF }
-    | "elif" { ELIF }
-    | "else" { ELSE }
+    (* | "if" { IF } *)
+    (* | "elif" { ELIF } *)
+    (* | "else" { ELSE } *)
     | "fn" { FN }
-    | "switch" { SWITCH }
-    | "case" { CASE }
-    | "default" { DEFAULT }
+    (* | "switch" { SWITCH } *)
+    (* | "case" { CASE } *)
+    (* | "default" { DEFAULT } *)
     | "for" { FOR }
     | "while" { WHILE }
-    | "break" { BREAK }
-    | "continue" { CONTINUE }
-    | "return" { RETURN }
-    | "exit" { EXIT }
+    (* | "break" { BREAK } *)
+    (* | "continue" { CONTINUE } *)
+    (* | "return" { RETURN } *)
+    (* | "exit" { EXIT } *)
     | "(" { LPAREN }
     | ")" { RPAREN }
     | "{" { LBRACE }

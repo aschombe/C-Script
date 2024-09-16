@@ -33,17 +33,6 @@
 %token EOF
 
 %start <prog> main
-
-%left OR
-%left AND
-%nonassoc EQQ NEQ
-%nonassoc LT LTE GT GTE
-%left ADD SUB
-%left MUL DIV MOD
-%right POW
-%right NOT
-// %nonassoc EQ ADD_EQ SUB_EQ MUL_EQ DIV_EQ MOD_EQ POW_EQ
-
 %%
 
 main:
