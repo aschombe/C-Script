@@ -7,10 +7,10 @@ exception RunTimeError of string
 let env = create_scope ()
 
 let rec interp_ast = function
-  | Int n   -> return (float_of_int n)
-  | Float f -> return f
-  | Bool b  -> return (if b then 1.0 else 0.0)
-  | Var v   -> return (get_var v)
+  | Int n   -> float_of_int n
+  | Float f -> f
+  | Bool b  -> if b then 1.0 else 0.0
+  | Var v   -> get_var v
   | BinOp (op, e1, e2) -> (
     let v1 = interp_ast e1 in
     let v2 = interp_ast e2 in
@@ -117,7 +117,7 @@ let rec interp_ast = function
   | Exit e   -> raise (RunTimeError ("exit: " ^ string_of_int (interp_ast e)))
 
 (* interp function takes a path that exists, read the *)
-let interp (path: string) : int =
+let interp (path: string) : float =
   let content = read_file path in
   let lexbuf = Lexing.from_string content in
   let ast = Parser.main Lexer.tokenizer lexbuf in
