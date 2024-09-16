@@ -2,8 +2,3 @@
  (public_name rs_script)
  (name main)
  (libraries rs_script))
-
-(executable
- (name repl)
- (modules repl)
- (libraries rs_script))

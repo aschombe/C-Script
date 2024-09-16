@@ -32,14 +32,14 @@ module MenhirBasics = struct
     | LBRACE
     | INT_TYPE
     | INT of (
-# 12 "parser.mly"
+# 12 "lib/parser.mly"
        (int)
-# 38 "parser.ml"
+# 38 "lib/parser.ml"
   )
     | ID of (
-# 15 "parser.mly"
+# 15 "lib/parser.mly"
        (string)
-# 43 "parser.ml"
+# 43 "lib/parser.ml"
   )
     | GTE
     | GT
@@ -47,9 +47,9 @@ module MenhirBasics = struct
     | FN
     | FLOAT_TYPE
     | FLOAT of (
-# 13 "parser.mly"
+# 13 "lib/parser.mly"
        (float)
-# 53 "parser.ml"
+# 53 "lib/parser.ml"
   )
     | EQQ
     | EQ
@@ -61,9 +61,9 @@ module MenhirBasics = struct
     | COLON
     | BOOL_TYPE
     | BOOL of (
-# 14 "parser.mly"
+# 14 "lib/parser.mly"
        (bool)
-# 67 "parser.ml"
+# 67 "lib/parser.ml"
   )
     | AND
     | ADD_EQ
@@ -73,11 +73,11 @@ end
 
 include MenhirBasics
 
-# 1 "parser.mly"
+# 1 "lib/parser.mly"
   
     open Ast
 
-# 81 "parser.ml"
+# 81 "lib/parser.ml"
 
 type ('s, 'r) _menhir_state = 
   | MenhirState000 : ('s, _menhir_box_main) _menhir_state
@@ -278,37 +278,37 @@ type ('s, 'r) _menhir_state =
 
 and 's _menhir_cell0_args = 
   | MenhirCell0_args of 's * (
-# 10 "parser.mly"
+# 10 "lib/parser.mly"
       ((string * Ast.var_type) list)
-# 284 "parser.ml"
+# 284 "lib/parser.ml"
 )
 
 and ('s, 'r) _menhir_cell1_expr = 
   | MenhirCell1_expr of 's * ('s, 'r) _menhir_state * (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 291 "parser.ml"
+# 291 "lib/parser.ml"
 )
 
 and ('s, 'r) _menhir_cell1_exprs = 
   | MenhirCell1_exprs of 's * ('s, 'r) _menhir_state * (
-# 7 "parser.mly"
+# 7 "lib/parser.mly"
       (Ast.expr list)
-# 298 "parser.ml"
+# 298 "lib/parser.ml"
 )
 
 and 's _menhir_cell0_func_type = 
   | MenhirCell0_func_type of 's * (
-# 9 "parser.mly"
+# 9 "lib/parser.mly"
       (Ast.func_type)
-# 305 "parser.ml"
+# 305 "lib/parser.ml"
 )
 
 and ('s, 'r) _menhir_cell1_var_type = 
   | MenhirCell1_var_type of 's * ('s, 'r) _menhir_state * (
-# 8 "parser.mly"
+# 8 "lib/parser.mly"
       (Ast.var_type)
-# 312 "parser.ml"
+# 312 "lib/parser.ml"
 )
 
 and ('s, 'r) _menhir_cell1_FN = 
@@ -319,16 +319,16 @@ and ('s, 'r) _menhir_cell1_FOR =
 
 and ('s, 'r) _menhir_cell1_ID = 
   | MenhirCell1_ID of 's * ('s, 'r) _menhir_state * (
-# 15 "parser.mly"
+# 15 "lib/parser.mly"
        (string)
-# 325 "parser.ml"
+# 325 "lib/parser.ml"
 )
 
 and 's _menhir_cell0_ID = 
   | MenhirCell0_ID of 's * (
-# 15 "parser.mly"
+# 15 "lib/parser.mly"
        (string)
-# 332 "parser.ml"
+# 332 "lib/parser.ml"
 )
 
 and ('s, 'r) _menhir_cell1_LET = 
@@ -348,633 +348,633 @@ and ('s, 'r) _menhir_cell1_WHILE =
 
 and _menhir_box_main = 
   | MenhirBox_main of (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 354 "parser.ml"
+# 354 "lib/parser.ml"
 ) [@@unboxed]
 
 let _menhir_action_01 =
   fun () ->
     (
-# 71 "parser.mly"
+# 71 "lib/parser.mly"
   ( [] )
-# 362 "parser.ml"
+# 362 "lib/parser.ml"
      : (
-# 10 "parser.mly"
+# 10 "lib/parser.mly"
       ((string * Ast.var_type) list)
-# 366 "parser.ml"
+# 366 "lib/parser.ml"
     ))
 
 let _menhir_action_02 =
   fun _1 _3 ->
     (
-# 72 "parser.mly"
+# 72 "lib/parser.mly"
                     ( [(_1, _3)] )
-# 374 "parser.ml"
+# 374 "lib/parser.ml"
      : (
-# 10 "parser.mly"
+# 10 "lib/parser.mly"
       ((string * Ast.var_type) list)
-# 378 "parser.ml"
+# 378 "lib/parser.ml"
     ))
 
 let _menhir_action_03 =
   fun _1 _3 _5 ->
     (
-# 73 "parser.mly"
+# 73 "lib/parser.mly"
                                ( _1 @ [(_3, _5)] )
-# 386 "parser.ml"
+# 386 "lib/parser.ml"
      : (
-# 10 "parser.mly"
+# 10 "lib/parser.mly"
       ((string * Ast.var_type) list)
-# 390 "parser.ml"
+# 390 "lib/parser.ml"
     ))
 
 let _menhir_action_04 =
   fun _1 ->
     (
-# 81 "parser.mly"
+# 81 "lib/parser.mly"
       ( Int(_1) )
-# 398 "parser.ml"
+# 398 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 402 "parser.ml"
+# 402 "lib/parser.ml"
     ))
 
 let _menhir_action_05 =
   fun _1 ->
     (
-# 82 "parser.mly"
+# 82 "lib/parser.mly"
         ( Float(_1) )
-# 410 "parser.ml"
+# 410 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 414 "parser.ml"
+# 414 "lib/parser.ml"
     ))
 
 let _menhir_action_06 =
   fun _1 ->
     (
-# 83 "parser.mly"
+# 83 "lib/parser.mly"
        ( Bool(_1) )
-# 422 "parser.ml"
+# 422 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 426 "parser.ml"
+# 426 "lib/parser.ml"
     ))
 
 let _menhir_action_07 =
   fun _1 ->
     (
-# 84 "parser.mly"
+# 84 "lib/parser.mly"
      ( Var(_1) )
-# 434 "parser.ml"
+# 434 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 438 "parser.ml"
+# 438 "lib/parser.ml"
     ))
 
 let _menhir_action_08 =
   fun _1 _3 ->
     (
-# 85 "parser.mly"
+# 85 "lib/parser.mly"
                 ( BinOp(Add, _1, _3) )
-# 446 "parser.ml"
+# 446 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 450 "parser.ml"
+# 450 "lib/parser.ml"
     ))
 
 let _menhir_action_09 =
   fun _1 _3 ->
     (
-# 86 "parser.mly"
+# 86 "lib/parser.mly"
                 ( BinOp(Sub, _1, _3) )
-# 458 "parser.ml"
+# 458 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 462 "parser.ml"
+# 462 "lib/parser.ml"
     ))
 
 let _menhir_action_10 =
   fun _1 _3 ->
     (
-# 87 "parser.mly"
+# 87 "lib/parser.mly"
                 ( BinOp(Mul, _1, _3) )
-# 470 "parser.ml"
+# 470 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 474 "parser.ml"
+# 474 "lib/parser.ml"
     ))
 
 let _menhir_action_11 =
   fun _1 _3 ->
     (
-# 88 "parser.mly"
+# 88 "lib/parser.mly"
                 ( BinOp(Div, _1, _3) )
-# 482 "parser.ml"
+# 482 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 486 "parser.ml"
+# 486 "lib/parser.ml"
     ))
 
 let _menhir_action_12 =
   fun _1 _3 ->
     (
-# 89 "parser.mly"
+# 89 "lib/parser.mly"
                 ( BinOp(Mod, _1, _3) )
-# 494 "parser.ml"
+# 494 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 498 "parser.ml"
+# 498 "lib/parser.ml"
     ))
 
 let _menhir_action_13 =
   fun _1 _3 ->
     (
-# 90 "parser.mly"
+# 90 "lib/parser.mly"
                 ( BinOp(Pow, _1, _3) )
-# 506 "parser.ml"
+# 506 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 510 "parser.ml"
+# 510 "lib/parser.ml"
     ))
 
 let _menhir_action_14 =
   fun _1 _3 ->
     (
-# 91 "parser.mly"
+# 91 "lib/parser.mly"
                 ( BinOp(Eq, _1, _3) )
-# 518 "parser.ml"
+# 518 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 522 "parser.ml"
+# 522 "lib/parser.ml"
     ))
 
 let _menhir_action_15 =
   fun _1 _3 ->
     (
-# 92 "parser.mly"
+# 92 "lib/parser.mly"
                 ( BinOp(Neq, _1, _3) )
-# 530 "parser.ml"
+# 530 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 534 "parser.ml"
+# 534 "lib/parser.ml"
     ))
 
 let _menhir_action_16 =
   fun _1 _3 ->
     (
-# 93 "parser.mly"
+# 93 "lib/parser.mly"
                ( BinOp(Lt, _1, _3) )
-# 542 "parser.ml"
+# 542 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 546 "parser.ml"
+# 546 "lib/parser.ml"
     ))
 
 let _menhir_action_17 =
   fun _1 _3 ->
     (
-# 94 "parser.mly"
+# 94 "lib/parser.mly"
                 ( BinOp(Lte, _1, _3) )
-# 554 "parser.ml"
+# 554 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 558 "parser.ml"
+# 558 "lib/parser.ml"
     ))
 
 let _menhir_action_18 =
   fun _1 _3 ->
     (
-# 95 "parser.mly"
+# 95 "lib/parser.mly"
                ( BinOp(Gt, _1, _3) )
-# 566 "parser.ml"
+# 566 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 570 "parser.ml"
+# 570 "lib/parser.ml"
     ))
 
 let _menhir_action_19 =
   fun _1 _3 ->
     (
-# 96 "parser.mly"
+# 96 "lib/parser.mly"
                 ( BinOp(Gte, _1, _3) )
-# 578 "parser.ml"
+# 578 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 582 "parser.ml"
+# 582 "lib/parser.ml"
     ))
 
 let _menhir_action_20 =
   fun _1 _3 ->
     (
-# 97 "parser.mly"
+# 97 "lib/parser.mly"
                 ( BinOp(And, _1, _3) )
-# 590 "parser.ml"
+# 590 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 594 "parser.ml"
+# 594 "lib/parser.ml"
     ))
 
 let _menhir_action_21 =
   fun _1 _3 ->
     (
-# 98 "parser.mly"
+# 98 "lib/parser.mly"
                ( BinOp(Or, _1, _3) )
-# 602 "parser.ml"
+# 602 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 606 "parser.ml"
+# 606 "lib/parser.ml"
     ))
 
 let _menhir_action_22 =
   fun _2 ->
     (
-# 99 "parser.mly"
+# 99 "lib/parser.mly"
            ( UnOp(Not, _2) )
-# 614 "parser.ml"
+# 614 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 618 "parser.ml"
+# 618 "lib/parser.ml"
     ))
 
 let _menhir_action_23 =
   fun _2 ->
     (
-# 100 "parser.mly"
+# 100 "lib/parser.mly"
            ( UnOp(Neg, _2) )
-# 626 "parser.ml"
+# 626 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 630 "parser.ml"
+# 630 "lib/parser.ml"
     ))
 
 let _menhir_action_24 =
   fun _2 ->
     (
-# 101 "parser.mly"
+# 101 "lib/parser.mly"
                      ( _2 )
-# 638 "parser.ml"
+# 638 "lib/parser.ml"
      : (
-# 6 "parser.mly"
+# 6 "lib/parser.mly"
       (Ast.expr)
-# 642 "parser.ml"
+# 642 "lib/parser.ml"
     ))
 
 let _menhir_action_25 =
   fun () ->
     (
-# 76 "parser.mly"
+# 76 "lib/parser.mly"
   ( [] )
-# 650 "parser.ml"
+# 650 "lib/parser.ml"
      : (
-# 7 "parser.mly"
+# 7 "lib/parser.mly"
       (Ast.expr list)
-# 654 "parser.ml"
+# 654 "lib/parser.ml"
     ))
 
 let _menhir_action_26 =
   fun _1 ->
     (
-# 77 "parser.mly"
+# 77 "lib/parser.mly"
                  ( [_1] )
-# 662 "parser.ml"
+# 662 "lib/parser.ml"
      : (
-# 7 "parser.mly"
+# 7 "lib/parser.mly"
       (Ast.expr list)
-# 666 "parser.ml"
+# 666 "lib/parser.ml"
     ))
 
 let _menhir_action_27 =
   fun _1 _2 ->
     (
-# 78 "parser.mly"
+# 78 "lib/parser.mly"
                        ( _1 @ [_2] )
-# 674 "parser.ml"
+# 674 "lib/parser.ml"
      : (
-# 7 "parser.mly"
+# 7 "lib/parser.mly"
       (Ast.expr list)
-# 678 "parser.ml"
+# 678 "lib/parser.ml"
     ))
 
 let _menhir_action_28 =
   fun () ->
     (
-# 110 "parser.mly"
+# 110 "lib/parser.mly"
            ( IntType )
-# 686 "parser.ml"
+# 686 "lib/parser.ml"
      : (
-# 9 "parser.mly"
+# 9 "lib/parser.mly"
       (Ast.func_type)
-# 690 "parser.ml"
+# 690 "lib/parser.ml"
     ))
 
 let _menhir_action_29 =
   fun () ->
     (
-# 111 "parser.mly"
+# 111 "lib/parser.mly"
              ( FloatType )
-# 698 "parser.ml"
+# 698 "lib/parser.ml"
      : (
-# 9 "parser.mly"
+# 9 "lib/parser.mly"
       (Ast.func_type)
-# 702 "parser.ml"
+# 702 "lib/parser.ml"
     ))
 
 let _menhir_action_30 =
   fun () ->
     (
-# 112 "parser.mly"
+# 112 "lib/parser.mly"
             ( BoolType )
-# 710 "parser.ml"
+# 710 "lib/parser.ml"
      : (
-# 9 "parser.mly"
+# 9 "lib/parser.mly"
       (Ast.func_type)
-# 714 "parser.ml"
+# 714 "lib/parser.ml"
     ))
 
 let _menhir_action_31 =
   fun () ->
     (
-# 113 "parser.mly"
+# 113 "lib/parser.mly"
               ( StringType )
-# 722 "parser.ml"
+# 722 "lib/parser.ml"
      : (
-# 9 "parser.mly"
+# 9 "lib/parser.mly"
       (Ast.func_type)
-# 726 "parser.ml"
+# 726 "lib/parser.ml"
     ))
 
 let _menhir_action_32 =
   fun () ->
     (
-# 114 "parser.mly"
+# 114 "lib/parser.mly"
             ( VoidType )
-# 734 "parser.ml"
+# 734 "lib/parser.ml"
      : (
-# 9 "parser.mly"
+# 9 "lib/parser.mly"
       (Ast.func_type)
-# 738 "parser.ml"
+# 738 "lib/parser.ml"
     ))
 
 let _menhir_action_33 =
   fun _1 ->
     (
-# 51 "parser.mly"
+# 51 "lib/parser.mly"
        ( _1 )
-# 746 "parser.ml"
+# 746 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 750 "parser.ml"
+# 750 "lib/parser.ml"
     ))
 
 let _menhir_action_34 =
   fun _2 _4 _6 ->
     (
-# 52 "parser.mly"
+# 52 "lib/parser.mly"
                                           ( Let(_2, _4, _6) )
-# 758 "parser.ml"
+# 758 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 762 "parser.ml"
+# 762 "lib/parser.ml"
     ))
 
 let _menhir_action_35 =
   fun _1 _3 ->
     (
-# 53 "parser.mly"
+# 53 "lib/parser.mly"
                        ( Set(_1, Assign, _3) )
-# 770 "parser.ml"
+# 770 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 774 "parser.ml"
+# 774 "lib/parser.ml"
     ))
 
 let _menhir_action_36 =
   fun _1 _3 ->
     (
-# 54 "parser.mly"
+# 54 "lib/parser.mly"
                            ( Set(_1, AddEq, _3) )
-# 782 "parser.ml"
+# 782 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 786 "parser.ml"
+# 786 "lib/parser.ml"
     ))
 
 let _menhir_action_37 =
   fun _1 _3 ->
     (
-# 55 "parser.mly"
+# 55 "lib/parser.mly"
                            ( Set(_1, SubEq, _3) )
-# 794 "parser.ml"
+# 794 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 798 "parser.ml"
+# 798 "lib/parser.ml"
     ))
 
 let _menhir_action_38 =
   fun _1 _3 ->
     (
-# 56 "parser.mly"
+# 56 "lib/parser.mly"
                            ( Set(_1, MulEq, _3) )
-# 806 "parser.ml"
+# 806 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 810 "parser.ml"
+# 810 "lib/parser.ml"
     ))
 
 let _menhir_action_39 =
   fun _1 _3 ->
     (
-# 57 "parser.mly"
+# 57 "lib/parser.mly"
                            ( Set(_1, DivEq, _3) )
-# 818 "parser.ml"
+# 818 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 822 "parser.ml"
+# 822 "lib/parser.ml"
     ))
 
 let _menhir_action_40 =
   fun _1 _3 ->
     (
-# 58 "parser.mly"
+# 58 "lib/parser.mly"
                            ( Set(_1, ModEq, _3) )
-# 830 "parser.ml"
+# 830 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 834 "parser.ml"
+# 834 "lib/parser.ml"
     ))
 
 let _menhir_action_41 =
   fun _1 _3 ->
     (
-# 59 "parser.mly"
+# 59 "lib/parser.mly"
                            ( Set(_1, PowEq, _3) )
-# 842 "parser.ml"
+# 842 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 846 "parser.ml"
+# 846 "lib/parser.ml"
     ))
 
 let _menhir_action_42 =
   fun _2 ->
     (
-# 60 "parser.mly"
+# 60 "lib/parser.mly"
                    ( Del(_2) )
-# 854 "parser.ml"
+# 854 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 858 "parser.ml"
+# 858 "lib/parser.ml"
     ))
 
 let _menhir_action_43 =
   fun _2 _4 _7 _9 ->
     (
-# 62 "parser.mly"
+# 62 "lib/parser.mly"
                                                                ( FuncDef(_2, _4, _7, _9) )
-# 866 "parser.ml"
+# 866 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 870 "parser.ml"
+# 870 "lib/parser.ml"
     ))
 
 let _menhir_action_44 =
   fun _1 _3 ->
     (
-# 63 "parser.mly"
+# 63 "lib/parser.mly"
                                    ( Call(_1, _3) )
-# 878 "parser.ml"
+# 878 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 882 "parser.ml"
+# 882 "lib/parser.ml"
     ))
 
 let _menhir_action_45 =
   fun _10 _3 _5 _7 ->
     (
-# 65 "parser.mly"
+# 65 "lib/parser.mly"
                                                                           ( For(_3, _5, _7, _10) )
-# 890 "parser.ml"
+# 890 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 894 "parser.ml"
+# 894 "lib/parser.ml"
     ))
 
 let _menhir_action_46 =
   fun _3 _6 ->
     (
-# 66 "parser.mly"
+# 66 "lib/parser.mly"
                                               ( While(_3, _6) )
-# 902 "parser.ml"
+# 902 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 906 "parser.ml"
+# 906 "lib/parser.ml"
     ))
 
 let _menhir_action_47 =
   fun _1 ->
     (
-# 67 "parser.mly"
+# 67 "lib/parser.mly"
        ( _1 )
-# 914 "parser.ml"
+# 914 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 918 "parser.ml"
+# 918 "lib/parser.ml"
     ))
 
 let _menhir_action_48 =
   fun () ->
     (
-# 68 "parser.mly"
+# 68 "lib/parser.mly"
       ( raise (Failure "unexpected EOF") )
-# 926 "parser.ml"
+# 926 "lib/parser.ml"
      : (
-# 36 "parser.mly"
+# 36 "lib/parser.mly"
        (expr)
-# 930 "parser.ml"
+# 930 "lib/parser.ml"
     ))
 
 let _menhir_action_49 =
   fun () ->
     (
-# 104 "parser.mly"
+# 104 "lib/parser.mly"
            ( IntType )
-# 938 "parser.ml"
+# 938 "lib/parser.ml"
      : (
-# 8 "parser.mly"
+# 8 "lib/parser.mly"
       (Ast.var_type)
-# 942 "parser.ml"
+# 942 "lib/parser.ml"
     ))
 
 let _menhir_action_50 =
   fun () ->
     (
-# 105 "parser.mly"
+# 105 "lib/parser.mly"
              ( FloatType )
-# 950 "parser.ml"
+# 950 "lib/parser.ml"
      : (
-# 8 "parser.mly"
+# 8 "lib/parser.mly"
       (Ast.var_type)
-# 954 "parser.ml"
+# 954 "lib/parser.ml"
     ))
 
 let _menhir_action_51 =
   fun () ->
     (
-# 106 "parser.mly"
+# 106 "lib/parser.mly"
             ( BoolType )
-# 962 "parser.ml"
+# 962 "lib/parser.ml"
      : (
-# 8 "parser.mly"
+# 8 "lib/parser.mly"
       (Ast.var_type)
-# 966 "parser.ml"
+# 966 "lib/parser.ml"
     ))
 
 let _menhir_action_52 =
   fun () ->
     (
-# 107 "parser.mly"
+# 107 "lib/parser.mly"
               ( StringType )
-# 974 "parser.ml"
+# 974 "lib/parser.ml"
      : (
-# 8 "parser.mly"
+# 8 "lib/parser.mly"
       (Ast.var_type)
-# 978 "parser.ml"
+# 978 "lib/parser.ml"
     ))
 
 let _menhir_print_token : token -> string =

@@ -1,4 +1,0 @@
-(lang dune 3.16)
-(name rs_script)
-(sections (lib .) (bin ../../bin) (doc ../../doc/rs_script))
-(files (lib (META dune-package opam)) (bin (rs_script)) (doc (README.md)))

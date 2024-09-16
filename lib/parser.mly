@@ -2,7 +2,6 @@
     open Ast
 %}
 
-// %type <Ast.expr> main
 %type <Ast.expr> expr
 %type <Ast.expr list> exprs
 %type <Ast.var_type> var_type
