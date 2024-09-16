@@ -28,15 +28,15 @@ The file should have the extension `.rss` or `.ll`. You can find some example fi
 More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 ## Features
-- [x] Nothing
+- [x] AST
 
 
 ## Todo
-- [ ] Project setup
-- [ ] AST
 - [ ] Tokenizer/Lexer
 - [ ] Parser
 - [ ] Interpreter
+- [ ] Parsing for if-then-else and switch (and some other things, commented out in parser.mly)
+- [ ] Function scoping
  
 ## Notes
 
