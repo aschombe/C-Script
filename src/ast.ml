@@ -54,6 +54,7 @@ and expr =
 | Let of string * var_types * expr
 | Set of string * assign_op * expr
 | Del of string
+| Get of string
   (* 
     if (cond) {
       expr1
@@ -112,7 +113,7 @@ let rec string_of_expr e =
   | Int i -> string_of_int i
   | Float f -> string_of_float f
   | Bool b -> string_of_bool b
-  | Var v -> v
+  | Var i -> i
   | BinOp (op, e1, e2) -> "BinOp " ^ (match op with
     | Add -> "Add"
     | Sub -> "Sub"
@@ -160,11 +161,13 @@ let rec string_of_expr e =
     | Some e -> "(" ^ (string_of_expr e) ^ ")"
     | None -> "None") ^ ")"
   | Exit e -> "Exit(" ^ (string_of_expr e) ^ ")"
+  | _ -> "Not implemented"
 and string_of_type = function
   | IntType -> "int"
   | FloatType -> "float"
   | BoolType -> "bool"
   | StringType -> "string"
+
   
   (* | FuncType (args, ret) -> "func(" ^ (String.concat ", " (List.map string_of_type args)) ^ ") -> " ^ (string_of_type ret) *)
 and string_of_func_type = function
