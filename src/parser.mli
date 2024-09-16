@@ -53,4 +53,4 @@ exception Error
 
 (* The monolithic API. *)
 
-val main: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (expr)
+val main: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (prog)

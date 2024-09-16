@@ -1,57 +1,61 @@
 (* ast.ml *)
 
+
 type bin_op = 
-  | Add 
-  | Sub 
-  | Mul 
-  | Div 
-  | Mod 
-  | Pow 
-  | Eq 
-  | Neq 
-  | Lt 
-  | Lte 
-  | Gt 
-  | Gte 
-  | And 
-  | Or
+| Add 
+| Sub 
+| Mul 
+| Div 
+| Mod 
+| Pow 
+| Eq 
+| Neq 
+| Lt 
+| Lte 
+| Gt 
+| Gte 
+| And 
+| Or
 
 type assign_op = 
-  | Assign 
-  | AddEq 
-  | SubEq 
-  | MulEq 
-  | DivEq 
-  | ModEq 
-  | PowEq
+| Assign 
+| AddEq 
+| SubEq 
+| MulEq 
+| DivEq 
+| ModEq 
+| PowEq
 
 type un_op = 
-  | Neg 
-  | Not
+| Neg 
+| Not
 
 type var_types = 
-  | IntType
-  | FloatType
-  | BoolType
-  | StringType
+| IntType
+| FloatType
+| BoolType
+| StringType
 
 type func_types = 
-  | IntType
-  | FloatType
-  | BoolType
-  | StringType
-  | VoidType
+| IntType
+| FloatType
+| BoolType
+| StringType
+| VoidType
 
+(* type prog = expr list
+and 
+type expr = *)
 type expr =
-  | Int of int
-  | Float of float
-  | Bool of bool
-  | Var of string
-  | BinOp of bin_op * expr * expr
-  | UnOp of un_op * expr
-  | Let of string * var_types * expr
-  | Set of string * assign_op * expr
-  | Del of string
+| Int of int
+| Float of float
+| Bool of bool
+| Var of string
+| BinOp of bin_op * expr * expr
+| UnOp of un_op * expr
+| Let of string * var_types * expr
+| Set of string * assign_op * expr
+| Del of string
   (* 
     if (cond) {
       expr1
@@ -104,6 +108,7 @@ type expr =
   | Continue
   | Return of expr option
   | Exit of expr
+and prog = AProg of expr list
 
 let rec string_of_expr e =
   match e with

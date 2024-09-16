@@ -32,7 +32,7 @@
 %token INT_TYPE FLOAT_TYPE BOOL_TYPE STRING_TYPE VOID_TYPE
 %token EOF
 
-%start <expr> main
+%start <prog> main
 
 %left OR
 %left AND

@@ -1,8 +1,8 @@
-# 1 "lib/lexer.mll"
+# 1 "src/lexer.mll"
  
     open Parser
 
-# 6 "lib/lexer.ml"
+# 6 "src/lexer.ml"
 let __ocaml_lex_tables = {
   Lexing.lex_base =
    "\000\000\203\255\204\255\205\255\206\255\207\255\208\255\209\255\
@@ -1134,284 +1134,284 @@ let rec tokenizer lexbuf =
 and __ocaml_lex_tokenizer_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 6 "lib/lexer.mll"
+# 6 "src/lexer.mll"
                       ( tokenizer lexbuf )
-# 1140 "lib/lexer.ml"
+# 1140 "src/lexer.ml"
 
   | 1 ->
 let
-# 7 "lib/lexer.mll"
+# 7 "src/lexer.mll"
                     num
-# 1146 "lib/lexer.ml"
+# 1146 "src/lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 7 "lib/lexer.mll"
+# 7 "src/lexer.mll"
                         ( INT(int_of_string num) )
-# 1150 "lib/lexer.ml"
+# 1150 "src/lexer.ml"
 
   | 2 ->
 let
-# 8 "lib/lexer.mll"
+# 8 "src/lexer.mll"
                                    num
-# 1156 "lib/lexer.ml"
+# 1156 "src/lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 8 "lib/lexer.mll"
+# 8 "src/lexer.mll"
                                        ( FLOAT(float_of_string num) )
-# 1160 "lib/lexer.ml"
+# 1160 "src/lexer.ml"
 
   | 3 ->
-# 9 "lib/lexer.mll"
+# 9 "src/lexer.mll"
              ( BOOL(true) )
-# 1165 "lib/lexer.ml"
+# 1165 "src/lexer.ml"
 
   | 4 ->
-# 10 "lib/lexer.mll"
+# 10 "src/lexer.mll"
               ( BOOL(false) )
-# 1170 "lib/lexer.ml"
+# 1170 "src/lexer.ml"
 
   | 5 ->
 let
-# 11 "lib/lexer.mll"
+# 11 "src/lexer.mll"
                                                      id
-# 1176 "lib/lexer.ml"
+# 1176 "src/lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 11 "lib/lexer.mll"
+# 11 "src/lexer.mll"
                                                         ( ID id )
-# 1180 "lib/lexer.ml"
+# 1180 "src/lexer.ml"
 
   | 6 ->
-# 12 "lib/lexer.mll"
+# 12 "src/lexer.mll"
           ( ADD )
-# 1185 "lib/lexer.ml"
+# 1185 "src/lexer.ml"
 
   | 7 ->
-# 13 "lib/lexer.mll"
+# 13 "src/lexer.mll"
           ( SUB )
-# 1190 "lib/lexer.ml"
+# 1190 "src/lexer.ml"
 
   | 8 ->
-# 14 "lib/lexer.mll"
+# 14 "src/lexer.mll"
           ( MUL )
-# 1195 "lib/lexer.ml"
+# 1195 "src/lexer.ml"
 
   | 9 ->
-# 15 "lib/lexer.mll"
+# 15 "src/lexer.mll"
           ( DIV )
-# 1200 "lib/lexer.ml"
+# 1200 "src/lexer.ml"
 
   | 10 ->
-# 16 "lib/lexer.mll"
+# 16 "src/lexer.mll"
           ( MOD )
-# 1205 "lib/lexer.ml"
+# 1205 "src/lexer.ml"
 
   | 11 ->
-# 17 "lib/lexer.mll"
+# 17 "src/lexer.mll"
           ( POW )
-# 1210 "lib/lexer.ml"
+# 1210 "src/lexer.ml"
 
   | 12 ->
-# 18 "lib/lexer.mll"
+# 18 "src/lexer.mll"
            ( EQQ )
-# 1215 "lib/lexer.ml"
+# 1215 "src/lexer.ml"
 
   | 13 ->
-# 19 "lib/lexer.mll"
+# 19 "src/lexer.mll"
            ( NEQ )
-# 1220 "lib/lexer.ml"
+# 1220 "src/lexer.ml"
 
   | 14 ->
-# 20 "lib/lexer.mll"
+# 20 "src/lexer.mll"
           ( LT )
-# 1225 "lib/lexer.ml"
+# 1225 "src/lexer.ml"
 
   | 15 ->
-# 21 "lib/lexer.mll"
+# 21 "src/lexer.mll"
            ( LTE )
-# 1230 "lib/lexer.ml"
+# 1230 "src/lexer.ml"
 
   | 16 ->
-# 22 "lib/lexer.mll"
+# 22 "src/lexer.mll"
           ( GT )
-# 1235 "lib/lexer.ml"
+# 1235 "src/lexer.ml"
 
   | 17 ->
-# 23 "lib/lexer.mll"
+# 23 "src/lexer.mll"
            ( GTE )
-# 1240 "lib/lexer.ml"
+# 1240 "src/lexer.ml"
 
   | 18 ->
-# 24 "lib/lexer.mll"
+# 24 "src/lexer.mll"
            ( AND )
-# 1245 "lib/lexer.ml"
+# 1245 "src/lexer.ml"
 
   | 19 ->
-# 25 "lib/lexer.mll"
+# 25 "src/lexer.mll"
            ( OR )
-# 1250 "lib/lexer.ml"
+# 1250 "src/lexer.ml"
 
   | 20 ->
-# 26 "lib/lexer.mll"
+# 26 "src/lexer.mll"
           ( EQ )
-# 1255 "lib/lexer.ml"
+# 1255 "src/lexer.ml"
 
   | 21 ->
-# 27 "lib/lexer.mll"
+# 27 "src/lexer.mll"
            ( ADD_EQ )
-# 1260 "lib/lexer.ml"
+# 1260 "src/lexer.ml"
 
   | 22 ->
-# 28 "lib/lexer.mll"
+# 28 "src/lexer.mll"
            ( SUB_EQ )
-# 1265 "lib/lexer.ml"
+# 1265 "src/lexer.ml"
 
   | 23 ->
-# 29 "lib/lexer.mll"
+# 29 "src/lexer.mll"
            ( MUL_EQ )
-# 1270 "lib/lexer.ml"
+# 1270 "src/lexer.ml"
 
   | 24 ->
-# 30 "lib/lexer.mll"
+# 30 "src/lexer.mll"
            ( DIV_EQ )
-# 1275 "lib/lexer.ml"
+# 1275 "src/lexer.ml"
 
   | 25 ->
-# 31 "lib/lexer.mll"
+# 31 "src/lexer.mll"
            ( MOD_EQ )
-# 1280 "lib/lexer.ml"
+# 1280 "src/lexer.ml"
 
   | 26 ->
-# 32 "lib/lexer.mll"
+# 32 "src/lexer.mll"
            ( POW_EQ )
-# 1285 "lib/lexer.ml"
+# 1285 "src/lexer.ml"
 
   | 27 ->
-# 33 "lib/lexer.mll"
+# 33 "src/lexer.mll"
           ( NOT )
-# 1290 "lib/lexer.ml"
+# 1290 "src/lexer.ml"
 
   | 28 ->
-# 34 "lib/lexer.mll"
+# 34 "src/lexer.mll"
           ( NEG )
-# 1295 "lib/lexer.ml"
+# 1295 "src/lexer.ml"
 
   | 29 ->
-# 35 "lib/lexer.mll"
+# 35 "src/lexer.mll"
             ( LET )
-# 1300 "lib/lexer.ml"
+# 1300 "src/lexer.ml"
 
   | 30 ->
-# 36 "lib/lexer.mll"
+# 36 "src/lexer.mll"
             ( DEL )
-# 1305 "lib/lexer.ml"
+# 1305 "src/lexer.ml"
 
   | 31 ->
-# 37 "lib/lexer.mll"
+# 37 "src/lexer.mll"
            ( IF )
-# 1310 "lib/lexer.ml"
+# 1310 "src/lexer.ml"
 
   | 32 ->
-# 38 "lib/lexer.mll"
+# 38 "src/lexer.mll"
              ( ELIF )
-# 1315 "lib/lexer.ml"
+# 1315 "src/lexer.ml"
 
   | 33 ->
-# 39 "lib/lexer.mll"
+# 39 "src/lexer.mll"
              ( ELSE )
-# 1320 "lib/lexer.ml"
+# 1320 "src/lexer.ml"
 
   | 34 ->
-# 40 "lib/lexer.mll"
+# 40 "src/lexer.mll"
            ( FN )
-# 1325 "lib/lexer.ml"
+# 1325 "src/lexer.ml"
 
   | 35 ->
-# 41 "lib/lexer.mll"
+# 41 "src/lexer.mll"
                ( SWITCH )
-# 1330 "lib/lexer.ml"
+# 1330 "src/lexer.ml"
 
   | 36 ->
-# 42 "lib/lexer.mll"
+# 42 "src/lexer.mll"
              ( CASE )
-# 1335 "lib/lexer.ml"
+# 1335 "src/lexer.ml"
 
   | 37 ->
-# 43 "lib/lexer.mll"
+# 43 "src/lexer.mll"
                 ( DEFAULT )
-# 1340 "lib/lexer.ml"
+# 1340 "src/lexer.ml"
 
   | 38 ->
-# 44 "lib/lexer.mll"
+# 44 "src/lexer.mll"
             ( FOR )
-# 1345 "lib/lexer.ml"
+# 1345 "src/lexer.ml"
 
   | 39 ->
-# 45 "lib/lexer.mll"
+# 45 "src/lexer.mll"
               ( WHILE )
-# 1350 "lib/lexer.ml"
+# 1350 "src/lexer.ml"
 
   | 40 ->
-# 46 "lib/lexer.mll"
+# 46 "src/lexer.mll"
               ( BREAK )
-# 1355 "lib/lexer.ml"
+# 1355 "src/lexer.ml"
 
   | 41 ->
-# 47 "lib/lexer.mll"
+# 47 "src/lexer.mll"
                  ( CONTINUE )
-# 1360 "lib/lexer.ml"
+# 1360 "src/lexer.ml"
 
   | 42 ->
-# 48 "lib/lexer.mll"
+# 48 "src/lexer.mll"
                ( RETURN )
-# 1365 "lib/lexer.ml"
+# 1365 "src/lexer.ml"
 
   | 43 ->
-# 49 "lib/lexer.mll"
+# 49 "src/lexer.mll"
              ( EXIT )
-# 1370 "lib/lexer.ml"
+# 1370 "src/lexer.ml"
 
   | 44 ->
-# 50 "lib/lexer.mll"
+# 50 "src/lexer.mll"
           ( LPAREN )
-# 1375 "lib/lexer.ml"
+# 1375 "src/lexer.ml"
 
   | 45 ->
-# 51 "lib/lexer.mll"
+# 51 "src/lexer.mll"
           ( RPAREN )
-# 1380 "lib/lexer.ml"
+# 1380 "src/lexer.ml"
 
   | 46 ->
-# 52 "lib/lexer.mll"
+# 52 "src/lexer.mll"
           ( LBRACE )
-# 1385 "lib/lexer.ml"
+# 1385 "src/lexer.ml"
 
   | 47 ->
-# 53 "lib/lexer.mll"
+# 53 "src/lexer.mll"
           ( RBRACE )
-# 1390 "lib/lexer.ml"
+# 1390 "src/lexer.ml"
 
   | 48 ->
-# 54 "lib/lexer.mll"
+# 54 "src/lexer.mll"
           ( COLON )
-# 1395 "lib/lexer.ml"
+# 1395 "src/lexer.ml"
 
   | 49 ->
-# 55 "lib/lexer.mll"
+# 55 "src/lexer.mll"
           ( COMMA )
-# 1400 "lib/lexer.ml"
+# 1400 "src/lexer.ml"
 
   | 50 ->
-# 56 "lib/lexer.mll"
+# 56 "src/lexer.mll"
           ( SEMICOLON )
-# 1405 "lib/lexer.ml"
+# 1405 "src/lexer.ml"
 
   | 51 ->
-# 57 "lib/lexer.mll"
+# 57 "src/lexer.mll"
           ( EOF )
-# 1410 "lib/lexer.ml"
+# 1410 "src/lexer.ml"
 
   | 52 ->
-# 58 "lib/lexer.mll"
+# 58 "src/lexer.mll"
         ( raise (Failure "invalid character") )
-# 1415 "lib/lexer.ml"
+# 1415 "src/lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_tokenizer_rec lexbuf __ocaml_lex_state
