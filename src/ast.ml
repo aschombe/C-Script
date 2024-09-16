@@ -108,7 +108,7 @@ type expr =
   | Continue
   | Return of expr option
   | Exit of expr
-and prog = AProg of expr list
+and prog = expr list
 
 let rec string_of_expr e =
   match e with

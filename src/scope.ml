@@ -36,11 +36,11 @@ let exit_scope () =
 let lookup_variable name =
   let rec lookup_var_in_scope scope =
     try
-      if Hashtbl.mem scope.cache name then
-        Some (Hashtbl.find scope.cache name)
+      if Hashtbl.mem scope.variables name then
+        Some (Hashtbl.find scope.variables name)
       else if Hashtbl.mem scope.variables name then
         let value = Hashtbl.find scope.variables name in
-        Hashtbl.add scope.cache name value;
+        Hashtbl.add scope.variables name value;
         Some value
       else
         match scope.parent with
