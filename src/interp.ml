@@ -10,7 +10,7 @@ let rec interp_ast = function
   | Int n   -> return (float_of_int n)
   | Float f -> return f
   | Bool b  -> return (if b then 1.0 else 0.0)
-  | Var v   -> return (try Hashtbl.find var_env v with Not_found -> raise (RunTimeError ("variable not found: " ^ v)))
+  | Var v   -> return (get_var v)
   | BinOp (op, e1, e2) -> (
     let v1 = interp_ast e1 in
     let v2 = interp_ast e2 in
@@ -43,7 +43,7 @@ let rec interp_ast = function
   )
   | Set (v, op, e) -> (
     let v' = interp_ast e in
-    let v = (try Hashtbl.find var_env v with Not_found -> raise (RunTimeError ("variable not found: " ^ v))) in
+    let v = get_var v in
     let v'' = match op with
       | Assign -> v'
       | AddEq  -> v + v'
