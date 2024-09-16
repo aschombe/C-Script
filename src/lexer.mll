@@ -4,6 +4,7 @@
 
 rule tokenizer = parse
     | [' ' '\t' '\n'] { tokenizer lexbuf }
+    | "/*" { comment lexbuf }
     | ['0'-'9']+ as num { INT(int_of_string num) }
     | ['0'-'9']+ "." ['0'-'9']+ as num { FLOAT(float_of_string num) }
     | "true" { BOOL(true) }
@@ -56,3 +57,7 @@ rule tokenizer = parse
     | ";" { SEMICOLON }
     | eof { EOF }
     | _ { raise (Failure "invalid character") }
+and
+comment = parse
+    | "*/" { tokenizer lexbuf }
+    | _ { comment lexbuf }
