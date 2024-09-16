@@ -1,5 +1,6 @@
 open Ast
 open Read_file
+open Scope
 
 exception RunTimeError of string
 
