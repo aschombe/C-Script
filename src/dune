@@ -1,3 +1,4 @@
 (library
  (name rs_script)
- (modules ast lexer parser interp read_file scope))
+ (public_name rs_script)
+ (modules ast lexer parser interp read_file scope compiler))

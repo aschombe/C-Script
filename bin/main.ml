@@ -20,14 +20,14 @@ open Parser
 let () = repl () *)
 
 open Printf
-open Unix
-open Sys
-open Compiler
-open Interp
+(* open Unix *)
+(* open Sys *)
+(* open Compiler *)
+(* open Interp *)
 
 let get_extension filename =
   try
-    let dot_index = String.rindex.filename '.' in
+    let dot_index = String.rindex filename '.' in
     String.sub filename (dot_index + 1) (String.length filename - dot_index - 1)
   with Not_found -> ""
 

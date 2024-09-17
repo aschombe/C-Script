@@ -1,4 +1,3 @@
 (executable
- (public_name rs_script)
  (name main)
  (libraries rs_script))
