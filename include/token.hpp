@@ -41,12 +41,12 @@ enum class Token {
   // Syntactic sugar
   LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET, COMMA, COLON, SEMICOLON,
   // Literals
-  IDENT, INT, FLOAT, STRING, BOOL,
+  IDENT, INT_LIT, FLOAT_LIT, STRING_LIT, BOOL_LIT,
   // End of file
   EOF_
-}
+};
 
-// std::cout << Token::ADD;
+// std::cout << Token::<token_name>;
 std::ostream& operator<<(std::ostream& os, Token token);
 
 #endif // TOKEN_HPP
