@@ -26,3 +26,13 @@ Keywords and symbols in my language:
 
 #include "ast.hpp"
 
+class Parser {
+  public:
+  Parser(const std::vector<std::string>& tokens) : tokens(tokens) {}
+
+  std::unique_ptr<ASTNode> parse();
+
+  private:
+  std::vector<std::string> tokens;
+  size_t current = 0; 
+};

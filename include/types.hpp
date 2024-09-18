@@ -1,11 +1,15 @@
-// enum class Var_Types {
-//     INT,
-//     FLOAT,
-//     BOOL,
-//     STRING
-// };
+#pragma once
+#include <string>
 
-// std::string to_string(Var_Types type) {
+
+enum class Var_Types {
+    INT,
+    FLOAT,
+    BOOL,
+    STRING
+};
+
+// std::string var_type_to_string(Var_Types type) {
 //     switch (type) {
 //         case Var_Types::INT:
 //             return "int";
@@ -20,15 +24,15 @@
 //     return "unknown";
 // }
 
-// enum class Func_Types {
-//     VOID,
-//     INT,
-//     FLOAT,
-//     BOOL,
-//     STRING
-// };
+enum class Func_Types {
+    VOID,
+    INT,
+    FLOAT,
+    BOOL,
+    STRING
+};
 
-// std::string to_string(Func_Types type) {
+// std::string func_type_to_string(Func_Types type) {
 //     switch (type) {
 //         case Func_Types::VOID:
 //             return "void";
