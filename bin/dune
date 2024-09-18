@@ -1,3 +1,4 @@
 (executable
  (name main)
- (libraries rs_script))
+ (libraries rs_script_lib)
+)
