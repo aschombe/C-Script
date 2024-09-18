@@ -1,12 +1,15 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "../include/lexer.hpp"
 #include "../include/compiler.hpp"
 
 int main(int argc, char* argv[]) {
     // check if the user supplied a file name
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <file_name> [-c]" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <file_name> [-a] [-t] [-c]" << std::endl;
+        std::cerr << "    -a: display the abstract syntax tree, TODO" << std::endl;
+        std::cerr << "    -t: display the tokenized code" << std::endl;
         std::cerr << "    -c: compile the code" << std::endl;
         return 1;
     }
@@ -20,12 +23,16 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // check if the user wants to compile the code
+    // check for token and compile flags
+    bool tokenize = false;
     bool compile = false;
-    if (argc == 3) {
-        if (std::string(argv[2]) == "-c") {
+
+    for (int i = 2; i < argc; ++i) {
+        if (std::string(argv[i]) == "-t") {
+            tokenize = true;
+        } else if (std::string(argv[i]) == "-c") {
             compile = true;
-        } 
+        }
     }
 
     // read the code from the file
@@ -42,7 +49,7 @@ int main(int argc, char* argv[]) {
     }
 
     // if the file is empty, return error
-    if (code.size() == 0) {
+    if (code.empty()) {
         std::cerr << "Error: file is empty" << std::endl;
         return 1;
     }
@@ -53,15 +60,17 @@ int main(int argc, char* argv[]) {
     // tokenize the code
     std::vector<std::string> tokens = lexer.tokenize();
 
-    // print the tokens as an array
-    std::cout << "[";
-    for (size_t i = 0; i < tokens.size(); i++) {
-        std::cout << "\"" << tokens[i] << "\"";
-        if (i < tokens.size() - 1) {
-            std::cout << ", ";
+    // display the tokenized code (as an array) if the user wants to
+    if (tokenize) {
+        std::cout << "[";
+        for (size_t i = 0; i < tokens.size(); i++) {
+            std::cout << "\"" << tokens[i] << "\"";
+            if (i < tokens.size() - 1) {
+                std::cout << ", ";
+            }
         }
+        std::cout << "]" << std::endl;
     }
-    std::cout << "]" << std::endl;
 
     // compile the code if the user wants to
     if (compile) {
@@ -77,36 +86,3 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
-// // test the lexer
-// int main() {
-//     // code to tokenize
-//     std::string code = "int factorial(n: int): int {\n"
-//                        "    if n == 0 {\n"
-//                        "        return 1;\n"
-//                        "    } else {\n"
-//                        "        return n * factorial(n - 1);\n"
-//                        "    }\n"
-//                        "}\n"
-//                        "int main(): int {\n"
-//                        "    return factorial(5);\n"
-//                        "}\n";
-    
-//     std::cout << "Code:" << std::endl;
-//     std::cout << code << std::endl;
-
-//     // create a lexer
-//     Lexer lexer(code);
-    
-//     // tokenize the code
-//     std::vector<std::string> tokens = lexer.tokenize();
-    
-//     std::cout << "Tokens:" << std::endl;
-
-//     // print the tokens
-//     for (std::string token : tokens) {
-//         std::cout << token << std::endl;
-//     }
-    
-//     return 0;
-// }

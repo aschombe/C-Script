@@ -29,6 +29,7 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 ## Features
 - [x] Lexer
+- [x] rss tool (except for the -a flag, display AST)
 
 
 ## Todo
