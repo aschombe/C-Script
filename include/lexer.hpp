@@ -22,8 +22,7 @@ Keywords and symbols in my language:
     9 (lowest): assignment (=, +=, -=, *=, /=, %=)
 */
 
-#ifndef LEXER_HPP
-#define LEXER_HPP
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -153,5 +152,3 @@ class Lexer {
     std::regex whitespace_regex{"[ \t\n]"};
 
 };
-
-#endif // LEXER_HPP

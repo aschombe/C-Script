@@ -22,9 +22,4 @@ Keywords and symbols in my language:
     9 (lowest): assignment (=, +=, -=, *=, /=, %=)
 */
 
-#ifndef INTERPRETER_HPP
-#define INTERPRETER_HPP
-
-
-
-#endif // INTERPRETER_HPP
+#pragma once

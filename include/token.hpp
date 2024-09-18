@@ -22,18 +22,11 @@ Keywords and symbols in my language:
     9 (lowest): assignment (=, +=, -=, *=, /=, %=)
 */
 
-#ifndef TOKEN_HPP
-#define TOKEN_HPP
+#pragma once
 
 #include <iostream>
 
 enum class Token {
-  // Whitespace
-  WHITESPACE,
-  // Error
-  ERROR,
-  // Comments
-  SINGLE_LINE_COMMENT, MULTI_LINE_COMMENT,
   // Keywords
   LET, SET, DEL, IF, ELIF, ELSE, FOR, WHILE, BREAK, CONTINUE, RETURN, EXIT, FUNC, INT, FLOAT, BOOL, STRING, SWITCH, CASE, DEFAULT, TRUE, FALSE,
   // symbols
@@ -42,12 +35,8 @@ enum class Token {
   LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET, COMMA, COLON, SEMICOLON,
   // Literals
   IDENT, INT_LIT, FLOAT_LIT, STRING_LIT, BOOL_LIT,
-  // End of file
-  EOF_
 };
 
 // std::cout << Token::<token_name>;
 std::ostream& operator<<(std::ostream& os, Token token);
-
-#endif // TOKEN_HPP
 

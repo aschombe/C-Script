@@ -22,8 +22,7 @@ Keywords and symbols in my language:
     9 (lowest): assignment (=, +=, -=, *=, /=, %=)
 */
 
-#ifndef AST_HPP
-#define AST_HPP
+#pragma once
 
 #include <iostream>
 #include <vector>
@@ -32,7 +31,3 @@ Keywords and symbols in my language:
 #include <unordered_map>
 
 #include "token.hpp"
-
-
-
-#endif // AST_HPP
