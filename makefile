@@ -8,7 +8,7 @@ BIN_DIR = bin
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
-EXEC = $(BIN_DIR)/main
+EXEC = $(BIN_DIR)/rss
 
 all: $(EXEC)
 

@@ -7,6 +7,7 @@ int main(int argc, char* argv[]) {
     // check if the user supplied a file name
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <file_name> [-c]" << std::endl;
+        std::cerr << "    -c: compile the code" << std::endl;
         return 1;
     }
 
