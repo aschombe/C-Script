@@ -1,7 +1,5 @@
-open Ast
 open Interp
-open Lexer
-open Parser
+open Compiler
 
 (* let rec repl () =
   print_string ">>> ";
