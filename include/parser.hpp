@@ -1,27 +1,3 @@
-/*
-Keywords and symbols in my language:
-- keyworks: let, set, del, if, elif, else, for, while, break, continue, return, exit, func, int, float, bool, string, switch, case, default, true, false
-- symbols: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=, ^=, (, ), {, }, [, ], ,, :, ;
-- comments: same as c++
-- identifiers: [a-zA-Z_][a-zA-Z0-9_]*
-- int: [0-9]+
-- float: [0-9]+\.[0-9]+
-- string: "[^"]*"
-- bool: true, false
-- operators: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=
-- precedence:
-    0 (highest): function call, scope (())
-    1: unary operators (- (negative), ! (not))
-    2: exponentiation (^)
-    3: multiplication (*, /, %)
-    4: addition (+, -)
-    5: Comparison1 (<, <=, >, >=)
-    6: Comparison2 (==, !=)
-    7: Logical AND (&&)
-    8: Logical OR (||)
-    9 (lowest): assignment (=, +=, -=, *=, /=, %=)
-*/
-
 #pragma once
 
 #include "ast.hpp"
@@ -35,4 +11,19 @@ class Parser {
   private:
   std::vector<std::string> tokens;
   size_t current = 0; 
+  
+  std::unique_ptr<ASTNode> parse_expression();
+  std::unique_ptr<ASTNode> parse_assignment(); // =, +=, -=, *=, /=, %=
+  std::unique_ptr<ASTNode> parse_logical_or();
+  std::unique_ptr<ASTNode> parse_logical_and();
+  std::unique_ptr<ASTNode> parse_equality();
+  std::unique_ptr<ASTNode> parse_comparison();
+  std::unique_ptr<ASTNode> parse_term();
+  std::unique_ptr<ASTNode> parse_factor();
+  std::unique_ptr<ASTNode> parse_exponentiation();
+  std::unique_ptr<ASTNode> parse_unary();
+  std::unique_ptr<ASTNode> parse_primary();
+  // put these two into parse_primary
+  // std::unique_ptr<ASTNode> parse_function_call();
+  // std::unique_ptr<ASTNode> parse_scope();
 };
