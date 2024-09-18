@@ -106,14 +106,28 @@ std::string Lexer::next_token() {
   }
 
   // symbols
-  // - symbols: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=, ^, (, ), {, }, [, ], ,, :, ;
-  // symbol map too
+  // - symbols: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=, ^=, ^, (, ), {, }, [, ], ,, :, ;
   for (auto symbol : symbols) {
-    if (this->code.substr(this->pos, symbol.first.size()) == symbol.first) {
-      this->token = symbol.first;
-      this->pos += symbol.first.size();
-      this->column += symbol.first.size();
-      return this->token;
+    // if (this->code.substr(this->pos, symbol.first.size()) == symbol.first) {
+    //   this->token = symbol.first;
+    //   this->pos += symbol.first.size();
+    //   this->column += symbol.first.size();
+    //   return this->token;
+    // }
+    // if the first symbol is =, !, <, >, +, -, *, /, %, ^
+    // then check the second symbol and if its =, then return the two symbols
+    if (this->code[this->pos] == symbol.first[0]) {
+      if (this->code[this->pos + 1] == symbol.first[1]) {
+        this->token = symbol.first;
+        this->pos += 2;
+        this->column += 2;
+        return this->token;
+      } else {
+        this->token = symbol.first[0];
+        this->pos++;
+        this->column++;
+        return this->token;
+      }
     }
   }
 

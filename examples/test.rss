@@ -1,1 +1,9 @@
+/* broken:
+^=
+
+other issue:
+can only parse the first line
+*/
+
 1 + 1
+2 + 2
