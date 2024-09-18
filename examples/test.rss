@@ -3,7 +3,5 @@
 
 other issue:
 can only parse the first line
+strings parse as Var("string")
 */
-
-1 + 1
-2 + 2
