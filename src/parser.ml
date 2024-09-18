@@ -914,7 +914,7 @@ let _menhir_action_47 =
   fun _1 ->
     (
 # 39 "src/parser.mly"
-        ( AProg(_1) )
+        ( _1 )
 # 919 "src/parser.ml"
      : (
 # 35 "src/parser.mly"

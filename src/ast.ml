@@ -43,7 +43,7 @@ type func_types =
 | VoidType
 
 type
-  prog = AProg of expr list
+  prog = expr list
 and expr =
 | Int of int
 | Float of float

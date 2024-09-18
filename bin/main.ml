@@ -1,5 +1,9 @@
+
+open Printf
+module Interp = Rs_script_lib.Interp
 open Interp
-open Compiler
+(* module Compiler = Rs_script_lib.Compiler *)
+(* open Compiler *)
 
 (* let rec repl () =
   print_string ">>> ";
@@ -17,12 +21,6 @@ open Compiler
 
 let () = repl () *)
 
-open Printf
-(* open Unix *)
-(* open Sys *)
-(* open Compiler *)
-(* open Interp *)
-
 let get_extension filename =
   try
     let dot_index = String.rindex filename '.' in
@@ -32,10 +30,10 @@ let get_extension filename =
 let handle_file path compile = 
   let extension = get_extension (Filename.basename path) in
   match extension with
-  | "rss" ->
+  | "rss" -> (
     if compile then
       if Sys.os_type = "Unix" then
-        print_endline "TODO: compile on Unix"
+        printf "TODO: compile on Unix\n"
         (* spawn a compiler from the Compiler module *)
         (* let compiler = Compiler.new path in
         let result = compiler.compile () in
@@ -44,17 +42,13 @@ let handle_file path compile =
         else
           printf "Compilation failed\n" *)
       else
-        print_endline "Cannot compile on non-Unix systems"
+        printf "Cannot compile on non-Unix systems\n"
     else
-      print_endline "TODO: interpret"
-      (* spawn an interpreter from the Interp module *)
-      (* let interpreter = Interp.new () in
-      let result = interpreter.interp path in
-      (* print error that results *)
+      let result = interp path in
       match result with
-      | Ok () -> ()
-      | Error msg -> printf "Runtime error: %s\n" msg *)
-  | _ -> print_endline "TODO: handle other file extensions"
+      | _ -> ()
+  )
+      | _ -> printf "Unknown file extension: %s\n" extension
 
 let main () =
   let args = Array.to_list Sys.argv in
@@ -67,5 +61,3 @@ let main () =
   | None -> printf "Usage: %s <file> [-c]\n" program_name
 
 let () = main ()
-
-      

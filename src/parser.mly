@@ -36,7 +36,7 @@
 %%
 
 main:
-| exprs { AProg($1) }
+| exprs { $1 }
 | EOF { raise (Failure "unexpected EOF") }
 
 args:
