@@ -23,3 +23,6 @@ Keywords and symbols in my language:
 */
 
 #pragma once
+
+#include "ast.hpp"
+

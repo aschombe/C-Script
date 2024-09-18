@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include "../include/lexer.hpp"
 
@@ -16,13 +15,11 @@ int main() {
                        "    return factorial(5);\n"
                        "}\n";
     
-    std::cout << "Code to tokenize:" << std::endl;
+    std::cout << "Code:" << std::endl;
     std::cout << code << std::endl;
 
     // create a lexer
     Lexer lexer(code);
-
-    std::cout << "Tokenizing..." << std::endl;
     
     // tokenize the code
     std::vector<std::string> tokens = lexer.tokenize();
@@ -34,6 +31,5 @@ int main() {
         std::cout << token << std::endl;
     }
     
-    std::cout << "Done." << std::endl;
     return 0;
 }
