@@ -21,3 +21,5 @@ Keywords and symbols in my language:
     8: Logical OR (||)
     9 (lowest): assignment (=, +=, -=, *=, /=, %=)
 */
+
+#include "../include/ast.hpp"

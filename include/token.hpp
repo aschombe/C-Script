@@ -39,4 +39,3 @@ enum class Token {
 
 // std::cout << Token::<token_name>;
 std::ostream& operator<<(std::ostream& os, Token token);
-
