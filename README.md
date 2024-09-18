@@ -4,7 +4,7 @@ This branch is WIP, check the `main` branch for the latest stable version (which
 This is an interpreter (soon to have compiler feature) written in rust. Open to feature suggestions. Check [main.md](docs/main.md) for more information.
 
 ## Table of Contents
-- [Rust Explorer](#rust-explorer)
+- [RS-Script](#rs-script)
   - [Table of Contents](#table-of-contents)
   - [Documentation](#documentation)
   - [Usage](#usage)
