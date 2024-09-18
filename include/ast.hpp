@@ -2,7 +2,7 @@
 Keywords and symbols in my language:
 - keyworks: let, set, del, if, elif, else, for, while, break, continue, return, exit, func, int, float, bool, string, switch, case, default, true, false
 - symbols: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=, ^=, (, ), {, }, [, ], ,, :, ;
-- comments: //, \/*, *\/ (same as c++)
+- comments: same as c++
 - identifiers: [a-zA-Z_][a-zA-Z0-9_]*
 - int: [0-9]+
 - float: [0-9]+\.[0-9]+

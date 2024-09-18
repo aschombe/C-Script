@@ -29,7 +29,7 @@ int Lexer::get_column() {
 }
 
 // get current position
-int Lexer::get_pos() {
+size_t Lexer::get_pos() {
   return this->pos;
 }
 

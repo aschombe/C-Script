@@ -29,7 +29,7 @@ class Lexer {
   // std::string get_snippet();
 
   // get the current position
-  int get_pos();
+  size_t get_pos();
 
   // get the current token
   std::string get_token();
@@ -50,7 +50,7 @@ class Lexer {
   std::string code;
 
   // current position in the code
-  int pos;
+  size_t pos;
 
   // current token
   std::string token;

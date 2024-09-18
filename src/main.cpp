@@ -1,10 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include "../include/lexer.hpp"
+#include "../include/compiler.hpp"
 
-// This will be a command line utility
-// supply it a file name and it will do the rest
-// optional -c flag to compile the code
 int main(int argc, char* argv[]) {
     // check if the user supplied a file name
     if (argc < 2) {
