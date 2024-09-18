@@ -21,3 +21,10 @@ Keywords and symbols in my language:
     8: Logical OR (||)
     9 (lowest): assignment (=, +=, -=, *=, /=, %=)
 */
+
+#ifndef LEXER_HPP
+#define LEXER_HPP
+
+
+
+#endif // LEXER_HPP

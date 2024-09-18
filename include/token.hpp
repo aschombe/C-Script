@@ -22,17 +22,32 @@ Keywords and symbols in my language:
     9 (lowest): assignment (=, +=, -=, *=, /=, %=)
 */
 
-#ifndef AST_HPP
-#define AST_HPP
+#ifndef TOKEN_HPP
+#define TOKEN_HPP
 
 #include <iostream>
-#include <vector>
-#include <string>
-#include <memory>
-#include <unordered_map>
 
-#include "token.hpp"
+enum class Token {
+  // Whitespace
+  WHITESPACE,
+  // Error
+  ERROR,
+  // Comments
+  SINGLE_LINE_COMMENT, MULTI_LINE_COMMENT,
+  // Keywords
+  LET, SET, DEL, IF, ELIF, ELSE, FOR, WHILE, BREAK, CONTINUE, RETURN, EXIT, FUNC, INT, FLOAT, BOOL, STRING, SWITCH, CASE, DEFAULT, TRUE, FALSE,
+  // symbols
+  ADD, SUB, MUL, DIV, MOD, POW, EQ, NE, LT, LTE, GT, GTE, AND, OR, ASSIGN, ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, DIV_ASSIGN, MOD_ASSIGN, POW_ASSIGN,
+  // Syntactic sugar
+  LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET, COMMA, COLON, SEMICOLON,
+  // Literals
+  IDENT, INT, FLOAT, STRING, BOOL,
+  // End of file
+  EOF_
+}
 
+// std::cout << Token::ADD;
+std::ostream& operator<<(std::ostream& os, Token token);
 
+#endif // TOKEN_HPP
 
-#endif // AST_HPP
