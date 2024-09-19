@@ -33,5 +33,8 @@ class Interpreter {
 
     private:
     std::vector<std::shared_ptr<ASTNode>> ast;
-    
+    std::vector<Scope> scopes;
+
+    // helper functions
+    Value interp(const std::shared_ptr<ASTNode>& node);    
 };
