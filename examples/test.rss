@@ -1,5 +1,8 @@
 /* broken:
 ^=
+if statements
+switch statements
+function declarations
 
 other issue:
 can only parse the first line

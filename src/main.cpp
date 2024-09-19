@@ -87,18 +87,28 @@ int main(int argc, char* argv[]) {
     } else {
         // spawn a parser and parse the code
         Parser parser(tokens);
-        std::unique_ptr<ASTNode> ast = parser.parse();
+        // std::unique_ptr<ASTNode> ast = parser.parse();
+        parser.parse();
+        std::vector<std::unique_ptr<ASTNode>>& ast = parser.get_ast();
 
         // print the AST if the user wants to
         if (show_ast) {
             // std::cout << "AST to string not implemented yet" << std::endl;
-            std::cout << ast->to_string() << std::endl;
+            std::cout << "[";
+            for (size_t i = 0; i < ast.size(); i++) {
+                std::cout << ast[i]->to_string();
+                if (i < ast.size() - 1) {
+                    std::cout << ", ";
+                }
+            }
+            std::cout << "]" << std::endl;
         }
 
         // interpret the code
         // std::cerr << "Error: interpretation is not implemented yet" << std::endl;
-        // Interpreter interpreter(tokens);
+        // Interpreter interpreter(ast);
         // interpreter.interpret();
+        std::cerr << "Error: interpretation is not implemented yet" << std::endl;
     }
 
     return 0;
