@@ -9,31 +9,6 @@ bool Parser::is_keyword(const std::string& token) {
   return token == "let" || token == "set" || token == "del" || token == "if" || token == "for" || token == "while" || token == "break" || token == "continue" || token == "return" || token == "exit" || token == "func" || token == "switch";
 }
 
-// std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
-//   // while (current < tokens.size()) {
-//   //   std::cout << "Parsing token: " << tokens[current] << std::endl;
-//   //   if (is_keyword(tokens[current])) {
-//   //     ast.push_back(parse_keyword());
-//   //   } else {
-//   //     ast.push_back(parse_expression());
-//   //   }
-//   // }
-//   // return std::move(ast);
-//   try {
-//     while (current < tokens.size()) {
-//       std::cout << "Parsing token: " << tokens[current] << std::endl;
-//       if (is_keyword(tokens[current])) {
-//         ast.push_back(parse_keyword());
-//       } else {
-//         ast.push_back(parse_expression());
-//       }
-//     }
-//   } catch (const std::runtime_error& e) {
-//     std::cerr << "Error: " << e.what() << std::endl;
-//   }
-//   return std::move(ast);
-// }
-
 std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
     while (current < tokens.size()) {
         std::unique_ptr<ASTNode> node = nullptr;
@@ -142,6 +117,7 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
   }
   current++; // consume "("
   std::unique_ptr<ASTNode> if_condition = parse_expression();
+  // error is thrown in here because it thinks the next token is the last character of the condition not the ')'
   if (tokens[current] != ")") {
     throw std::runtime_error("Expected ')' after if condition");
   }
