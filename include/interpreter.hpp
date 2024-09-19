@@ -23,3 +23,15 @@ Keywords and symbols in my language:
 */
 
 #pragma once
+
+#include "scope.hpp"
+
+class Interpreter {
+    public:
+    // the constructor takes a vector of AST nodes
+    Interpreter(std::vector<std::shared_ptr<ASTNode>> ast) : ast(ast) {}
+
+    private:
+    std::vector<std::shared_ptr<ASTNode>> ast;
+    
+};

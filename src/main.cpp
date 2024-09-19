@@ -67,6 +67,12 @@ int main(int argc, char* argv[]) {
     // tokenize the code
     std::vector<std::string> tokens = lexer.tokenize();
 
+    // if the code is empty, return error
+    if (tokens.empty()) {
+        std::cerr << "Error: file is empty" << std::endl;
+        return 1;
+    }
+
     // display the tokenized code (as an array) if the user wants to
     if (show_tokens) {
         std::cout << "Tokenized code:" << std::endl;
@@ -88,8 +94,6 @@ int main(int argc, char* argv[]) {
     } else {
         // spawn a parser and parse the code
         Parser parser(tokens);
-        // std::unique_ptr<ASTNode> ast = parser.parse();
-        // parser.parse();
         std::vector<std::unique_ptr<ASTNode>> ast = parser.parse();
 
         // print the AST if the user wants to
