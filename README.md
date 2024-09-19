@@ -1,10 +1,10 @@
-# Rust Explorer
+# RS-Script
 
 ## Description
-This is an interpreter (soon to have compiler feature) written in rust. Open to feature suggestions. Check [main.md](docs/main.md) for more information.
+This is an interpreter (soon to have compiler feature) written in rust. Open to feature suggestions. Check [main.md](docs/main.md) for more information. Check out the devCpp branch for the newest implementation in C++.
 
 ## Table of Contents
-- [Rust Explorer](#rust-explorer)
+- [RS-Script](#rs-script)
   - [Table of Contents](#table-of-contents)
   - [Documentation](#documentation)
   - [Usage](#usage)
