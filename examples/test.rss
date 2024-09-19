@@ -2,9 +2,15 @@
 ^=
 if statements
 switch statements
-function declarations
+function declarations (return statements are fine)
 
 other issue:
-can only parse the first line
 strings parse as Var("string")
 */
+
+let x:int = 0;
+for(x; x < 10; x = x + 1) {
+    let y:int = 0;
+    y = y + 1;
+    y -= 1;
+}

@@ -2,14 +2,56 @@
 #include "../include/ast.hpp"
 #include "../include/types.hpp"
 #include <stdexcept>
+#include <iostream>
 #include <regex>
 
-std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
-  while (current < tokens.size()) {
-    ast.push_back(parse_keyword());
-  }
+bool Parser::is_keyword(const std::string& token) {
+  return token == "let" || token == "set" || token == "del" || token == "if" || token == "for" || token == "while" || token == "break" || token == "continue" || token == "return" || token == "exit" || token == "func" || token == "switch";
+}
 
-  return std::move(ast);
+// std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
+//   // while (current < tokens.size()) {
+//   //   std::cout << "Parsing token: " << tokens[current] << std::endl;
+//   //   if (is_keyword(tokens[current])) {
+//   //     ast.push_back(parse_keyword());
+//   //   } else {
+//   //     ast.push_back(parse_expression());
+//   //   }
+//   // }
+//   // return std::move(ast);
+//   try {
+//     while (current < tokens.size()) {
+//       std::cout << "Parsing token: " << tokens[current] << std::endl;
+//       if (is_keyword(tokens[current])) {
+//         ast.push_back(parse_keyword());
+//       } else {
+//         ast.push_back(parse_expression());
+//       }
+//     }
+//   } catch (const std::runtime_error& e) {
+//     std::cerr << "Error: " << e.what() << std::endl;
+//   }
+//   return std::move(ast);
+// }
+
+std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
+    while (current < tokens.size()) {
+        std::unique_ptr<ASTNode> node = nullptr;
+        if (is_keyword(tokens[current])) {
+            node = parse_keyword();
+        } else {
+            node = parse_expression();
+        }
+        
+        if (node) {
+            ast.push_back(std::move(node));
+        } else {
+            std::cerr << "Error: Failed to create AST node" << std::endl;
+        }
+    }
+
+    // Now return the AST, using std::move
+    return std::move(ast); 
 }
 
 std::unique_ptr<ASTNode> Parser::parse_keyword() {
@@ -113,7 +155,7 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
     if (current >= tokens.size()) {
       throw std::runtime_error("Expected '}' after if body");
     }
-    if (tokens[current] == "let" || tokens[current] == "set" || tokens[current] == "del" || tokens[current] == "if" || tokens[current] == "for" || tokens[current] == "while" || tokens[current] == "break" || tokens[current] == "continue" || tokens[current] == "return" || tokens[current] == "exit" || tokens[current] == "func" || tokens[current] == "switch") {
+    if (is_keyword(tokens[current])) {
       if_body.push_back(parse_keyword());
     } else {
       if_body.push_back(parse_expression());
@@ -142,7 +184,7 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
       if (current >= tokens.size()) {
         throw std::runtime_error("Expected '}' after elif body");
       }
-      if (tokens[current] == "let" || tokens[current] == "set" || tokens[current] == "del" || tokens[current] == "if" || tokens[current] == "for" || tokens[current] == "while" || tokens[current] == "break" || tokens[current] == "continue" || tokens[current] == "return" || tokens[current] == "exit" || tokens[current] == "func" || tokens[current] == "switch") {
+      if (is_keyword(tokens[current])) {
         elif_body.push_back(parse_keyword());
       } else {
         elif_body.push_back(parse_expression());
@@ -163,7 +205,7 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
       if (current >= tokens.size()) {
         throw std::runtime_error("Expected '}' after else body");
       }
-      if (tokens[current] == "let" || tokens[current] == "set" || tokens[current] == "del" || tokens[current] == "if" || tokens[current] == "for" || tokens[current] == "while" || tokens[current] == "break" || tokens[current] == "continue" || tokens[current] == "return" || tokens[current] == "exit" || tokens[current] == "func" || tokens[current] == "switch") {
+      if (is_keyword(tokens[current])) {
         else_body.push_back(parse_keyword());
       } else {
         else_body.push_back(parse_expression());
@@ -206,7 +248,7 @@ std::unique_ptr<ASTNode> Parser::parse_for() {
     if (current >= tokens.size()) {
       throw std::runtime_error("Expected '}' after for body");
     }
-    if (tokens[current] == "let" || tokens[current] == "set" || tokens[current] == "del" || tokens[current] == "if" || tokens[current] == "for" || tokens[current] == "while" || tokens[current] == "break" || tokens[current] == "continue" || tokens[current] == "return" || tokens[current] == "exit" || tokens[current] == "func" || tokens[current] == "switch") {
+    if (is_keyword(tokens[current])) {
       body.push_back(parse_keyword());
     } else {
       body.push_back(parse_expression());
@@ -237,7 +279,7 @@ std::unique_ptr<ASTNode> Parser::parse_while() {
     if (current >= tokens.size()) {
       throw std::runtime_error("Expected '}' after while body");
     }
-    if (tokens[current] == "let" || tokens[current] == "set" || tokens[current] == "del" || tokens[current] == "if" || tokens[current] == "for" || tokens[current] == "while" || tokens[current] == "break" || tokens[current] == "continue" || tokens[current] == "return" || tokens[current] == "exit" || tokens[current] == "func" || tokens[current] == "switch") {
+    if (is_keyword(tokens[current])) {
       body.push_back(parse_keyword());
     } else {
       body.push_back(parse_expression());
@@ -336,14 +378,14 @@ std::unique_ptr<ASTNode> Parser::parse_func() {
     if (current >= tokens.size()) {
       throw std::runtime_error("Expected '}' after function body");
     }
-    if (tokens[current] == "let" || tokens[current] == "set" || tokens[current] == "del" || tokens[current] == "if" || tokens[current] == "for" || tokens[current] == "while" || tokens[current] == "break" || tokens[current] == "continue" || tokens[current] == "return" || tokens[current] == "exit" || tokens[current] == "func" || tokens[current] == "switch") {
+    if (is_keyword(tokens[current])) {
       body.push_back(parse_keyword());
     } else {
       body.push_back(parse_expression());
     }
   }
   current++; // consume "}"
-  return std::make_unique<FuncNode>(identifier, std::move(args), return_type, std::move(body));
+  return std::make_unique<FuncNode>(identifier, return_type, std::move(args), std::move(body));
 }
 
 std::unique_ptr<ASTNode> Parser::parse_switch() {
@@ -392,7 +434,7 @@ std::unique_ptr<ASTNode> Parser::parse_switch() {
       if (current >= tokens.size()) {
         throw std::runtime_error("Expected '}' after case body");
       }
-      if (tokens[current] == "let" || tokens[current] == "set" || tokens[current] == "del" || tokens[current] == "if" || tokens[current] == "for" || tokens[current] == "while" || tokens[current] == "break" || tokens[current] == "continue" || tokens[current] == "return" || tokens[current] == "exit" || tokens[current] == "func" || tokens[current] == "switch") {
+      if (is_keyword(tokens[current])) {
         case_body.push_back(parse_keyword());
       } else {
         case_body.push_back(parse_expression());
@@ -412,7 +454,7 @@ std::unique_ptr<ASTNode> Parser::parse_switch() {
       if (current >= tokens.size()) {
         throw std::runtime_error("Expected '}' after default body");
       }
-      if (tokens[current] == "let" || tokens[current] == "set" || tokens[current] == "del" || tokens[current] == "if" || tokens[current] == "for" || tokens[current] == "while" || tokens[current] == "break" || tokens[current] == "continue" || tokens[current] == "return" || tokens[current] == "exit" || tokens[current] == "func" || tokens[current] == "switch") {
+      if (is_keyword(tokens[current])) {
         default_body.push_back(parse_keyword());
       } else {
         default_body.push_back(parse_expression());

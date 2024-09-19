@@ -8,15 +8,17 @@ class Parser {
 
   std::vector<std::unique_ptr<ASTNode>> parse();
   
-  std::vector<std::unique_ptr<ASTNode>>& get_ast() {
-    return ast;
-  }
-
+  // inline std::vector<std::unique_ptr<ASTNode>>& get_ast() {
+  //   return ast;
+  // }
+  
   private:
   std::vector<std::string> tokens;
   std::vector<std::unique_ptr<ASTNode>> ast;
   size_t current = 0; 
 
+  bool is_keyword(const std::string& token);
+  
   // std::string peek();
   // std::string expect(const std::string& expected);
   // bool match(const std::string& expected);

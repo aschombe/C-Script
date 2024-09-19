@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
 
     // display the tokenized code (as an array) if the user wants to
     if (show_tokens) {
+        std::cout << "Tokenized code:" << std::endl;
         std::cout << "[";
         for (size_t i = 0; i < tokens.size(); i++) {
             std::cout << "\"" << tokens[i] << "\"";
@@ -88,14 +89,15 @@ int main(int argc, char* argv[]) {
         // spawn a parser and parse the code
         Parser parser(tokens);
         // std::unique_ptr<ASTNode> ast = parser.parse();
-        parser.parse();
-        std::vector<std::unique_ptr<ASTNode>>& ast = parser.get_ast();
+        // parser.parse();
+        std::vector<std::unique_ptr<ASTNode>> ast = parser.parse();
 
         // print the AST if the user wants to
         if (show_ast) {
-            // std::cout << "AST to string not implemented yet" << std::endl;
+            std::cout << "Abstract syntax tree:" << std::endl;
             std::cout << "[";
             for (size_t i = 0; i < ast.size(); i++) {
+                // Capture the output of to_string() and print it
                 std::cout << ast[i]->to_string();
                 if (i < ast.size() - 1) {
                     std::cout << ", ";

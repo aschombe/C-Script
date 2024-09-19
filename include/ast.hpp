@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -352,3 +353,5 @@ class SCDNode : public ASTNode {
     return result;
   }
 };
+
+void print_ast(const std::vector<std::unique_ptr<ASTNode>>& ast);
