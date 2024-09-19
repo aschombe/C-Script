@@ -14,8 +14,6 @@ This is an interpreter (soon to have compiler feature) written in rust. Open to 
 
 ## Documentation
 - Check out the [documentation](docs/main.md) for more information on the features of the language.
-- Compilation is not supported on Windows.
-<!-- - To compile on *nix systems, you need to have LLVM (17) installed and Clang. -->
 
 ## Usage
 TODO
