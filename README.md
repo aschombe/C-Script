@@ -28,8 +28,8 @@ The file should have the extension `.rss` or `.ll`. You can find some example fi
 More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 ## Features
+- [x] RSS command line tool
 - [x] Lexer
-- [x] rss tool
 - [x] AST
 - [x] Parser (a few bugs)
 
