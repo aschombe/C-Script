@@ -1,9 +1,6 @@
 CC = g++
 CFLAGS = -Wall -Wextra -g
 
-# SRC_DIR = src
-# OBJ_DIR = obj
-# BIN_DIR = bin
 # make sure the obj and bin directories exist
 $(shell mkdir -p obj bin)
 
@@ -11,10 +8,12 @@ SRC_DIR = src
 OBJ_DIR = obj
 BIN_DIR = bin
 
+OUTPUT_NAME = rss
+
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
-EXEC = $(BIN_DIR)/rss
+EXEC = $(BIN_DIR)/$(OUTPUT_NAME)
 
 all: $(EXEC)
 
