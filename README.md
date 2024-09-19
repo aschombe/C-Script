@@ -29,12 +29,17 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 
 ## Features
 - [x] Lexer
-- [x] rss tool (except for the -a flag, display AST)
-
+- [x] rss tool
+- [x] AST
+- [x] Parser (a few bugs)
 
 ## Todo
-- [ ] AST
-- [ ] Parser
+- [ ] Parser Bugs:
+    - [ ] Can't parse ^=
+    - [ ] Can't parse `if` statements
+    - [ ] Can't parse `switch` statements
+    - [ ] Can't parse function declarations
+    - [ ] Strings parse as Var(<string>)
 - [ ] Interpreter
 - [ ] Compiler
  
