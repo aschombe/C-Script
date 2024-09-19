@@ -17,6 +17,8 @@ typedef std::unordered_map<std::string, Scope_Item> ScopeMap;
 
 class Scope {
   public:
+  Scope();
+  ~Scope();
   void push_scope();
   void pop_scope();
   void add_variable(const std::string& name, const Value& value);
@@ -31,12 +33,9 @@ class Scope {
   void set_variable(const std::string& name, const Value& value);
   void set_function(const std::string& name, const std::vector<Argument>& args, const std::vector<std::shared_ptr<ASTNode>>& body);
 
-  void print_scopes();
-  void print_scope();
-  void print_scope_item();
-
-  bool count(const std::string& name) const;
-
+  int get_scope_level();
+  
   private:
+  int scope_level = 0;
   std::vector<ScopeMap> scopes;
 };
