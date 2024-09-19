@@ -39,7 +39,7 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
     - [ ] Can't parse `if` statements
     - [ ] Can't parse `switch` statements
     - [ ] Can't parse function declarations
-    - [ ] Strings parse as Var(<string>)
+    - [ ] Strings parse as Var("string") instead of String("string")
 - [ ] Interpreter
 - [ ] Compiler
  
