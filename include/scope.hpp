@@ -13,7 +13,7 @@ typedef std::pair<std::string, Value> Variable;
 typedef std::pair<std::string, Var_Types> Argument;
 typedef std::pair<std::string, std::vector<Argument>> Function;
 typedef std::variant<Variable, Function> Scope_Item;
-typedef std::unordered_map<std::string, Scope_Item> Scope;
+typedef std::unordered_map<std::string, Scope_Item> ScopeMap;
 
 class Scope {
     public:
@@ -38,5 +38,5 @@ class Scope {
     bool count(const std::string& name) const;
 
     private:
-    std::vector<Scope> scopes;
+    std::vector<ScopeMap> scopes;
 };

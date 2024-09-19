@@ -1,6 +1,12 @@
 CC = g++
 CFLAGS = -Wall -Wextra -g
 
+# SRC_DIR = src
+# OBJ_DIR = obj
+# BIN_DIR = bin
+# make sure the obj and bin directories exist
+$(shell mkdir -p obj bin)
+
 SRC_DIR = src
 OBJ_DIR = obj
 BIN_DIR = bin
