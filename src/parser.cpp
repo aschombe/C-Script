@@ -6,7 +6,7 @@
 #include <regex>
 
 bool Parser::is_keyword(const std::string& token) {
-  return token == "let" || token == "set" || token == "del" || token == "if" || token == "for" || token == "while" || token == "break" || token == "continue" || token == "return" || token == "exit" || token == "func" || token == "switch";
+    return token == "let" || token == "set" || token == "del" || token == "if" || token == "for" || token == "while" || token == "break" || token == "continue" || token == "return" || token == "exit" || token == "func" || token == "switch";
 }
 
 std::vector<std::unique_ptr<ASTNode>> Parser::parse() {

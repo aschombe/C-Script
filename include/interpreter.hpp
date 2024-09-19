@@ -10,16 +10,16 @@ Keywords and symbols in my language:
 - bool: true, false
 - operators: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=
 - precedence:
-    0 (highest): function call, scope (())
-    1: unary operators (- (negative), ! (not))
-    2: exponentiation (^)
-    3: multiplication (*, /, %)
-    4: addition (+, -)
-    5: Comparison1 (<, <=, >, >=)
-    6: Comparison2 (==, !=)
-    7: Logical AND (&&)
-    8: Logical OR (||)
-    9 (lowest): assignment (=, +=, -=, *=, /=, %=)
+  0 (highest): function call, scope (())
+  1: unary operators (- (negative), ! (not))
+  2: exponentiation (^)
+  3: multiplication (*, /, %)
+  4: addition (+, -)
+  5: Comparison1 (<, <=, >, >=)
+  6: Comparison2 (==, !=)
+  7: Logical AND (&&)
+  8: Logical OR (||)
+  9 (lowest): assignment (=, +=, -=, *=, /=, %=)
 */
 
 #pragma once
@@ -27,14 +27,14 @@ Keywords and symbols in my language:
 #include "scope.hpp"
 
 class Interpreter {
-    public:
-    // the constructor takes a vector of AST nodes
-    Interpreter(std::vector<std::shared_ptr<ASTNode>> ast) : ast(ast) {}
+  public:
+  // the constructor takes a vector of AST nodes
+  Interpreter(std::vector<std::shared_ptr<ASTNode>> ast) : ast(ast) {}
 
-    private:
-    std::vector<std::shared_ptr<ASTNode>> ast;
-    std::vector<Scope> scopes;
+  private:
+  std::vector<std::shared_ptr<ASTNode>> ast;
+  std::vector<Scope> scopes;
 
-    // helper functions
-    Value interp(const std::shared_ptr<ASTNode>& node);    
+  // helper functions
+  Value interp(const std::shared_ptr<ASTNode>& node);    
 };

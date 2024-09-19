@@ -16,27 +16,27 @@ typedef std::variant<Variable, Function> Scope_Item;
 typedef std::unordered_map<std::string, Scope_Item> ScopeMap;
 
 class Scope {
-    public:
-    void push_scope();
-    void pop_scope();
-    void add_variable(const std::string& name, const Value& value);
-    void add_function(const std::string& name, const std::vector<Argument>& args, const std::vector<std::shared_ptr<ASTNode>>& body);
+  public:
+  void push_scope();
+  void pop_scope();
+  void add_variable(const std::string& name, const Value& value);
+  void add_function(const std::string& name, const std::vector<Argument>& args, const std::vector<std::shared_ptr<ASTNode>>& body);
 
-    Value get_variable(const std::string& name);
-    Function get_function(const std::string& name);
+  Value get_variable(const std::string& name);
+  Function get_function(const std::string& name);
 
-    bool variable_exists(const std::string& name);
-    bool function_exists(const std::string& name);
+  bool variable_exists(const std::string& name);
+  bool function_exists(const std::string& name);
 
-    void set_variable(const std::string& name, const Value& value);
-    void set_function(const std::string& name, const std::vector<Argument>& args, const std::vector<std::shared_ptr<ASTNode>>& body);
+  void set_variable(const std::string& name, const Value& value);
+  void set_function(const std::string& name, const std::vector<Argument>& args, const std::vector<std::shared_ptr<ASTNode>>& body);
 
-    void print_scopes();
-    void print_scope();
-    void print_scope_item();
+  void print_scopes();
+  void print_scope();
+  void print_scope_item();
 
-    bool count(const std::string& name) const;
+  bool count(const std::string& name) const;
 
-    private:
-    std::vector<ScopeMap> scopes;
+  private:
+  std::vector<ScopeMap> scopes;
 };
