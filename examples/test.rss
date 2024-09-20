@@ -1,3 +1,5 @@
 /* if (x == 5) {
     let y: int = 10;
 } */
+
+let x: int = 1 + 1 * 2;

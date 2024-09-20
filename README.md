@@ -32,8 +32,8 @@ More about the rss tool can be found in the [rss.md](docs/rss.md) file.
 ## Todo
 - [ ] Parser Bugs:
     - [ ] Can't parse ^=
-    - [ ] Can't parse `if` statements
-    - [ ] Can't parse `switch` statements
+    - [ ] Can't parse `if` statements (might be equality issues)
+    - [ ] Can't parse `switch` statements (might be equality issues)
     - [ ] Can't parse function declarations
     - [ ] Strings parse as Var("string") instead of String("string")
 - [ ] Interpreter
