@@ -1,7 +1,7 @@
 # C-Script
 This branch is WIP, check the `main` branch for the latest stable version (which is still LISP-like).
 ## Description
-This is an interpreter (soon to have compiler feature) written in rust. Open to feature suggestions. Check [main.md](docs/main.md) for more information.
+This is an interpreter (soon to have compiler feature) written in C++. Open to feature suggestions. Check [main.md](docs/main.md) for more information.
 
 ## Table of Contents
 - [C-Script](#c-script)
