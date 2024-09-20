@@ -111,10 +111,8 @@ int main(int argc, char* argv[]) {
     }
 
     // interpret the code
-    // std::cerr << "Error: interpretation is not implemented yet" << std::endl;
-    // Interpreter interpreter(ast);
-    // interpreter.interpret();
-    std::cerr << "Error: interpretation is not implemented yet" << std::endl;
+    Interpreter interpreter(ast);
+    interpreter.run();
   }
 
   return 0;

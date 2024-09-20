@@ -21,3 +21,22 @@ Keywords and symbols in my language:
     8: Logical OR (||)
     9 (lowest): assignment (=, +=, -=, *=, /=, %=)
 */
+
+#include "../include/interpreter.hpp"
+#include <iostream>
+
+Interpreter::Interpreter(std::vector<std::unique_ptr<ASTNode>> ast) {
+  this->ast = ast;
+}
+
+void Interpreter::run() {
+  // iterate over the AST nodes
+  for (auto& node : ast) {
+      interp(node);
+  }
+}
+
+Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
+  std::cout << "TODO: implement the interpreter" << std::endl;
+  return Value();
+}
