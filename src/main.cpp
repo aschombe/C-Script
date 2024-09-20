@@ -22,8 +22,8 @@ int main(int argc, char* argv[]) {
   std::string file_name = argv[1];
 
   // check if the file name ends with .rss
-  if (file_name.size() < 4 || file_name.substr(file_name.size() - 4) != ".rss") {
-    std::cerr << "Error: file name must end with .rss" << std::endl;
+  if (file_name.size() < 4 || file_name.substr(file_name.size() - 4) != ".csf") {
+    std::cerr << "Error: file name must end with .csf" << std::endl;
     return 1;
   }
 

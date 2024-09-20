@@ -8,7 +8,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 BIN_DIR = bin
 
-OUTPUT_NAME = rss
+OUTPUT_NAME = cst #stands for c scripting tool
 
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)

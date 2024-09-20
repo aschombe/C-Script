@@ -1,10 +1,10 @@
-# RS Script
+# C-Script
 This branch is WIP, check the `main` branch for the latest stable version (which is still LISP-like).
 ## Description
 This is an interpreter (soon to have compiler feature) written in rust. Open to feature suggestions. Check [main.md](docs/main.md) for more information.
 
 ## Table of Contents
-- [RS-Script](#rs-script)
+- [C-Script](#c-script)
   - [Table of Contents](#table-of-contents)
   - [Documentation](#documentation)
   - [Usage](#usage)
@@ -18,13 +18,13 @@ This is an interpreter (soon to have compiler feature) written in rust. Open to 
 ## Usage
 Run the command line tool by running the following command:
 ```bash
-./rss ./<path-to-file>.rss <flag(s)>
+./cst ./<path-to-file>.csf <flag(s)>
 ```
-The file should have the extension `.rss`. You can find some example files in the `examples` directory.
-More about the rss tool can be found in the [rss.md](docs/rss.md) file.
+The file should have the extension `.csf`. You can find some example files in the `examples` directory.
+More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## Features
-- [x] RSS command line tool
+- [x] CST command line tool
 - [x] Lexer
 - [x] AST
 - [x] Parser (a few bugs)
