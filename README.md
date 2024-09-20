@@ -1,5 +1,5 @@
 # C-Script
-This branch is WIP, check the `main` branch for the latest stable version (which is still LISP-like).
+This branch is WIP, check the `main` branch for the latest stable version (which is still LISP-like, and written in Rust).
 ## Description
 This is an interpreter (soon to have compiler feature) written in C++. Open to feature suggestions. Check [main.md](docs/main.md) for more information.
 
