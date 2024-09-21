@@ -1,5 +1,11 @@
-/* if (x == 5) {
-    let y: int = 10;
-} */
-
-let x: int = 1 + 1 * 2;
+switch (1) {
+    case (1) {
+        let x:int = 1;
+    }
+    case (2) {
+        let x:int = 2;
+    }
+    default {
+        let x:int = 3;
+    }
+}

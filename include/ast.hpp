@@ -108,7 +108,6 @@ class LetNode : public ASTNode {
 };
 
 class SetNode : public ASTNode {
-  // op is the operator, either =, +=, -=, *=, /=, %=
   public:
   std::string op;
   std::unique_ptr<ASTNode> left;
@@ -174,7 +173,6 @@ class IEENode : public ASTNode {
 
 class ForNode : public ASTNode {
   public:
-  // std::unique_ptr<ASTNode> init;
   std::string init;
   std::unique_ptr<ASTNode> condition;
   std::unique_ptr<ASTNode> increment;

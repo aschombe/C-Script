@@ -31,9 +31,6 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## TODO
 - [ ] Parser Bugs:
-    - [ ] Can't parse ^=
-    - [ ] Can't parse `if` statements (might be equality issues)
-    - [ ] Can't parse `switch` statements (might be equality issues)
     - [ ] Can't parse function declarations
     - [ ] Strings parse as Var("string") instead of String("string")
 - [ ] Type checker (maybe takes expected type(s) (as a list), and the actual type, and returns a boolean)

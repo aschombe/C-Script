@@ -8,10 +8,6 @@ class Parser {
 
   std::vector<std::unique_ptr<ASTNode>> parse();
   
-  // inline std::vector<std::unique_ptr<ASTNode>>& get_ast() {
-  //   return ast;
-  // }
-  
   private:
   std::vector<std::string> tokens;
   std::vector<std::unique_ptr<ASTNode>> ast;
@@ -19,18 +15,12 @@ class Parser {
 
   bool is_keyword(const std::string& token);
   
-  // std::string peek();
-  // std::string expect(const std::string& expected);
-  // bool match(const std::string& expected);
-  
   std::unique_ptr<ASTNode> parse_keyword();
 
   std::unique_ptr<ASTNode> parse_let();
   std::unique_ptr<ASTNode> parse_set();
   std::unique_ptr<ASTNode> parse_del();
   std::unique_ptr<ASTNode> parse_if();
-  // std::unique_ptr<ASTNode> parse_elif();
-  // std::unique_ptr<ASTNode> parse_else();
   std::unique_ptr<ASTNode> parse_for();
   std::unique_ptr<ASTNode> parse_while();
   std::unique_ptr<ASTNode> parse_break();
@@ -52,7 +42,4 @@ class Parser {
   std::unique_ptr<ASTNode> parse_exponentiation();
   std::unique_ptr<ASTNode> parse_unary();
   std::unique_ptr<ASTNode> parse_primary();
-  // put these two into parse_primary
-  // std::unique_ptr<ASTNode> parse_function_call();
-  // std::unique_ptr<ASTNode> parse_scope();
 };
