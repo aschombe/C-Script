@@ -25,8 +25,9 @@ Keywords and symbols in my language:
 #include "../include/interpreter.hpp"
 #include <iostream>
 
-Interpreter::Interpreter(std::vector<std::unique_ptr<ASTNode>> ast) {
-  this->ast = ast;
+Interpreter::Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast) : ast(ast) {
+  // create the global scope
+  scopes.push_back(Scope());
 }
 
 void Interpreter::run() {
