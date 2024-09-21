@@ -9,7 +9,7 @@ This is an interpreter (soon to have compiler feature) written in C++. Open to f
   - [Documentation](#documentation)
   - [Usage](#usage)
   - [Features](#features)
-  - [Todo](#todo)
+  - [TODO](#todo)
   - [Notes](#notes)
 
 ## Documentation
@@ -29,14 +29,16 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] AST
 - [x] Parser (a few bugs)
 
-## Todo
+## TODO
 - [ ] Parser Bugs:
     - [ ] Can't parse ^=
     - [ ] Can't parse `if` statements (might be equality issues)
     - [ ] Can't parse `switch` statements (might be equality issues)
     - [ ] Can't parse function declarations
     - [ ] Strings parse as Var("string") instead of String("string")
+- [ ] Type checker (maybe takes expected type(s) (as a list), and the actual type, and returns a boolean)
 - [ ] Interpreter
+- [ ] Maybe function overloading (based on: number of arguments and types of arguments)
 - [ ] Compiler
  
 ## Notes

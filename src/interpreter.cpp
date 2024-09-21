@@ -39,5 +39,7 @@ void Interpreter::run() {
 
 Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
   std::cout << "TODO: implement the interpreter" << std::endl;
+  // do sometihng with the node for now so it stops erroring
+  (void)node;
   return Value();
 }
