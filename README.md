@@ -27,11 +27,9 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] CST command line tool
 - [x] Lexer
 - [x] AST
-- [x] Parser (a few bugs)
+- [x] Parser
 
 ## TODO
-- [ ] Parser Bugs:
-    - [ ] Strings parse as Var("string") instead of String("string")
 - [ ] Type checker (maybe takes expected type(s) (as a list), and the actual type, and returns a boolean)
 - [ ] Interpreter
 - [ ] Maybe function overloading (based on: number of arguments and types of arguments)

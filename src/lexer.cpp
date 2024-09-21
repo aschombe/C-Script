@@ -164,6 +164,7 @@ std::string Lexer::next_token() {
   // string: "[^"]*"
   if (this->code[this->pos] == '"') {
     this->token = "";
+    this->token += this->code[this->pos];
     this->pos++;
     this->column++;
     while (this->pos < this->code.size() && this->code[this->pos] != '"') {
@@ -171,10 +172,12 @@ std::string Lexer::next_token() {
       this->pos++;
       this->column++;
     }
+    this->token += this->code[this->pos];
     this->pos++;
     this->column++;
     return this->token;
   }
+  
 
   // bool: true, false
   if (this->code.substr(this->pos, 4) == "true") {
