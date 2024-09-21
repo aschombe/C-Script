@@ -28,9 +28,9 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] Lexer
 - [x] AST
 - [x] Parser
+- [x] Type Checker (very simple)
 
 ## TODO
-- [ ] Type checker (maybe takes expected type(s) (as a list), and the actual type, and returns a boolean)
 - [ ] Interpreter
 - [ ] Maybe function overloading (based on: number of arguments and types of arguments)
 - [ ] Compiler
