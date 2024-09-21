@@ -309,6 +309,7 @@ std::unique_ptr<ASTNode> Parser::parse_exit() {
 
 std::unique_ptr<ASTNode> Parser::parse_func() {
   // func -> "func" IDENTIFIER "(" (IDENTIFIER: TYPE ("," IDENTIFIER: TYPE)*)? "): " <return_type> "{" ( keyword | expression )* "}"
+  // func IDENT(arg1: TYPE, arg2: TYPE): TYPE { ... }
   current++; // consume "func"
   std::string identifier = tokens[current];
   current++; // consume IDENTIFIER
@@ -339,10 +340,10 @@ std::unique_ptr<ASTNode> Parser::parse_func() {
     throw std::runtime_error("Expected ')' after function arguments");
   }
   current++; // consume ")"
-  if (tokens[current] != "):") {
-    throw std::runtime_error("Expected '):' after function arguments");
+  if (tokens[current] != ":") {
+    throw std::runtime_error("Expected ':' after function arguments closing parenthesis");
   }
-  current++; // consume "):"
+  current++; // consume ":"
   Func_Types return_type = string_to_func_type(tokens[current]);
   current++; // consume return type
   if (tokens[current] != "{") {
