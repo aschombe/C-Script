@@ -1,1 +1,1 @@
-let x: string = "Hello, World!";
+let x:int = (1 + 1) * 2;
