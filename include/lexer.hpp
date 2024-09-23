@@ -1,6 +1,5 @@
 #pragma once
-
-#include <iostream>
+#include "token.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -9,42 +8,35 @@ class Lexer {
   public:
   // constructor
   Lexer(std::string code);
-  
+
   // destructor
   ~Lexer();
-  
+
   // get the next token
-  std::string next_token();
-  
+  Token next_token();
+
   // peek the next token (don't consume it)
-  std::string peek_token();
-  
+  Token peek_token();
+
   // get the current line
   int get_line();
 
   // get the current column
   int get_column();
 
-  // get the current snippet
-  // std::string get_snippet();
-
   // get the current position
   size_t get_pos();
 
   // get the current token
-  std::string get_token();
+  Token get_token();
 
   // tokenize the code
-  std::vector<std::string> tokenize();
-
+  std::vector<Token> tokenize();
 
   private:
   // current line and column
   int line;
   int column;
-
-  // snippet for tokenizer error messages
-  // std::string snippet;
 
   // code to tokenize
   std::string code;
@@ -53,71 +45,60 @@ class Lexer {
   size_t pos;
 
   // current token
-  std::string token;
+  Token token;
 
   // keywords, symbols, and literals
-  std::map<std::string, std::string> keywords = {
-    {"let", "let"},
-    {"set", "set"},
-    {"del", "del"},
-    {"if", "if"},
-    {"elif", "elif"},
-    {"else", "else"},
-    {"for", "for"},
-    {"while", "while"},
-    {"break", "break"},
-    {"continue", "continue"},
-    {"return", "return"},
-    {"exit", "exit"},
-    {"func", "func"},
-    {"int", "int"},
-    {"float", "float"},
-    {"bool", "bool"},
-    {"string", "string"},
-    {"switch", "switch"},
-    {"case", "case"},
-    {"default", "default"},
-    {"true", "true"},
-    {"false", "false"}
+  std::map<std::string, TokenType> keywords = {
+    {"let", LET},
+    {"set", SET},
+    {"del", DEL},
+    {"if", IF},
+    {"elif", ELIF},
+    {"else", ELSE},
+    {"for", FOR},
+    {"while", WHILE},
+    {"break", BREAK},
+    {"continue", CONTINUE},
+    {"return", RETURN},
+    {"exit", EXIT},
+    {"func", FUNC},
+    {"switch", SWITCH},
+    {"case", CASE},
+    {"default", DEFAULT}
   };
 
-  std::map<std::string, std::string> symbols = {
-    {"+", "+"},
-    {"-", "-"},
-    {"*", "*"},
-    {"/", "/"},
-    {"%", "%"},
-    {"^", "^"},
-    {"==", "=="},
-    {"!=", "!="},
-    {"<=", "<="},
-    {"<", "<"},
-    {">", ">"},
-    {">=", ">="},
-    {"&&", "&&"},
-    {"||", "||"},
-    {"=", "="},
-    {"+=", "+="},
-    {"-=", "-="},
-    {"*=", "*="},
-    {"/=", "/="},
-    {"%=", "%="},
-    {"^=", "^="},
-    {"(", "("},
-    {")", ")"},
-    {"{", "{"},
-    {"}", "}"},
-    {"[", "["},
-    {"]", "]"},
-    {",", ","},
-    {":", ":"},
-    {";", ";"}
-  };
-
-  std::map<std::string, std::string> literals = {
-    {"int", "[0-9]+"},
-    {"float", "[0-9]+\\.[0-9]+"},
-    {"string", "\"[^\"]*\""},
-    {"bool", "(true|false)"}
+  std::map<std::string, TokenType> symbols = {
+    {"+", ADD},
+    {"-", SUB},
+    {"*", MUL},
+    {"/", DIV},
+    {"%", MOD},
+    {"^", POW},
+    {"==", EQ},
+    {"!=", NE},
+    {"<=", LTE},
+    {"<", LT},
+    {">", GT},
+    {">=", GTE},
+    {"&&", AND},
+    {"||", OR},
+    {"=", ASSIGN},
+    {"+=", ADD_ASSIGN},
+    {"-=", SUB_ASSIGN},
+    {"*=", MUL_ASSIGN},
+    {"/=", DIV_ASSIGN},
+    {"%=", MOD_ASSIGN},
+    {"^=", POW_ASSIGN},
+    {"++", INCREMENT},
+    {"--", DECREMENT},
+    {"(", LPAREN},
+    {")", RPAREN},
+    {"{", LBRACE},
+    {"}", RBRACE},
+    {"[", LBRACKET},
+    {"]", RBRACKET},
+    {",", COMMA},
+    {":", COLON},
+    {";", SEMICOLON}
   };
 };

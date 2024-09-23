@@ -25,12 +25,13 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## Features
 - [x] CST command line tool
-- [x] Lexer
-- [x] AST
-- [x] Parser
 - [x] Type Checker (very simple)
 
 ## TODO
+- [ ] Enhance tokenizer
+    - [ ] Int parsed as an identifier
+- [ ] Redo parser to work with enhanced tokenizer
+- [ ] Redo AST to work with enhanced parser
 - [ ] Scoping:
     - [ ] print_scope function
 - [ ] Interpreter:
