@@ -12,26 +12,21 @@ typedef std::variant<int, double, bool, std::string> Value;
 class ASTNode {
   public:
   Value value;
+  int line;
+  int col;
   virtual ~ASTNode() = default;
   virtual int node_type() const = 0;
 
   virtual std::string to_string() const = 0;
 };
 
-class DebugNode : public ASTNode {
-  int node_type() const override {
-    return -1;
-  }
-
-  std::string to_string() const override {
-    return "Debug()";
-  }
-};
-
 class IntNode : public ASTNode {
   public:
   int value;
-  IntNode(int value) : value(value) {}
+  IntNode(int value, int line, int col) : value(value) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 0;
@@ -45,7 +40,10 @@ class IntNode : public ASTNode {
 class DoubleNode : public ASTNode {
   public:
   double value;
-  DoubleNode(double value) : value(value) {}
+  DoubleNode(double value, int line, int col) : value(value) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 1;
@@ -59,7 +57,10 @@ class DoubleNode : public ASTNode {
 class StringNode : public ASTNode {
   public:
   std::string value;
-  StringNode(const std::string& value) : value(value) {}
+  StringNode(const std::string& value, int line, int col) : value(value) {
+    this->line = line;
+    this->col = col;
+  }
     
   int node_type() const override {
     return 2;
@@ -73,7 +74,10 @@ class StringNode : public ASTNode {
 class BoolNode : public ASTNode {
   public:
   bool value;
-  BoolNode(bool value) : value(value) {}
+  BoolNode(bool value, int line, int col) : value(value) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 3;
@@ -87,7 +91,10 @@ class BoolNode : public ASTNode {
 class VariableNode : public ASTNode {
   public:
   std::string name;
-  VariableNode(const std::string& name) : name(name) {}
+  VariableNode(const std::string& name, int line, int col) : name(name) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 4;
@@ -98,26 +105,15 @@ class VariableNode : public ASTNode {
   }
 };
 
-/*class ParenNode : public ASTNode {
-  public:
-  std::unique_ptr<ASTNode> expr;
-  ParenNode(std::unique_ptr<ASTNode> expr) : expr(std::move(expr)) {}
-
-  int node_type() const override {
-    return 5;
-  }
-
-  std::string to_string() const override {
-    return "Paren(" + expr->to_string() + ")";
-  }
-};*/
-
 class BinOpNode : public ASTNode {
   public:
   std::string op;
   std::unique_ptr<ASTNode> left;
   std::unique_ptr<ASTNode> right;
-  BinOpNode(const std::string& op, std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right) : op(op), left(std::move(left)), right(std::move(right)) {}
+  BinOpNode(const std::string& op, std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right) : op(op), left(std::move(left)), right(std::move(right), line, col) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 5;
@@ -132,7 +128,10 @@ class UnaryOpNode : public ASTNode {
   public:
   std::string op;
   std::unique_ptr<ASTNode> expr;
-  UnaryOpNode(const std::string& op, std::unique_ptr<ASTNode> expr) : op(op), expr(std::move(expr)) {}
+  UnaryOpNode(const std::string& op, std::unique_ptr<ASTNode> expr, int line, int col) : op(op), expr(std::move(expr)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 6;
@@ -148,7 +147,10 @@ class LetNode : public ASTNode {
   std::string name;
   Var_Types type;
   std::unique_ptr<ASTNode> value;
-  LetNode(const std::string& name, Var_Types type, std::unique_ptr<ASTNode> value) : name(name), type(type), value(std::move(value)) {}
+  LetNode(const std::string& name, Var_Types type, std::unique_ptr<ASTNode> value, int line, int col) : name(name), type(type), value(std::move(value)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 7;
@@ -164,7 +166,10 @@ class SetNode : public ASTNode {
   std::string op;
   std::unique_ptr<ASTNode> left;
   std::unique_ptr<ASTNode> right;
-  SetNode(const std::string& op, std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right) : op(op), left(std::move(left)), right(std::move(right)) {}
+  SetNode(const std::string& op, std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right, int line, int col) : op(op), left(std::move(left)), right(std::move(right)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 8;
@@ -178,7 +183,10 @@ class SetNode : public ASTNode {
 class DelNode : public ASTNode {
   public:
   std::string name;
-  DelNode(const std::string& name) : name(name) {}
+  DelNode(const std::string& name, int line, int col) : name(name) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 9;
@@ -195,7 +203,10 @@ class IEENode : public ASTNode {
   std::vector<std::unique_ptr<ASTNode>> if_body;
   std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> elifs;
   std::vector<std::unique_ptr<ASTNode>> else_body;
-  IEENode(std::unique_ptr<ASTNode> if_condition, std::vector<std::unique_ptr<ASTNode>> if_body, std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> elifs, std::vector<std::unique_ptr<ASTNode>> else_body) : if_condition(std::move(if_condition)), if_body(std::move(if_body)), elifs(std::move(elifs)), else_body(std::move(else_body)) {}
+  IEENode(std::unique_ptr<ASTNode> if_condition, std::vector<std::unique_ptr<ASTNode>> if_body, std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> elifs, std::vector<std::unique_ptr<ASTNode>> else_body, int line, int col) : if_condition(std::move(if_condition)), if_body(std::move(if_body)), elifs(std::move(elifs)), else_body(std::move(else_body)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 10;
@@ -241,7 +252,10 @@ class ForNode : public ASTNode {
   std::unique_ptr<ASTNode> condition;
   std::unique_ptr<ASTNode> increment;
   std::vector<std::unique_ptr<ASTNode>> body;
-  ForNode(const std::string& init, std::unique_ptr<ASTNode> condition, std::unique_ptr<ASTNode> increment, std::vector<std::unique_ptr<ASTNode>> body) : init(init), condition(std::move(condition)), increment(std::move(increment)), body(std::move(body)) {}
+  ForNode(const std::string& init, std::unique_ptr<ASTNode> condition, std::unique_ptr<ASTNode> increment, std::vector<std::unique_ptr<ASTNode>> body, int line, int col) : init(init), condition(std::move(condition)), increment(std::move(increment)), body(std::move(body)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 11;
@@ -264,7 +278,10 @@ class WhileNode : public ASTNode {
   public:
   std::unique_ptr<ASTNode> condition;
   std::vector<std::unique_ptr<ASTNode>> body;
-  WhileNode(std::unique_ptr<ASTNode> condition, std::vector<std::unique_ptr<ASTNode>> body) : condition(std::move(condition)), body(std::move(body)) {}
+  WhileNode(std::unique_ptr<ASTNode> condition, std::vector<std::unique_ptr<ASTNode>> body, int line, int col) : condition(std::move(condition)), body(std::move(body)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 12;
@@ -285,7 +302,10 @@ class WhileNode : public ASTNode {
 
 class BreakNode : public ASTNode {
   public:
-  BreakNode() {}
+  BreakNode(int line, int col) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 13;
@@ -298,7 +318,10 @@ class BreakNode : public ASTNode {
 
 class ContinueNode : public ASTNode {
   public:
-  ContinueNode() {}
+  ContinueNode(int line, int col) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 14;
@@ -316,7 +339,10 @@ class FuncNode : public ASTNode {
   // vector of (arg, type) pairs
   std::vector<std::pair<std::string, Var_Types>> args;
   std::vector<std::unique_ptr<ASTNode>> body;
-  FuncNode(const std::string& name, Func_Types type, std::vector<std::pair<std::string, Var_Types>> args, std::vector<std::unique_ptr<ASTNode>> body) : name(name), type(type), args(args), body(std::move(body)) {}
+  FuncNode(const std::string& name, Func_Types type, std::vector<std::pair<std::string, Var_Types>> args, std::vector<std::unique_ptr<ASTNode>> body, int line, int col) : name(name), type(type), args(args), body(std::move(body)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 15;
@@ -346,7 +372,10 @@ class CallNode : public ASTNode {
   public:
   std::string name;
   std::vector<std::unique_ptr<ASTNode>> args;
-  CallNode(const std::string& name, std::vector<std::unique_ptr<ASTNode>> args) : name(name), args(std::move(args)) {}
+  CallNode(const std::string& name, std::vector<std::unique_ptr<ASTNode>> args, int line, int col) : name(name), args(std::move(args)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 16;
@@ -368,7 +397,10 @@ class CallNode : public ASTNode {
 class ReturnNode : public ASTNode {
   public:
   std::unique_ptr<ASTNode> value;
-  ReturnNode(std::unique_ptr<ASTNode> value) : value(std::move(value)) {}
+  ReturnNode(std::unique_ptr<ASTNode> value, int line, int col) : value(std::move(value)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 17;
@@ -382,7 +414,10 @@ class ReturnNode : public ASTNode {
 class ExitNode : public ASTNode {
   public:
   std::unique_ptr<ASTNode> value;
-  ExitNode(std::unique_ptr<ASTNode> value) : value(std::move(value)) {}
+  ExitNode(std::unique_ptr<ASTNode> value, int line, int col) : value(std::move(value)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 18;
@@ -419,7 +454,10 @@ class SCDNode : public ASTNode {
   std::unique_ptr<ASTNode> value;
   std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> cases;
   std::vector<std::unique_ptr<ASTNode>> default_body;
-  SCDNode(std::unique_ptr<ASTNode> value, std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> cases, std::vector<std::unique_ptr<ASTNode>> default_body) : value(std::move(value)), cases(std::move(cases)), default_body(std::move(default_body)) {}
+  SCDNode(std::unique_ptr<ASTNode> value, std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> cases, std::vector<std::unique_ptr<ASTNode>> default_body, int line, int col) : value(std::move(value)), cases(std::move(cases)), default_body(std::move(default_body)) {
+    this->line = line;
+    this->col = col;
+  }
 
   int node_type() const override {
     return 19;

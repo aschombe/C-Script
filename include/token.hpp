@@ -78,7 +78,7 @@ struct Token {
 
 // token_to_string
 // Given a token type, return a string representation of the token.
-inline std::string token_to_string(TokenType type) {
+inline std::string token_type_to_string(TokenType type) {
   switch (type) {
     case INT: return "int";
     case DOUBLE: return "double";
@@ -137,4 +137,14 @@ inline std::string token_to_string(TokenType type) {
     case SEMICOLON: return ";";
     case END_OF_FILE: return "end of file";
   }
+}
+
+inline std::string token_to_string(const Token& token) {
+  // print all of the token information
+  std::string result = "                          \
+  Token: " + token_type_to_string(token.type) + " \
+  Value: " + token.value + "                      \
+  Line: " + std::to_string(token.line) + "        \
+  Column: " + std::to_string(token.column);
+  return result;
 }

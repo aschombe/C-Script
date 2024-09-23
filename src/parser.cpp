@@ -1,3 +1,695 @@
+/*#include "../include/parser.hpp" */
+/*#include "../include/ast.hpp" */
+/*#include "../include/types.hpp" */
+/*#include <stdexcept> */
+/*#include <iostream> */
+/*#include <regex> */
+
+/*bool Parser::is_keyword(const std::string& token) { */
+/*    return token == "let" || token == "set" || token == "del" || token == "if" || token == "for" || token == "while" || token == "break" || token == "continue" || token == "return" || token == "exit" || token == "func" || token == "switch" || token == "debug"; */
+/*} */
+
+/*std::vector<std::unique_ptr<ASTNode>> Parser::parse() { */
+/*    while (current < tokens.size()) { */
+/*        std::unique_ptr<ASTNode> node = nullptr; */
+/*        if (is_keyword(tokens[current])) { */
+/*            node = parse_keyword(); */
+/*        } else { */
+/*            node = parse_expression(); */
+/*        } */
+        
+/*        if (node) { */
+/*            ast.push_back(std::move(node)); */
+/*        } else { */
+/*            std::cerr << "Error: Failed to create AST node" << std::endl; */
+/*        } */
+/*    } */
+
+/*    // Now return the AST, using std::move */
+/*    return std::move(ast); */ 
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_keyword() { */
+/*  // check for any of the keywords */
+/*  if (tokens[current] == "debug") { */
+/*    return parse_debug(); */
+/*  } else if (tokens[current] == "let") { */
+/*    return parse_let(); */
+/*  } else if (tokens[current] == "set") { */
+/*    return parse_set(); */
+/*  } else if (tokens[current] == "del") { */
+/*    return parse_del(); */
+/*  } else if (tokens[current] == "if") { */
+/*    return parse_if(); */
+/*  } else if (tokens[current] == "for") { */
+/*    return parse_for(); */
+/*  } else if (tokens[current] == "while") { */
+/*    return parse_while(); */
+/*  } else if (tokens[current] == "break") { */
+/*    return parse_break(); */
+/*  } else if (tokens[current] == "continue") { */
+/*    return parse_continue(); */
+/*  } else if (tokens[current] == "return") { */
+/*    return parse_return(); */
+/*  } else if (tokens[current] == "exit") { */
+/*    return parse_exit(); */
+/*  } else if (tokens[current] == "func") { */
+/*    return parse_func(); */
+/*  } else if (tokens[current] == "switch") { */
+/*    return parse_switch(); */
+/*  } else { */
+/*    return parse_expression(); */
+/*  } */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_debug() { */
+/*  // debug -> "debug;" */
+/*  current++; // consume "debug" */
+/*  if (tokens[current] != ";") { */
+/*    throw std::runtime_error("Expected ';' after 'debug'"); */
+/*  } */
+/*  current++; // consume ";" */
+/*  return std::make_unique<DebugNode>(); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_let() { */
+/*  // let -> "let" IDENTIFIER: TYPE "=" expression ";" */
+/*  current++; // consume "let" */
+/*  std::string identifier = tokens[current]; */
+/*  current++; // consume IDENTIFIER */
+/*  current++; // consume ":" */
+/*  std::string type = tokens[current]; */
+/*  current++; // consume TYPE */
+/*  if (tokens[current] != "=") { */
+/*    throw std::runtime_error("Expected '=' after type in let statement"); */
+/*  } */
+/*  current++; // consume "=" */
+/*  std::unique_ptr<ASTNode> expression = parse_expression(); */
+/*  if (tokens[current] != ";") { */
+/*    throw std::runtime_error("Expected ';' after expression in let statement"); */
+/*  } */
+/*  current++; // consume ";" */
+/*  return std::make_unique<LetNode>(identifier, string_to_var_type(type), std::move(expression)); */ 
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_set() { */
+/*  // set -> IDENTIFIER ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" ) expression ";" */
+/*  std::string identifier = tokens[current]; */
+/*  current++; // consume IDENTIFIER */
+/*  if (tokens[current] != "=" && tokens[current] != "+=" && tokens[current] != "-=" && tokens[current] != "*=" && tokens[current] != "/=" && tokens[current] != "%=" && tokens[current] != "^=") { */
+/*    throw std::runtime_error("Expected assignment operator after identifier in set statement"); */
+/*  } */
+/*  std::string op = tokens[current]; */
+/*  current++; // consume assignment operator */
+/*  std::unique_ptr<ASTNode> expression = parse_expression(); */
+/*  if (tokens[current] != ";") { */
+/*    throw std::runtime_error("Expected ';' after expression in set statement"); */
+/*  } */
+/*  current++; // consume ";" */
+/*  return std::make_unique<SetNode>(op, std::make_unique<VariableNode>(identifier), std::move(expression)); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_del() { */
+/*  // del -> "del" IDENTIFIER ";" */
+/*  current++; // consume "del" */
+/*  std::string identifier = tokens[current]; */
+/*  current++; // consume IDENTIFIER */
+/*  if (tokens[current] != ";") { */
+/*    throw std::runtime_error("Expected ';' after identifier in del statement"); */
+/*  } */
+/*  current++; // consume ";" */
+/*  return std::make_unique<DelNode>(identifier); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_if() { */
+/*  // if -> "if" (expression) "{" ( keyword | expression )* "}" ( "elif" (expression) "{" ( keyword | expression )* "}" )* ( "else" "{" ( keyword | expression )* "}" )? */
+/*  current++; // consume "if" */
+/*  if (tokens[current] != "(") { */
+/*    throw std::runtime_error("Expected '(' after 'if'"); */
+/*  } */
+/*  current++; // consume "(" */
+/*  std::unique_ptr<ASTNode> if_condition = parse_expression(); */
+/*  // error is thrown in here because it thinks the next token is the last character of the condition not the ')' */
+/*  if (tokens[current] != ")") { */
+/*    throw std::runtime_error("Expected ')' after if condition"); */
+/*  } */
+/*  current++; // consume ")" */
+/*  if (tokens[current] != "{") { */
+/*    throw std::runtime_error("Expected '{' after if condition"); */
+/*  } */
+/*  current++; // consume "{" */
+/*  std::vector<std::unique_ptr<ASTNode>> if_body; */
+/*  while (tokens[current] != "}") { */
+/*    if (current >= tokens.size()) { */
+/*      throw std::runtime_error("Expected '}' after if body"); */
+/*    } */
+/*    if (is_keyword(tokens[current])) { */
+/*      if_body.push_back(parse_keyword()); */
+/*    } else { */
+/*      if_body.push_back(parse_expression()); */
+/*    } */
+/*  } */
+/*  current++; // consume "}" */
+/*  // parse elifs, if any */
+/*  std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> elifs; */
+/*  while (current < tokens.size() && tokens[current] == "elif") { */
+/*    current++; // consume "elif" */
+/*    if (tokens[current] != "(") { */
+/*      throw std::runtime_error("Expected '(' after 'elif'"); */
+/*    } */
+/*    current++; // consume "(" */
+/*    std::unique_ptr<ASTNode> elif_condition = parse_expression(); */
+/*    if (tokens[current] != ")") { */
+/*      throw std::runtime_error("Expected ')' after elif condition"); */
+/*    } */
+/*    current++; // consume ")" */
+/*    if (tokens[current] != "{") { */
+/*      throw std::runtime_error("Expected '{' after elif condition"); */
+/*    } */
+/*    current++; // consume "{" */
+/*    std::vector<std::unique_ptr<ASTNode>> elif_body; */
+/*    while (tokens[current] != "}") { */
+/*      if (current >= tokens.size()) { */
+/*        throw std::runtime_error("Expected '}' after elif body"); */
+/*      } */
+/*      if (is_keyword(tokens[current])) { */
+/*        elif_body.push_back(parse_keyword()); */
+/*      } else { */
+/*        elif_body.push_back(parse_expression()); */
+/*      } */
+/*    } */
+/*    current++; // consume "}" */
+/*    elifs.push_back(std::make_pair(std::move(elif_condition), std::move(elif_body))); */
+/*  } */
+/*  // parse else, if any */
+/*  std::vector<std::unique_ptr<ASTNode>> else_body; */
+/*  if (current < tokens.size() && tokens[current] == "else") { */
+/*    current++; // consume "else" */
+/*    if (tokens[current] != "{") { */
+/*      throw std::runtime_error("Expected '{' after 'else'"); */
+/*    } */
+/*    current++; // consume "{" */
+/*    while (tokens[current] != "}") { */
+/*      if (current >= tokens.size()) { */
+/*        throw std::runtime_error("Expected '}' after else body"); */
+/*      } */
+/*      if (is_keyword(tokens[current])) { */
+/*        else_body.push_back(parse_keyword()); */
+/*      } else { */
+/*        else_body.push_back(parse_expression()); */
+/*      } */
+/*    } */
+/*    current++; // consume "}" */
+/*  } */
+/*  return std::make_unique<IEENode>(std::move(if_condition), std::move(if_body), std::move(elifs), std::move(else_body)); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_for() { */
+/*  // for -> "for" (IDENTIFIER; expression; expression) "{" ( keyword | expression )* "}" */
+/*  current++; // consume "for" */
+/*  if (tokens[current] != "(") { */
+/*    throw std::runtime_error("Expected '(' after 'for'"); */
+/*  } */
+/*  current++; // consume "(" */
+/*  std::string identifier = tokens[current]; */
+/*  current++; // consume IDENTIFIER */
+/*  if (tokens[current] != ";") { */
+/*    throw std::runtime_error("Expected ';' after identifier in for statement"); */
+/*  } */
+/*  current++; // consume ";" */
+/*  std::unique_ptr<ASTNode> condition = parse_expression(); */
+/*  if (tokens[current] != ";") { */
+/*    throw std::runtime_error("Expected ';' after condition in for statement"); */
+/*  } */
+/*  current++; // consume ";" */
+/*  std::unique_ptr<ASTNode> increment = parse_expression(); */
+/*  if (tokens[current] != ")") { */
+/*    throw std::runtime_error("Expected ')' after increment in for statement"); */
+/*  } */
+/*  current++; // consume ")" */
+/*  if (tokens[current] != "{") { */
+/*    throw std::runtime_error("Expected '{' after for statement"); */
+/*  } */
+/*  current++; // consume "{" */
+/*  std::vector<std::unique_ptr<ASTNode>> body; */
+/*  while (tokens[current] != "}") { */
+/*    if (current >= tokens.size()) { */
+/*      throw std::runtime_error("Expected '}' after for body"); */
+/*    } */
+/*    if (is_keyword(tokens[current])) { */
+/*      body.push_back(parse_keyword()); */
+/*    } else { */
+/*      body.push_back(parse_expression()); */
+/*    } */
+/*  } */
+/*  current++; // consume "}" */
+/*  return std::make_unique<ForNode>(identifier, std::move(condition), std::move(increment), std::move(body)); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_while() { */
+/*  // while -> "while" (expression) "{" ( keyword | expression )* "}" */
+/*  current++; // consume "while" */
+/*  if (tokens[current] != "(") { */
+/*    throw std::runtime_error("Expected '(' after 'while'"); */
+/*  } */
+/*  current++; // consume "(" */
+/*  std::unique_ptr<ASTNode> condition = parse_expression(); */
+/*  if (tokens[current] != ")") { */
+/*    throw std::runtime_error("Expected ')' after condition in while statement"); */
+/*  } */
+/*  current++; // consume ")" */
+/*  if (tokens[current] != "{") { */
+/*    throw std::runtime_error("Expected '{' after while condition"); */
+/*  } */
+/*  current++; // consume "{" */
+/*  std::vector<std::unique_ptr<ASTNode>> body; */
+/*  while (tokens[current] != "}") { */
+/*    if (current >= tokens.size()) { */
+/*      throw std::runtime_error("Expected '}' after while body"); */
+/*    } */
+/*    if (is_keyword(tokens[current])) { */
+/*      body.push_back(parse_keyword()); */
+/*    } else { */
+/*      body.push_back(parse_expression()); */
+/*    } */
+/*  } */
+/*  current++; // consume "}" */
+/*  return std::make_unique<WhileNode>(std::move(condition), std::move(body)); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_break() { */
+/*  // break -> "break" ";" */
+/*  current++; // consume "break" */
+/*  if (tokens[current] != ";") { */
+/*    throw std::runtime_error("Expected ';' after 'break'"); */
+/*  } */
+/*  current++; // consume ";" */
+/*  return std::make_unique<BreakNode>(); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_continue() { */
+/*  // continue -> "continue" ";" */
+/*  current++; // consume "continue" */
+/*  if (tokens[current] != ";") { */
+/*    throw std::runtime_error("Expected ';' after 'continue'"); */
+/*  } */
+/*  current++; // consume ";" */
+/*  return std::make_unique<ContinueNode>(); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_return() { */
+/*  // return -> "return" expression ";" */
+/*  current++; // consume "return" */
+/*  std::unique_ptr<ASTNode> expression = parse_expression(); */
+/*  if (tokens[current] != ";") { */
+/*    throw std::runtime_error("Expected ';' after expression in return statement"); */
+/*  } */
+/*  current++; // consume ";" */
+/*  return std::make_unique<ReturnNode>(std::move(expression)); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_exit() { */
+/*  // exit -> "exit" <expression> ";" */
+/*  current++; // consume "exit" */
+/*  std::unique_ptr<ASTNode> expression = parse_expression(); */
+/*  if (tokens[current] != ";") { */
+/*    throw std::runtime_error("Expected ';' after expression in exit statement"); */
+/*  } */
+/*  current++; // consume ";" */
+/*  return std::make_unique<ExitNode>(std::move(expression)); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_func() { */
+/*  // func -> "func" IDENTIFIER "(" (IDENTIFIER: TYPE ("," IDENTIFIER: TYPE)*)? "): " <return_type> "{" ( keyword | expression )* "}" */
+/*  // func IDENT(arg1: TYPE, arg2: TYPE): TYPE { ... } */
+/*  current++; // consume "func" */
+/*  std::string identifier = tokens[current]; */
+/*  current++; // consume IDENTIFIER */
+/*  if (tokens[current] != "(") { */
+/*    throw std::runtime_error("Expected '(' after function identifier"); */
+/*  } */
+/*  current++; // consume "(" */
+/*  std::vector<std::pair<std::string, Var_Types>> args; */
+/*  if (tokens[current] != ")") { */
+/*    do { */
+/*      std::string arg_identifier = tokens[current]; */
+/*      current++; // consume IDENTIFIER */
+/*      if (tokens[current] != ":") { */
+/*        throw std::runtime_error("Expected ':' after argument identifier in function declaration"); */
+/*      } */
+/*      current++; // consume ":" */
+/*      std::string arg_type = tokens[current]; */
+/*      current++; // consume TYPE */
+/*      args.push_back(std::make_pair(arg_identifier, string_to_var_type(arg_type))); */
+/*      if (tokens[current] == ",") { */
+/*        current++; // consume "," */
+/*      } else { */
+/*        break; */
+/*      } */
+/*    } while (current < tokens.size()); */
+/*  } */
+/*  if (tokens[current] != ")") { */
+/*    throw std::runtime_error("Expected ')' after function arguments"); */
+/*  } */
+/*  current++; // consume ")" */
+/*  if (tokens[current] != ":") { */
+/*    throw std::runtime_error("Expected ':' after function arguments closing parenthesis"); */
+/*  } */
+/*  current++; // consume ":" */
+/*  Func_Types return_type = string_to_func_type(tokens[current]); */
+/*  current++; // consume return type */
+/*  if (tokens[current] != "{") { */
+/*    throw std::runtime_error("Expected '{' after function declaration"); */
+/*  } */
+/*  current++; // consume "{" */
+/*  std::vector<std::unique_ptr<ASTNode>> body; */
+/*  while (tokens[current] != "}") { */
+/*    if (current >= tokens.size()) { */
+/*      throw std::runtime_error("Expected '}' after function body"); */
+/*    } */
+/*    if (is_keyword(tokens[current])) { */
+/*      body.push_back(parse_keyword()); */
+/*    } else { */
+/*      body.push_back(parse_expression()); */
+/*    } */
+/*  } */
+/*  current++; // consume "}" */
+/*  return std::make_unique<FuncNode>(identifier, return_type, std::move(args), std::move(body)); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_switch() { */
+/*  /1* */
+/*  switch (expression) { */
+/*    (case (expression) { */
+/*      ( keyword | expression )* */
+/*    })+ */
+/*    (default { */
+/*      ( keyword | expression )* */
+/*    })? */
+/*  } */
+/*  *1/ */
+/*  current++; // consume "switch" */
+/*  if (tokens[current] != "(") { */
+/*    throw std::runtime_error("Expected '(' after 'switch'"); */
+/*  } */
+/*  current++; // consume "(" */
+/*  std::unique_ptr<ASTNode> expression = parse_expression(); */
+/*  if (tokens[current] != ")") { */
+/*    throw std::runtime_error("Expected ')' after switch expression"); */
+/*  } */
+/*  current++; // consume ")" */
+/*  if (tokens[current] != "{") { */
+/*    throw std::runtime_error("Expected '{' after switch expression"); */
+/*  } */
+/*  current++; // consume "{" */
+/*  std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> cases; */
+/*  while (current < tokens.size() && tokens[current] == "case") { */
+/*    current++; // consume "case" */
+/*    if (tokens[current] != "(") { */
+/*      throw std::runtime_error("Expected '(' after 'case'"); */
+/*    } */
+/*    current++; // consume "(" */
+/*    std::unique_ptr<ASTNode> case_expression = parse_expression(); */
+/*    if (tokens[current] != ")") { */
+/*      throw std::runtime_error("Expected ')' after case expression"); */
+/*    } */
+/*    current++; // consume ")" */
+/*    if (tokens[current] != "{") { */
+/*      throw std::runtime_error("Expected '{' after case expression"); */
+/*    } */
+/*    current++; // consume "{" */
+/*    std::vector<std::unique_ptr<ASTNode>> case_body; */
+/*    while (tokens[current] != "}") { */
+/*      if (current >= tokens.size()) { */
+/*        throw std::runtime_error("Expected '}' after case body"); */
+/*      } */
+/*      if (is_keyword(tokens[current])) { */
+/*        case_body.push_back(parse_keyword()); */
+/*      } else { */
+/*        case_body.push_back(parse_expression()); */
+/*      } */
+/*    } */
+/*    current++; // consume "}" */
+/*    cases.push_back(std::make_pair(std::move(case_expression), std::move(case_body))); */
+/*  } */
+/*  std::vector<std::unique_ptr<ASTNode>> default_body; */
+/*  if (current < tokens.size() && tokens[current] == "default") { */
+/*    current++; // consume "default" */
+/*    if (tokens[current] != "{") { */
+/*      throw std::runtime_error("Expected '{' after 'default'"); */
+/*    } */
+/*    current++; // consume "{" */
+/*    while (tokens[current] != "}") { */
+/*      if (current >= tokens.size()) { */
+/*        throw std::runtime_error("Expected '}' after default body"); */
+/*      } */
+/*      if (is_keyword(tokens[current])) { */
+/*        default_body.push_back(parse_keyword()); */
+/*      } else { */
+/*        default_body.push_back(parse_expression()); */
+/*      } */
+/*    } */
+/*    current++; // consume "}" */
+/*    current++; // consumes the switch statement's closing bracket */
+/*  } */
+/*  return std::make_unique<SCDNode>(std::move(expression), std::move(cases), std::move(default_body)); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_expression() { */
+/*  // expression → assignment ; */
+/*  return parse_assignment(); */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_assignment() { */
+/*  // assignment → logical_or ( ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) logical_or )* ; */
+/*  std::unique_ptr<ASTNode> node = parse_logical_or(); */
+
+/*  while (current < tokens.size()) { */
+/*    if (tokens[current] == "=" || tokens[current] == "+=" || tokens[current] == "-=" || tokens[current] == "*=" || tokens[current] == "/=" || tokens[current] == "%=") { */
+/*      std::string op = tokens[current]; */
+/*      current++; */
+/*      std::unique_ptr<ASTNode> right = parse_logical_or(); */
+/*      node = std::make_unique<SetNode>(op, std::move(node), std::move(right)); */
+/*    } else { */
+/*      break; */
+/*    } */
+/*  } */
+
+/*  return node; */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_logical_or() { */
+/*  // logical_or → logical_and ( "||" logical_and )* ; */
+/*  std::unique_ptr<ASTNode> node = parse_logical_and(); */
+
+/*  while (current < tokens.size()) { */
+/*    if (tokens[current] == "||") { */
+/*      std::string op = tokens[current]; */
+/*      current++; */
+/*      std::unique_ptr<ASTNode> right = parse_logical_and(); */
+/*      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right)); */
+/*    } else { */
+/*      break; */
+/*    } */
+/*  } */
+
+/*  return node; */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_logical_and() { */
+/*  // logical_and → equality ( "&&" equality )* ; */
+/*  std::unique_ptr<ASTNode> node = parse_equality(); */
+
+/*  while (current < tokens.size()) { */
+/*    if (tokens[current] == "&&") { */
+/*      std::string op = tokens[current]; */
+/*      current++; */
+/*      std::unique_ptr<ASTNode> right = parse_equality(); */
+/*      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right)); */
+/*    } else { */
+/*      break; */
+/*    } */
+/*  } */
+
+/*  return node; */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_equality() { */
+/*  // equality → comparison ( ( "!=" | "==" ) comparison )* ; */
+/*  std::unique_ptr<ASTNode> node = parse_comparison(); */
+
+/*  while (current < tokens.size()) { */
+/*    if (tokens[current] == "!=" || tokens[current] == "==") { */
+/*      std::string op = tokens[current]; */
+/*      current++; */
+/*      std::unique_ptr<ASTNode> right = parse_comparison(); */
+/*      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right)); */
+/*    } else { */
+/*      break; */
+/*    } */
+/*  } */
+
+/*  return node; */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_comparison() { */
+/*  // comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ; */
+/*  std::unique_ptr<ASTNode> node = parse_term(); */
+
+/*  while (current < tokens.size()) { */
+/*    if (tokens[current] == ">" || tokens[current] == ">=" || tokens[current] == "<" || tokens[current] == "<=") { */
+/*      std::string op = tokens[current]; */
+/*      current++; */
+/*      std::unique_ptr<ASTNode> right = parse_term(); */
+/*      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right)); */
+/*    } else { */
+/*      break; */
+/*    } */
+/*  } */
+
+/*  return node; */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_term() { */
+/*  // term → factor ( ( "-" | "+" ) factor )* ; */
+/*  std::unique_ptr<ASTNode> node = parse_factor(); */
+
+/*  while (current < tokens.size()) { */
+/*    if (tokens[current] == "-" || tokens[current] == "+") { */
+/*      std::string op = tokens[current]; */
+/*      current++; */
+/*      std::unique_ptr<ASTNode> right = parse_factor(); */
+/*      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right)); */
+/*    } else { */
+/*      break; */
+/*    } */
+/*  } */
+
+/*  return node; */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_factor() { */
+/*  // factor → exponentiation ( ( "/" | "*" | "%" ) exponentiation )* ; */
+/*  std::unique_ptr<ASTNode> node = parse_exponentiation(); */
+
+/*  while (current < tokens.size()) { */
+/*    if (tokens[current] == "/" || tokens[current] == "*" || tokens[current] == "%") { */
+/*      std::string op = tokens[current]; */
+/*      current++; */
+/*      std::unique_ptr<ASTNode> right = parse_exponentiation(); */
+/*      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right)); */
+/*    } else { */
+/*      break; */
+/*    } */
+/*  } */
+
+/*  return node; */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_exponentiation() { */
+/*  // exponentiation → unary ( "^" unary )* ; */
+/*  std::unique_ptr<ASTNode> node = parse_unary(); */
+
+/*  while (current < tokens.size()) { */
+/*    if (tokens[current] == "^") { */
+/*      std::string op = tokens[current]; */
+/*      current++; */
+/*      std::unique_ptr<ASTNode> right = parse_unary(); */
+/*      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right)); */
+/*    } else { */
+/*      break; */
+/*    } */
+/*  } */
+
+/*  return node; */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_unary() { */
+/*  // unary → ( "!" | "-" ) unary | primary ; */
+/*  if (tokens[current] == "!" || tokens[current] == "-") { */
+/*    std::string op = tokens[current]; */
+/*    current++; */
+/*    std::unique_ptr<ASTNode> right = parse_unary(); */
+/*    return std::make_unique<UnaryOpNode>(op, std::move(right)); */
+/*  } else { */
+/*    return parse_primary(); */
+/*  } */
+/*} */
+
+/*std::unique_ptr<ASTNode> Parser::parse_primary() { */
+/*  // primary → INT | Double | STRING | BOOL | "(" expression ")" | FuncCall */
+/*  if (tokens[current] == "(") { */
+/*    current++; */
+/*    std::unique_ptr<ASTNode> node = parse_expression(); */
+/*    if (tokens[current] != ")") { */
+/*      throw std::runtime_error("Expected ')' after expression"); */
+/*    } */
+/*    current++; */
+/*    return node; */
+/*  } else { */
+/*    std::string token = tokens[current]; */
+
+/*    // Check for function call */
+/*    if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && */ 
+/*        current + 1 < tokens.size() && tokens[current + 1] == "(") { */
+/*      current++; // consume the identifier */
+/*      current++; // consume the '(' */
+
+/*      std::vector<std::unique_ptr<ASTNode>> args; */
+/*      // Optionally parse arguments if they exist */
+/*      if (tokens[current] != ")") { */
+/*        do { */
+/*          args.push_back(parse_expression()); */
+/*          if (tokens[current] == ",") { */
+/*            current++; // consume ',' */
+/*          } else { */
+/*            break; */
+/*          } */
+/*        } while (current < tokens.size()); */
+/*      } */
+      
+/*      if (tokens[current] != ")") { */
+/*        throw std::runtime_error("Expected ')' after function arguments"); */
+/*      } */
+/*      current++; // consume the ')' */
+
+/*      return std::make_unique<CallNode>(token, std::move(args)); */
+/*    } */
+
+/*    // Check for INT */
+/*    if (std::regex_match(token, std::regex("[0-9]+"))) { */
+/*      current++; */
+/*      return std::make_unique<IntNode>(std::stoi(token)); */
+/*    } */
+
+/*    // Check for FLOAT */
+/*    if (std::regex_match(token, std::regex("[0-9]+\\.[0-9]+"))) { */
+/*      current++; */
+/*      return std::make_unique<DoubleNode>(std::stof(token)); */
+/*    } */
+
+/*    // Check for STRING */
+/*    if (std::regex_match(token, std::regex("\"[^\"]*\""))) { */
+/*      current++; */
+/*      return std::make_unique<StringNode>(token.substr(1, token.size() - 2)); */
+/*    } */
+
+/*    // Check for BOOL */
+/*    if (token == "true" || token == "false") { */
+/*      current++; */
+/*      return std::make_unique<BoolNode>(token == "true"); */
+/*    } */
+
+/*    // If it's not a primary, assume it's a variable */
+/*    current++; */
+/*    return std::make_unique<VariableNode>(token); */
+/*  } */
+
+/*  throw std::runtime_error("Failed to parse primary"); */
+/*} */
+
+// my tokens are now token structs, so I need to change the parser to reflect that
+
 #include "../include/parser.hpp"
 #include "../include/ast.hpp"
 #include "../include/types.hpp"
@@ -5,141 +697,141 @@
 #include <iostream>
 #include <regex>
 
-bool Parser::is_keyword(const std::string& token) {
-    return token == "let" || token == "set" || token == "del" || token == "if" || token == "for" || token == "while" || token == "break" || token == "continue" || token == "return" || token == "exit" || token == "func" || token == "switch" || token == "debug";
+bool Parser::is_keyword(const Token& token) {
+  return token.value == "let" || token.value == "set" || token.value == "del" || token.value == "if" || token.value == "for" || token.value == "while" || token.value == "break" || token.value == "continue" || token.value == "return" || token.value == "exit" || token.value == "func" || token.value == "switch" || token.value == "debug";
 }
 
 std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
-    while (current < tokens.size()) {
-        std::unique_ptr<ASTNode> node = nullptr;
-        if (is_keyword(tokens[current])) {
-            node = parse_keyword();
-        } else {
-            node = parse_expression();
-        }
-        
-        if (node) {
-            ast.push_back(std::move(node));
-        } else {
-            std::cerr << "Error: Failed to create AST node" << std::endl;
-        }
+  while (current < tokens.size()) {
+    std::unique_ptr<ASTNode> node = nullptr;
+    if (is_keyword(tokens[current])) {
+      node = parse_keyword();
+    } else {
+      node = parse_expression();
     }
+    
+    if (node) {
+      ast.push_back(std::move(node));
+    } else {
+      std::cerr << "Error: Failed to create AST node: " << std::endl;
+      token_to_string(tokens[current]);
+    }
+  }
 
-    // Now return the AST, using std::move
-    return std::move(ast); 
+  // Now return the AST, using std::move
+  return std::move(ast);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_keyword() {
   // check for any of the keywords
-  if (tokens[current] == "debug") {
-    return parse_debug();
-  } else if (tokens[current] == "let") {
+  if (tokens[current].value == "let") {
     return parse_let();
-  } else if (tokens[current] == "set") {
+  } else if (tokens[current].value == "set") {
     return parse_set();
-  } else if (tokens[current] == "del") {
+  } else if (tokens[current].value == "del") {
     return parse_del();
-  } else if (tokens[current] == "if") {
+  } else if (tokens[current].value == "if") {
     return parse_if();
-  } else if (tokens[current] == "for") {
+  } else if (tokens[current].value == "for") {
     return parse_for();
-  } else if (tokens[current] == "while") {
+  } else if (tokens[current].value == "while") {
     return parse_while();
-  } else if (tokens[current] == "break") {
+  } else if (tokens[current].value == "break") {
     return parse_break();
-  } else if (tokens[current] == "continue") {
+  } else if (tokens[current].value == "continue") {
     return parse_continue();
-  } else if (tokens[current] == "return") {
+  } else if (tokens[current].value == "return") {
     return parse_return();
-  } else if (tokens[current] == "exit") {
+  } else if (tokens[current].value == "exit") {
     return parse_exit();
-  } else if (tokens[current] == "func") {
+  } else if (tokens[current].value == "func") {
     return parse_func();
-  } else if (tokens[current] == "switch") {
+  } else if (tokens[current].value == "switch") {
     return parse_switch();
   } else {
     return parse_expression();
   }
 }
 
-std::unique_ptr<ASTNode> Parser::parse_debug() {
-  // debug -> "debug;"
-  current++; // consume "debug"
-  if (tokens[current] != ";") {
-    throw std::runtime_error("Expected ';' after 'debug'");
-  }
-  current++; // consume ";"
-  return std::make_unique<DebugNode>();
-}
+/* class ASTNode { */
+/*   public: */
+/*   Value value; */
+/*   int line; // from the Token struct*/
+/*   int col; // from the token struct*/
+/*   virtual ~ASTNode() = default; */
+/*   virtual int node_type() const = 0; */
+
+/*   virtual std::string to_string() const = 0; */
+/* }; */
 
 std::unique_ptr<ASTNode> Parser::parse_let() {
   // let -> "let" IDENTIFIER: TYPE "=" expression ";"
   current++; // consume "let"
-  std::string identifier = tokens[current];
+  std::string identifier = tokens[current].value;
   current++; // consume IDENTIFIER
   current++; // consume ":"
-  std::string type = tokens[current];
+  std::string type = tokens[current].value;
   current++; // consume TYPE
-  if (tokens[current] != "=") {
+  if (tokens[current].value != "=") {
     throw std::runtime_error("Expected '=' after type in let statement");
   }
   current++; // consume "="
   std::unique_ptr<ASTNode> expression = parse_expression();
-  if (tokens[current] != ";") {
+  if (tokens[current].value != ";") {
     throw std::runtime_error("Expected ';' after expression in let statement");
   }
   current++; // consume ";"
-  return std::make_unique<LetNode>(identifier, string_to_var_type(type), std::move(expression)); 
+  return std::make_unique<LetNode>(identifier, type, std::move(expression), tokens[].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_set() {
   // set -> IDENTIFIER ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" ) expression ";"
-  std::string identifier = tokens[current];
+  std::string identifier = tokens[current].value;
   current++; // consume IDENTIFIER
-  if (tokens[current] != "=" && tokens[current] != "+=" && tokens[current] != "-=" && tokens[current] != "*=" && tokens[current] != "/=" && tokens[current] != "%=" && tokens[current] != "^=") {
+  if (tokens[current].value != "=" && tokens[current].value != "+=" && tokens[current].value != "-=" && tokens[current].value != "*=" && tokens[current].value != "/=" && tokens[current].value != "%=" && tokens[current].value != "^=") {
     throw std::runtime_error("Expected assignment operator after identifier in set statement");
   }
-  std::string op = tokens[current];
+  std::string op = tokens[current].value;
   current++; // consume assignment operator
   std::unique_ptr<ASTNode> expression = parse_expression();
-  if (tokens[current] != ";") {
+  if (tokens[current].value != ";") {
     throw std::runtime_error("Expected ';' after expression in set statement");
   }
   current++; // consume ";"
-  return std::make_unique<SetNode>(op, std::make_unique<VariableNode>(identifier), std::move(expression));
+  return std::make_unique<SetNode>(op, std::make_unique<VariableNode>(identifier), std::move(expression), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_del() {
   // del -> "del" IDENTIFIER ";"
   current++; // consume "del"
-  std::string identifier = tokens[current];
+  std::string identifier = tokens[current].value;
   current++; // consume IDENTIFIER
-  if (tokens[current] != ";") {
+  if (tokens[current].value != ";") {
     throw std::runtime_error("Expected ';' after identifier in del statement");
   }
   current++; // consume ";"
-  return std::make_unique<DelNode>(identifier);
+  return std::make_unique<DelNode>(identifier, tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_if() {
   // if -> "if" (expression) "{" ( keyword | expression )* "}" ( "elif" (expression) "{" ( keyword | expression )* "}" )* ( "else" "{" ( keyword | expression )* "}" )?
   current++; // consume "if"
-  if (tokens[current] != "(") {
+  if (tokens[current].value != "(") {
     throw std::runtime_error("Expected '(' after 'if'");
   }
   current++; // consume "("
   std::unique_ptr<ASTNode> if_condition = parse_expression();
   // error is thrown in here because it thinks the next token is the last character of the condition not the ')'
-  if (tokens[current] != ")") {
+  if (tokens[current].value != ")") {
     throw std::runtime_error("Expected ')' after if condition");
   }
   current++; // consume ")"
-  if (tokens[current] != "{") {
+  if (tokens[current].value != "{") {
     throw std::runtime_error("Expected '{' after if condition");
   }
   current++; // consume "{"
   std::vector<std::unique_ptr<ASTNode>> if_body;
-  while (tokens[current] != "}") {
+  while (tokens[current].value != "}") {
     if (current >= tokens.size()) {
       throw std::runtime_error("Expected '}' after if body");
     }
@@ -151,24 +843,24 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
   }
   current++; // consume "}"
   // parse elifs, if any
-  std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> elifs;
-  while (current < tokens.size() && tokens[current] == "elif") {
+  std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>> elifs;
+  while (current < tokens.size() && tokens[current].value == "elif") {
     current++; // consume "elif"
-    if (tokens[current] != "(") {
+    if (tokens[current].value != "(") {
       throw std::runtime_error("Expected '(' after 'elif'");
     }
     current++; // consume "("
     std::unique_ptr<ASTNode> elif_condition = parse_expression();
-    if (tokens[current] != ")") {
+    if (tokens[current].value != ")") {
       throw std::runtime_error("Expected ')' after elif condition");
     }
     current++; // consume ")"
-    if (tokens[current] != "{") {
+    if (tokens[current].value != "{") {
       throw std::runtime_error("Expected '{' after elif condition");
     }
     current++; // consume "{"
     std::vector<std::unique_ptr<ASTNode>> elif_body;
-    while (tokens[current] != "}") {
+    while (tokens[current].Value != "}") {
       if (current >= tokens.size()) {
         throw std::runtime_error("Expected '}' after elif body");
       }
@@ -183,13 +875,13 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
   }
   // parse else, if any
   std::vector<std::unique_ptr<ASTNode>> else_body;
-  if (current < tokens.size() && tokens[current] == "else") {
+  if (current < tokens.size() && tokens[current].value == "else") {
     current++; // consume "else"
-    if (tokens[current] != "{") {
+    if (tokens[current].value != "{") {
       throw std::runtime_error("Expected '{' after 'else'");
     }
     current++; // consume "{"
-    while (tokens[current] != "}") {
+    while (tokens[current].value != "}") {
       if (current >= tokens.size()) {
         throw std::runtime_error("Expected '}' after else body");
       }
@@ -201,38 +893,38 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
     }
     current++; // consume "}"
   }
-  return std::make_unique<IEENode>(std::move(if_condition), std::move(if_body), std::move(elifs), std::move(else_body));
+  return std::make_unique<IEENode>(if_condition = std::move(if_condition), if_body = std::move(if_body), elifs = std::move(elifs), else_body = std::move(else_body), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_for() {
   // for -> "for" (IDENTIFIER; expression; expression) "{" ( keyword | expression )* "}"
   current++; // consume "for"
-  if (tokens[current] != "(") {
+  if (tokens[current].value != "(") {
     throw std::runtime_error("Expected '(' after 'for'");
   }
   current++; // consume "("
-  std::string identifier = tokens[current];
+  std::string identifier = tokens[current].value;
   current++; // consume IDENTIFIER
-  if (tokens[current] != ";") {
+  if (tokens[current].value != ";") {
     throw std::runtime_error("Expected ';' after identifier in for statement");
   }
   current++; // consume ";"
   std::unique_ptr<ASTNode> condition = parse_expression();
-  if (tokens[current] != ";") {
+  if (tokens[current].value != ";") {
     throw std::runtime_error("Expected ';' after condition in for statement");
   }
   current++; // consume ";"
   std::unique_ptr<ASTNode> increment = parse_expression();
-  if (tokens[current] != ")") {
+  if (tokens[current].value != ")") {
     throw std::runtime_error("Expected ')' after increment in for statement");
   }
   current++; // consume ")"
-  if (tokens[current] != "{") {
+  if (tokens[current].value != "{") {
     throw std::runtime_error("Expected '{' after for statement");
   }
   current++; // consume "{"
   std::vector<std::unique_ptr<ASTNode>> body;
-  while (tokens[current] != "}") {
+  while (tokens[current].value != "}") {
     if (current >= tokens.size()) {
       throw std::runtime_error("Expected '}' after for body");
     }
@@ -243,27 +935,27 @@ std::unique_ptr<ASTNode> Parser::parse_for() {
     }
   }
   current++; // consume "}"
-  return std::make_unique<ForNode>(identifier, std::move(condition), std::move(increment), std::move(body));
+  return std::make_unique<ForNode>(identifier, condition = std::move(condition), increment = std::move(increment), body = std::move(body), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_while() {
   // while -> "while" (expression) "{" ( keyword | expression )* "}"
   current++; // consume "while"
-  if (tokens[current] != "(") {
+  if (tokens[current].value != "(") {
     throw std::runtime_error("Expected '(' after 'while'");
   }
   current++; // consume "("
   std::unique_ptr<ASTNode> condition = parse_expression();
-  if (tokens[current] != ")") {
+  if (tokens[current].value != ")") {
     throw std::runtime_error("Expected ')' after condition in while statement");
   }
   current++; // consume ")"
-  if (tokens[current] != "{") {
+  if (tokens[current].value != "{") {
     throw std::runtime_error("Expected '{' after while condition");
   }
   current++; // consume "{"
   std::vector<std::unique_ptr<ASTNode>> body;
-  while (tokens[current] != "}") {
+  while (tokens[current].value != "}") {
     if (current >= tokens.size()) {
       throw std::runtime_error("Expected '}' after while body");
     }
@@ -274,96 +966,96 @@ std::unique_ptr<ASTNode> Parser::parse_while() {
     }
   }
   current++; // consume "}"
-  return std::make_unique<WhileNode>(std::move(condition), std::move(body));
+  return std::make_unique<WhileNode>(condition = std::move(condition), body = std::move(body), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_break() {
   // break -> "break" ";"
   current++; // consume "break"
-  if (tokens[current] != ";") {
+  if (tokens[current].value != ";") {
     throw std::runtime_error("Expected ';' after 'break'");
   }
   current++; // consume ";"
-  return std::make_unique<BreakNode>();
+  return std::make_unique<BreakNode>(tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_continue() {
   // continue -> "continue" ";"
   current++; // consume "continue"
-  if (tokens[current] != ";") {
+  if (tokens[current].value != ";") {
     throw std::runtime_error("Expected ';' after 'continue'");
   }
   current++; // consume ";"
-  return std::make_unique<ContinueNode>();
+  return std::make_unique<ContinueNode>(tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_return() {
   // return -> "return" expression ";"
   current++; // consume "return"
   std::unique_ptr<ASTNode> expression = parse_expression();
-  if (tokens[current] != ";") {
+  if (tokens[current].value != ";") {
     throw std::runtime_error("Expected ';' after expression in return statement");
   }
   current++; // consume ";"
-  return std::make_unique<ReturnNode>(std::move(expression));
+  return std::make_unique<ReturnNode>(expression = std::move(expression), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_exit() {
   // exit -> "exit" <expression> ";"
   current++; // consume "exit"
   std::unique_ptr<ASTNode> expression = parse_expression();
-  if (tokens[current] != ";") {
+  if (tokens[current].value != ";") {
     throw std::runtime_error("Expected ';' after expression in exit statement");
   }
   current++; // consume ";"
-  return std::make_unique<ExitNode>(std::move(expression));
+  return std::make_unique<ExitNode>(expression = std::move(expression), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_func() {
   // func -> "func" IDENTIFIER "(" (IDENTIFIER: TYPE ("," IDENTIFIER: TYPE)*)? "): " <return_type> "{" ( keyword | expression )* "}"
   // func IDENT(arg1: TYPE, arg2: TYPE): TYPE { ... }
   current++; // consume "func"
-  std::string identifier = tokens[current];
+  std::string identifier = tokens[current].value;
   current++; // consume IDENTIFIER
-  if (tokens[current] != "(") {
+  if (tokens[current].value != "(") {
     throw std::runtime_error("Expected '(' after function identifier");
   }
   current++; // consume "("
   std::vector<std::pair<std::string, Var_Types>> args;
-  if (tokens[current] != ")") {
+  if (tokens[current].value != ")") {
     do {
-      std::string arg_identifier = tokens[current];
+      std::string arg_identifier = tokens[current].value;
       current++; // consume IDENTIFIER
-      if (tokens[current] != ":") {
+      if (tokens[current].value != ":") {
         throw std::runtime_error("Expected ':' after argument identifier in function declaration");
       }
       current++; // consume ":"
-      std::string arg_type = tokens[current];
+      std::string arg_type = tokens[current].value;
       current++; // consume TYPE
       args.push_back(std::make_pair(arg_identifier, string_to_var_type(arg_type)));
-      if (tokens[current] == ",") {
+      if (tokens[current].value == ",") {
         current++; // consume ","
       } else {
         break;
       }
     } while (current < tokens.size());
   }
-  if (tokens[current] != ")") {
+  if (tokens[current].value != ")") {
     throw std::runtime_error("Expected ')' after function arguments");
   }
   current++; // consume ")"
-  if (tokens[current] != ":") {
+  if (tokens[current].value != ":") {
     throw std::runtime_error("Expected ':' after function arguments closing parenthesis");
   }
   current++; // consume ":"
-  Func_Types return_type = string_to_func_type(tokens[current]);
+  Func_Types return_type = string_to_func_type(tokens[current].value);
   current++; // consume return type
-  if (tokens[current] != "{") {
+  if (tokens[current].value != "{") {
     throw std::runtime_error("Expected '{' after function declaration");
   }
   current++; // consume "{"
   std::vector<std::unique_ptr<ASTNode>> body;
-  while (tokens[current] != "}") {
+  while (tokens[current].value != "}") {
     if (current >= tokens.size()) {
       throw std::runtime_error("Expected '}' after function body");
     }
@@ -374,7 +1066,7 @@ std::unique_ptr<ASTNode> Parser::parse_func() {
     }
   }
   current++; // consume "}"
-  return std::make_unique<FuncNode>(identifier, return_type, std::move(args), std::move(body));
+  return std::make_unique<FuncNode>(identifier, return_type, args = std::move(args), body = std::move(body), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_switch() {
@@ -389,37 +1081,37 @@ std::unique_ptr<ASTNode> Parser::parse_switch() {
   }
   */
   current++; // consume "switch"
-  if (tokens[current] != "(") {
+  if (tokens[current].value != "(") {
     throw std::runtime_error("Expected '(' after 'switch'");
   }
   current++; // consume "("
   std::unique_ptr<ASTNode> expression = parse_expression();
-  if (tokens[current] != ")") {
+  if (tokens[current].value != ")") {
     throw std::runtime_error("Expected ')' after switch expression");
   }
   current++; // consume ")"
-  if (tokens[current] != "{") {
+  if (tokens[current].value != "{") {
     throw std::runtime_error("Expected '{' after switch expression");
   }
   current++; // consume "{"
-  std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> cases;
-  while (current < tokens.size() && tokens[current] == "case") {
+  std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>> cases;
+  while (current < tokens.size() && tokens[current].value == "case") {
     current++; // consume "case"
-    if (tokens[current] != "(") {
+    if (tokens[current].value != "(") {
       throw std::runtime_error("Expected '(' after 'case'");
     }
     current++; // consume "("
     std::unique_ptr<ASTNode> case_expression = parse_expression();
-    if (tokens[current] != ")") {
+    if (tokens[current].value != ")") {
       throw std::runtime_error("Expected ')' after case expression");
     }
     current++; // consume ")"
-    if (tokens[current] != "{") {
+    if (tokens[current].value != "{") {
       throw std::runtime_error("Expected '{' after case expression");
     }
     current++; // consume "{"
     std::vector<std::unique_ptr<ASTNode>> case_body;
-    while (tokens[current] != "}") {
+    while (tokens[current].value != "}") {
       if (current >= tokens.size()) {
         throw std::runtime_error("Expected '}' after case body");
       }
@@ -433,13 +1125,13 @@ std::unique_ptr<ASTNode> Parser::parse_switch() {
     cases.push_back(std::make_pair(std::move(case_expression), std::move(case_body)));
   }
   std::vector<std::unique_ptr<ASTNode>> default_body;
-  if (current < tokens.size() && tokens[current] == "default") {
+  if (current < tokens.size() && tokens[current].value == "default") {
     current++; // consume "default"
-    if (tokens[current] != "{") {
+    if (tokens[current].value != "{") {
       throw std::runtime_error("Expected '{' after 'default'");
     }
     current++; // consume "{"
-    while (tokens[current] != "}") {
+    while (tokens[current].value != "}") {
       if (current >= tokens.size()) {
         throw std::runtime_error("Expected '}' after default body");
       }
@@ -452,24 +1144,24 @@ std::unique_ptr<ASTNode> Parser::parse_switch() {
     current++; // consume "}"
     current++; // consumes the switch statement's closing bracket
   }
-  return std::make_unique<SCDNode>(std::move(expression), std::move(cases), std::move(default_body));
+  return std::make_unique<SCDNode>(expression = std::move(expression), cases = std::move(cases), default_body = std::move(default_body), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_expression() {
-  // expression → assignment ;
+  // expression -> assignment ;
   return parse_assignment();
 }
 
 std::unique_ptr<ASTNode> Parser::parse_assignment() {
-  // assignment → logical_or ( ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) logical_or )* ;
+  // assignment -> logical_or ( ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) logical_or )* ;
   std::unique_ptr<ASTNode> node = parse_logical_or();
 
   while (current < tokens.size()) {
-    if (tokens[current] == "=" || tokens[current] == "+=" || tokens[current] == "-=" || tokens[current] == "*=" || tokens[current] == "/=" || tokens[current] == "%=") {
-      std::string op = tokens[current];
+    if (tokens[current].value == "=" || tokens[current].value == "+=" || tokens[current].value == "-=" || tokens[current].value == "*=" || tokens[current].value == "/=" || tokens[current].value == "%=") {
+      std::string op = tokens[current].value;
       current++;
       std::unique_ptr<ASTNode> right = parse_logical_or();
-      node = std::make_unique<SetNode>(op, std::move(node), std::move(right));
+      node = std::make_unique<SetNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col);
     } else {
       break;
     }
@@ -479,15 +1171,15 @@ std::unique_ptr<ASTNode> Parser::parse_assignment() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_logical_or() {
-  // logical_or → logical_and ( "||" logical_and )* ;
+  // logical_or -> logical_and ( "||" logical_and )* ;
   std::unique_ptr<ASTNode> node = parse_logical_and();
 
   while (current < tokens.size()) {
-    if (tokens[current] == "||") {
-      std::string op = tokens[current];
+    if (tokens[current].value == "||") {
+      std::string op = tokens[current].value;
       current++;
       std::unique_ptr<ASTNode> right = parse_logical_and();
-      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right));
+      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col);
     } else {
       break;
     }
@@ -497,15 +1189,15 @@ std::unique_ptr<ASTNode> Parser::parse_logical_or() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_logical_and() {
-  // logical_and → equality ( "&&" equality )* ;
+  // logical_and -> equality ( "&&" equality )* ;
   std::unique_ptr<ASTNode> node = parse_equality();
 
   while (current < tokens.size()) {
-    if (tokens[current] == "&&") {
-      std::string op = tokens[current];
+    if (tokens[current].value == "&&") {
+      std::string op = tokens[current].value;
       current++;
       std::unique_ptr<ASTNode> right = parse_equality();
-      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right));
+      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col);
     } else {
       break;
     }
@@ -515,15 +1207,15 @@ std::unique_ptr<ASTNode> Parser::parse_logical_and() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_equality() {
-  // equality → comparison ( ( "!=" | "==" ) comparison )* ;
+  // equality -> comparison ( ( "!=" | "==" ) comparison )* ;
   std::unique_ptr<ASTNode> node = parse_comparison();
 
   while (current < tokens.size()) {
-    if (tokens[current] == "!=" || tokens[current] == "==") {
-      std::string op = tokens[current];
+    if (tokens[current].value == "!=" || tokens[current].value == "==") {
+      std::string op = tokens[current].value;
       current++;
       std::unique_ptr<ASTNode> right = parse_comparison();
-      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right));
+      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col);
     } else {
       break;
     }
@@ -533,15 +1225,15 @@ std::unique_ptr<ASTNode> Parser::parse_equality() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_comparison() {
-  // comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+  // comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
   std::unique_ptr<ASTNode> node = parse_term();
 
   while (current < tokens.size()) {
-    if (tokens[current] == ">" || tokens[current] == ">=" || tokens[current] == "<" || tokens[current] == "<=") {
-      std::string op = tokens[current];
+    if (tokens[current].value == ">" || tokens[current].value == ">=" || tokens[current].value == "<" || tokens[current].value == "<=") {
+      std::string op = tokens[current].value;
       current++;
       std::unique_ptr<ASTNode> right = parse_term();
-      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right));
+      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col);
     } else {
       break;
     }
@@ -551,15 +1243,15 @@ std::unique_ptr<ASTNode> Parser::parse_comparison() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_term() {
-  // term → factor ( ( "-" | "+" ) factor )* ;
+  // term -> factor ( ( "-" | "+" ) factor )* ;
   std::unique_ptr<ASTNode> node = parse_factor();
 
   while (current < tokens.size()) {
-    if (tokens[current] == "-" || tokens[current] == "+") {
-      std::string op = tokens[current];
+    if (tokens[current].value == "-" || tokens[current].value == "+") {
+      std::string op = tokens[current].value;
       current++;
       std::unique_ptr<ASTNode> right = parse_factor();
-      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right));
+      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col);
     } else {
       break;
     }
@@ -569,15 +1261,15 @@ std::unique_ptr<ASTNode> Parser::parse_term() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_factor() {
-  // factor → exponentiation ( ( "/" | "*" | "%" ) exponentiation )* ;
+  // factor -> exponentiation ( ( "/" | "*" | "%" ) exponentiation )* ;
   std::unique_ptr<ASTNode> node = parse_exponentiation();
 
   while (current < tokens.size()) {
-    if (tokens[current] == "/" || tokens[current] == "*" || tokens[current] == "%") {
-      std::string op = tokens[current];
+    if (tokens[current].value == "/" || tokens[current].value == "*" || tokens[current].value == "%") {
+      std::string op = tokens[current].value;
       current++;
       std::unique_ptr<ASTNode> right = parse_exponentiation();
-      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right));
+      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col);
     } else {
       break;
     }
@@ -587,15 +1279,15 @@ std::unique_ptr<ASTNode> Parser::parse_factor() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_exponentiation() {
-  // exponentiation → unary ( "^" unary )* ;
+  // exponentiation -> unary ( "^" unary )* ;
   std::unique_ptr<ASTNode> node = parse_unary();
 
   while (current < tokens.size()) {
-    if (tokens[current] == "^") {
-      std::string op = tokens[current];
+    if (tokens[current].value == "^") {
+      std::string op = tokens[current].value;
       current++;
       std::unique_ptr<ASTNode> right = parse_unary();
-      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right));
+      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col);
     } else {
       break;
     }
@@ -605,42 +1297,42 @@ std::unique_ptr<ASTNode> Parser::parse_exponentiation() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_unary() {
-  // unary → ( "!" | "-" ) unary | primary ;
-  if (tokens[current] == "!" || tokens[current] == "-") {
-    std::string op = tokens[current];
+  // unary -> ( "!" | "-" ) unary | primary ;
+  if (tokens[current].value == "!" || tokens[current].value == "-") {
+    std::string op = tokens[current].value;
     current++;
     std::unique_ptr<ASTNode> right = parse_unary();
-    return std::make_unique<UnaryOpNode>(op, std::move(right));
+    return std::make_unique<UnaryOpNode>(op, std::move(right), tokens[current].line, tokens[current].col);
   } else {
     return parse_primary();
   }
 }
 
 std::unique_ptr<ASTNode> Parser::parse_primary() {
-  // primary → INT | Double | STRING | BOOL | "(" expression ")" | FuncCall
-  if (tokens[current] == "(") {
+  // primary -> INT | Double | STRING | BOOL | "(" expression ")" | FuncCall
+  if (tokens[current].value == "(") {
     current++;
     std::unique_ptr<ASTNode> node = parse_expression();
-    if (tokens[current] != ")") {
+    if (tokens[current].value != ")") {
       throw std::runtime_error("Expected ')' after expression");
     }
     current++;
     return node;
   } else {
-    std::string token = tokens[current];
+    std::string token = tokens[current].value;
 
     // Check for function call
     if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && 
-        current + 1 < tokens.size() && tokens[current + 1] == "(") {
+        current + 1 < tokens.size() && tokens[current + 1].value == "(") {
       current++; // consume the identifier
       current++; // consume the '('
 
       std::vector<std::unique_ptr<ASTNode>> args;
       // Optionally parse arguments if they exist
-      if (tokens[current] != ")") {
+      if (tokens[current].value != ")") {
         do {
           args.push_back(parse_expression());
-          if (tokens[current] == ",") {
+          if (tokens[current].value == ",") {
             current++; // consume ','
           } else {
             break;
@@ -648,43 +1340,42 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
         } while (current < tokens.size());
       }
       
-      if (tokens[current] != ")") {
+      if (tokens[current].value != ")") {
         throw std::runtime_error("Expected ')' after function arguments");
       }
       current++; // consume the ')'
 
-      return std::make_unique<CallNode>(token, std::move(args));
+      return std::make_unique<CallNode>(token, args, tokens[current].line, tokens[current].col);
     }
 
     // Check for INT
     if (std::regex_match(token, std::regex("[0-9]+"))) {
       current++;
-      return std::make_unique<IntNode>(std::stoi(token));
+      return std::make_unique<IntNode>(std::stoi(token), tokens[current].line, tokens[current].col);
     }
 
     // Check for FLOAT
     if (std::regex_match(token, std::regex("[0-9]+\\.[0-9]+"))) {
       current++;
-      return std::make_unique<DoubleNode>(std::stof(token));
+      return std::make_unique<DoubleNode>(std::stof(token), tokens[current].line, tokens[current].col);
     }
 
     // Check for STRING
     if (std::regex_match(token, std::regex("\"[^\"]*\""))) {
       current++;
-      return std::make_unique<StringNode>(token.substr(1, token.size() - 2));
+      return std::make_unique<StringNode>(token.substr(1, token.size() - 2), tokens[current].line, tokens[current].col);
     }
 
-    // Check for BOOL
+    // Check for Bool
     if (token == "true" || token == "false") {
       current++;
-      return std::make_unique<BoolNode>(token == "true");
+      return std::make_unique<BoolNode>(token == "true", tokens[current].line, tokens[current].col);
     }
 
     // If it's not a primary, assume it's a variable
     current++;
-    return std::make_unique<VariableNode>(token);
+    return std::make_unique<VariableNode>(token, tokens[current].line, tokens[current].col);
   }
 
   throw std::runtime_error("Failed to parse primary");
 }
-
