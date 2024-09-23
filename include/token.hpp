@@ -73,6 +73,7 @@ struct Token {
   int line;
   int column;
   std::string value;
+  /* std::string snippet; */
 };
 
 // token_to_string

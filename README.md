@@ -29,11 +29,9 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## TODO
 - [ ] Enhance tokenizer
-    - [ ] Tokenizer is confusing tokens:
-        - [ ] Let as set
-        - [ ] ; "illegal instruction"
-        - [ ] Int as identifier
-        - [ ] = as -=
+    - [ ] Add code snippet to token struct:
+        - [ ] Starting point: start of line (after previous newline)
+        - [ ] Ending point: new line
 - [ ] Redo parser to work with enhanced tokenizer
 - [ ] Redo AST to work with enhanced parser
 - [ ] Scoping:
