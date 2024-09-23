@@ -72,6 +72,29 @@ void Scope::set_variable(const std::string& name, const Value& value) {
   throw std::runtime_error("Variable " + name + " not found");
 }
 
+void Scope::delete_variable(const std::string& name) {
+  for (int i = scopes.size() - 1; i >= 0; i--) {
+    if (scopes[i].find(name) != scopes[i].end()) {
+      scopes[i].erase(name);
+      return;
+    }
+  }
+  throw std::runtime_error("Variable " + name + " not found");
+}
+
+void Scope::print_scope() {
+  for (int i = scopes.size() - 1; i >= 0; i--) {
+    std::cout << "Scope " << i << std::endl;
+    for (auto& [name, item] : scopes[i]) {
+      if (std::holds_alternative<Variable>(item)) {
+        std::cout << "Variable: " << std::get<Variable>(item).first << std::endl;
+      } else {
+        std::cout << "Function: " << std::get<Function>(item).name << std::endl;
+      }
+    }
+  }
+}
+
 unsigned int Scope::get_scope_level() {
   return this->scope_level;
 }

@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include <memory>
 
-typedef std::variant<int, float, bool, std::string> Value;
 typedef std::pair<std::string, Value> Variable;
 typedef std::pair<std::string, Var_Types> Argument;
 
@@ -42,8 +41,11 @@ class Scope {
   bool function_exists(const std::string& name);
 
   void set_variable(const std::string& name, const Value& value);
+  void delete_variable(const std::string& name);
 
   unsigned int get_scope_level();
+
+  void print_scope();
   
   private:
   unsigned int scope_level = 0;

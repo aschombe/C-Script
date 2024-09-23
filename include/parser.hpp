@@ -29,7 +29,7 @@ class Parser {
   std::unique_ptr<ASTNode> parse_exit();
   std::unique_ptr<ASTNode> parse_func();
   std::unique_ptr<ASTNode> parse_switch();
-
+  std::unique_ptr<ASTNode> parse_debug();
 
   std::unique_ptr<ASTNode> parse_expression();
   std::unique_ptr<ASTNode> parse_assignment(); // =, +=, -=, *=, /=, %=

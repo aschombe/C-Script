@@ -4,13 +4,28 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <variant>
 #include "types.hpp"
+
+typedef std::variant<int, double, bool, std::string> Value;
 
 class ASTNode {
   public:
+  Value value;
   virtual ~ASTNode() = default;
   virtual int node_type() const = 0;
+
   virtual std::string to_string() const = 0;
+};
+
+class DebugNode : public ASTNode {
+  int node_type() const override {
+    return -1;
+  }
+
+  std::string to_string() const override {
+    return "Debug()";
+  }
 };
 
 class IntNode : public ASTNode {
@@ -27,17 +42,17 @@ class IntNode : public ASTNode {
   }
 };
 
-class FloatNode : public ASTNode {
+class DoubleNode : public ASTNode {
   public:
-  float value;
-  FloatNode(float value) : value(value) {}
+  double value;
+  DoubleNode(double value) : value(value) {}
 
   int node_type() const override {
     return 1;
   }
 
   std::string to_string() const override {
-    return "Float(" + std::to_string(value) + ")";
+    return "Double(" + std::to_string(value) + ")";
   }
 };
 

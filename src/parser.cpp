@@ -6,7 +6,7 @@
 #include <regex>
 
 bool Parser::is_keyword(const std::string& token) {
-    return token == "let" || token == "set" || token == "del" || token == "if" || token == "for" || token == "while" || token == "break" || token == "continue" || token == "return" || token == "exit" || token == "func" || token == "switch";
+    return token == "let" || token == "set" || token == "del" || token == "if" || token == "for" || token == "while" || token == "break" || token == "continue" || token == "return" || token == "exit" || token == "func" || token == "switch" || token == "debug";
 }
 
 std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
@@ -31,7 +31,9 @@ std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
 
 std::unique_ptr<ASTNode> Parser::parse_keyword() {
   // check for any of the keywords
-  if (tokens[current] == "let") {
+  if (tokens[current] == "debug") {
+    return parse_debug();
+  } else if (tokens[current] == "let") {
     return parse_let();
   } else if (tokens[current] == "set") {
     return parse_set();
@@ -58,6 +60,16 @@ std::unique_ptr<ASTNode> Parser::parse_keyword() {
   } else {
     return parse_expression();
   }
+}
+
+std::unique_ptr<ASTNode> Parser::parse_debug() {
+  // debug -> "debug;"
+  current++; // consume "debug"
+  if (tokens[current] != ";") {
+    throw std::runtime_error("Expected ';' after 'debug'");
+  }
+  current++; // consume ";"
+  return std::make_unique<DebugNode>();
 }
 
 std::unique_ptr<ASTNode> Parser::parse_let() {
@@ -605,7 +617,7 @@ std::unique_ptr<ASTNode> Parser::parse_unary() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_primary() {
-  // primary → INT | FLOAT | STRING | BOOL | "(" expression ")" | FuncCall
+  // primary → INT | Double | STRING | BOOL | "(" expression ")" | FuncCall
   if (tokens[current] == "(") {
     current++;
     std::unique_ptr<ASTNode> node = parse_expression();
@@ -653,7 +665,7 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
     // Check for FLOAT
     if (std::regex_match(token, std::regex("[0-9]+\\.[0-9]+"))) {
       current++;
-      return std::make_unique<FloatNode>(std::stof(token));
+      return std::make_unique<DoubleNode>(std::stof(token));
     }
 
     // Check for STRING
@@ -672,4 +684,7 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
     current++;
     return std::make_unique<VariableNode>(token);
   }
+
+  throw std::runtime_error("Failed to parse primary");
 }
+

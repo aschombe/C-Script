@@ -31,7 +31,12 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] Type Checker (very simple)
 
 ## TODO
-- [ ] Interpreter
+- [ ] Scoping:
+    - [ ] print_scope function
+- [ ] Interpreter:
+    - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
+    - [ ] For loops are broken
+    - [ ] More is broken, do unit testing
 - [ ] Maybe function overloading (based on: number of arguments and types of arguments)
 - [ ] Compiler
  
