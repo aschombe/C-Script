@@ -67,22 +67,45 @@ class Lexer {
     {"default", DEFAULT}
   };
 
-  std::map<std::string, TokenType> symbols = {
-    {"+", ADD},
-    {"-", SUB},
-    {"*", MUL},
-    {"/", DIV},
-    {"%", MOD},
-    {"^", POW},
+  // map types
+  std::map<std::string, TokenType> types = {
+    {"int", TYPE},
+    {"float", TYPE},
+    {"bool", TYPE},
+    {"string", TYPE}
+  };
+
+  // map single character symbols to their token type
+  std::map<std::string, TokenType> single_symbols = {
+  {"+", ADD},
+  {"-", SUB},
+  {"*", MUL},
+  {"/", DIV},
+  {"%", MOD},
+  {"^", POW},
+  {"=", ASSIGN},
+  {"!", NOT},
+  {"<", LT},
+  {">", GT},
+  {"(", LPAREN},
+  {")", RPAREN},
+  {"{", LBRACE},
+  {"}", RBRACE},
+  {"[", LBRACKET},
+  {"]", RBRACKET},
+  {",", COMMA},
+  {":", COLON},
+  {";", SEMICOLON}
+  };
+
+  // map multi-character symbols to their token type
+  std::map<std::string, TokenType> multi_symbols = {
     {"==", EQ},
     {"!=", NE},
     {"<=", LTE},
-    {"<", LT},
-    {">", GT},
     {">=", GTE},
     {"&&", AND},
     {"||", OR},
-    {"=", ASSIGN},
     {"+=", ADD_ASSIGN},
     {"-=", SUB_ASSIGN},
     {"*=", MUL_ASSIGN},
@@ -91,14 +114,5 @@ class Lexer {
     {"^=", POW_ASSIGN},
     {"++", INCREMENT},
     {"--", DECREMENT},
-    {"(", LPAREN},
-    {")", RPAREN},
-    {"{", LBRACE},
-    {"}", RBRACE},
-    {"[", LBRACKET},
-    {"]", RBRACKET},
-    {",", COMMA},
-    {":", COLON},
-    {";", SEMICOLON}
   };
 };

@@ -29,7 +29,11 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## TODO
 - [ ] Enhance tokenizer
-    - [ ] Int parsed as an identifier
+    - [ ] Tokenizer is confusing tokens:
+        - [ ] Let as set
+        - [ ] ; "illegal instruction"
+        - [ ] Int as identifier
+        - [ ] = as -=
 - [ ] Redo parser to work with enhanced tokenizer
 - [ ] Redo AST to work with enhanced parser
 - [ ] Scoping:

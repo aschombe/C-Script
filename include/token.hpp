@@ -9,6 +9,7 @@ enum TokenType {
   BOOL,
   STRING,
   IDENTIFIER,
+  TYPE,
 
   // Keywords
   LET,
@@ -43,6 +44,7 @@ enum TokenType {
   GTE,
   AND,
   OR,
+  NOT,
   ASSIGN,
   ADD_ASSIGN,
   SUB_ASSIGN,
@@ -82,6 +84,7 @@ inline std::string token_to_string(TokenType type) {
     case BOOL: return "bool";
     case STRING: return "string";
     case IDENTIFIER: return "identifier";
+    case TYPE: return "type";
     case LET: return "let";
     case SET: return "set";
     case DEL: return "del";
@@ -112,6 +115,7 @@ inline std::string token_to_string(TokenType type) {
     case GTE: return ">=";
     case AND: return "&&";
     case OR: return "||";
+    case NOT: return "!";
     case ASSIGN: return "=";
     case ADD_ASSIGN: return "+=";
     case SUB_ASSIGN: return "-=";
