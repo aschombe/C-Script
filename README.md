@@ -25,22 +25,19 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## Features
 - [x] CST command line tool
+- [x] Tokenizer
 - [x] Type Checker (very simple)
 
 ## TODO
-- [ ] Enhance tokenizer
-    - [ ] Add code snippet to token struct:
-        - [ ] Starting point: start of line (after previous newline)
-        - [ ] Ending point: new line
 - [ ] Redo parser to work with enhanced tokenizer
 - [ ] Redo AST to work with enhanced parser
-- [ ] Scoping:
-    - [ ] print_scope function
+- [ ] Scoping/Environments
 - [ ] Interpreter:
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
-    - [ ] For loops are broken
-    - [ ] More is broken, do unit testing
 - [ ] Maybe function overloading (based on: number of arguments and types of arguments)
+- [ ] Add snippets to token struct:
+    - [ ] Starting point: start of line (after previous newline)
+    - [ ] Ending point: new line
 - [ ] Compiler
  
 ## Notes
