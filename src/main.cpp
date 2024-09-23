@@ -98,10 +98,11 @@ int main(int argc, char* argv[]) {
     std::cout << "[";
     for (size_t i = 0; i < tokens.size(); i++) {
       std::cout << "{";
-      std::cout << "\"type\": \"" << token_type_to_string(tokens[i].type) << "\", ";
-      std::cout << "\"line\": " << tokens[i].line << ", ";
-      std::cout << "\"column\": " << tokens[i].column << ", ";
-      std::cout << "\"value\": \"" << tokens[i].value << "\"";
+      /* std::cout << "\"type\": \"" << token_type_to_string(tokens[i].type) << "\", "; */
+      /* std::cout << "\"line\": " << tokens[i].line << ", "; */
+      /* std::cout << "\"column\": " << tokens[i].col << ", "; */
+      /* std::cout << "\"value\": \"" << tokens[i].value << "\""; */
+      token_to_string(tokens[i]);
       std::cout << "}";
       if (i < tokens.size() - 1) {
         std::cout << ", ";

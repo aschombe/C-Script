@@ -781,7 +781,7 @@ std::unique_ptr<ASTNode> Parser::parse_let() {
     throw std::runtime_error("Expected ';' after expression in let statement");
   }
   current++; // consume ";"
-  return std::make_unique<LetNode>(identifier, type, std::move(expression), tokens[].line, tokens[current].col);
+  return std::make_unique<LetNode>(identifier, type, std::move(expression), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_set() {
@@ -843,6 +843,7 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
   }
   current++; // consume "}"
   // parse elifs, if any
+  /* std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>> elifs; */
   std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>> elifs;
   while (current < tokens.size() && tokens[current].value == "elif") {
     current++; // consume "elif"
@@ -860,7 +861,7 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
     }
     current++; // consume "{"
     std::vector<std::unique_ptr<ASTNode>> elif_body;
-    while (tokens[current].Value != "}") {
+    while (tokens[current].value != "}") {
       if (current >= tokens.size()) {
         throw std::runtime_error("Expected '}' after elif body");
       }
@@ -893,7 +894,7 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
     }
     current++; // consume "}"
   }
-  return std::make_unique<IEENode>(if_condition = std::move(if_condition), if_body = std::move(if_body), elifs = std::move(elifs), else_body = std::move(else_body), tokens[current].line, tokens[current].col);
+  return std::make_unique<IEENode>(std::move(if_condition), std::move(if_body), std::move(elifs), std::move(else_body), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_for() {
@@ -935,7 +936,7 @@ std::unique_ptr<ASTNode> Parser::parse_for() {
     }
   }
   current++; // consume "}"
-  return std::make_unique<ForNode>(identifier, condition = std::move(condition), increment = std::move(increment), body = std::move(body), tokens[current].line, tokens[current].col);
+  return std::make_unique<ForNode>(identifier,std::move(condition), std::move(increment), std::move(body), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_while() {
@@ -966,7 +967,7 @@ std::unique_ptr<ASTNode> Parser::parse_while() {
     }
   }
   current++; // consume "}"
-  return std::make_unique<WhileNode>(condition = std::move(condition), body = std::move(body), tokens[current].line, tokens[current].col);
+  return std::make_unique<WhileNode>(std::move(condition), std::move(body), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_break() {
@@ -997,7 +998,7 @@ std::unique_ptr<ASTNode> Parser::parse_return() {
     throw std::runtime_error("Expected ';' after expression in return statement");
   }
   current++; // consume ";"
-  return std::make_unique<ReturnNode>(expression = std::move(expression), tokens[current].line, tokens[current].col);
+  return std::make_unique<ReturnNode>(std::move(expression), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_exit() {
@@ -1008,7 +1009,7 @@ std::unique_ptr<ASTNode> Parser::parse_exit() {
     throw std::runtime_error("Expected ';' after expression in exit statement");
   }
   current++; // consume ";"
-  return std::make_unique<ExitNode>(expression = std::move(expression), tokens[current].line, tokens[current].col);
+  return std::make_unique<ExitNode>(std::move(expression), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_func() {
@@ -1066,7 +1067,7 @@ std::unique_ptr<ASTNode> Parser::parse_func() {
     }
   }
   current++; // consume "}"
-  return std::make_unique<FuncNode>(identifier, return_type, args = std::move(args), body = std::move(body), tokens[current].line, tokens[current].col);
+  return std::make_unique<FuncNode>(identifier, return_type, std::move(args), std::move(body), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_switch() {
@@ -1144,7 +1145,7 @@ std::unique_ptr<ASTNode> Parser::parse_switch() {
     current++; // consume "}"
     current++; // consumes the switch statement's closing bracket
   }
-  return std::make_unique<SCDNode>(expression = std::move(expression), cases = std::move(cases), default_body = std::move(default_body), tokens[current].line, tokens[current].col);
+  return std::make_unique<SCDNode>(std::move(expression), std::move(cases), std::move(default_body), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_expression() {

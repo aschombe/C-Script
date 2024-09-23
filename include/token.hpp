@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <stdexcept>
 
 enum TokenType {
   // Literals
@@ -71,7 +72,7 @@ enum TokenType {
 struct Token {
   TokenType type;
   int line;
-  int column;
+  int col;
   std::string value;
   /* std::string snippet; */
 };
@@ -136,7 +137,10 @@ inline std::string token_type_to_string(TokenType type) {
     case COLON: return ":";
     case SEMICOLON: return ";";
     case END_OF_FILE: return "end of file";
+    default: throw std::runtime_error("Unknown token type");
   }
+
+  return "";
 }
 
 inline std::string token_to_string(const Token& token) {
@@ -145,6 +149,6 @@ inline std::string token_to_string(const Token& token) {
   Token: " + token_type_to_string(token.type) + " \
   Value: " + token.value + "                      \
   Line: " + std::to_string(token.line) + "        \
-  Column: " + std::to_string(token.column);
+  Column: " + std::to_string(token.col);
   return result;
 }
