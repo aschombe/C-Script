@@ -30,7 +30,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] Type Checker (very simple)
 
 ## TODO
-- [ ] Redo parser to work with enhanced tokenizer
+- [ ] Implement ++ and -- operators
 - [ ] Scoping/Environments
 - [ ] Interpreter:
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)

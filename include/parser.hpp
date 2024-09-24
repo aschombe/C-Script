@@ -42,6 +42,4 @@ class Parser {
   std::unique_ptr<ASTNode> parse_exponentiation();
   std::unique_ptr<ASTNode> parse_unary();
   std::unique_ptr<ASTNode> parse_primary();
-
-  /* std::unique_ptr<ASTNode> parse_func_call(); */
 };

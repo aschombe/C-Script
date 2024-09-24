@@ -12,9 +12,7 @@ class Interpreter {
   private:
   const std::vector<std::unique_ptr<ASTNode>>& ast;
   Scope scope;
-
-  Value interp_debug();
-
+  
   Value interp(const std::unique_ptr<ASTNode>& node);
   Value interp_binop(const BinOpNode* node);
   Value interp_unaryop(const UnaryOpNode* node);

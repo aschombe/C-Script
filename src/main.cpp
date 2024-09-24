@@ -1,27 +1,3 @@
-/*
-Keywords and symbols in my language:
-- keyworks: let, set, del, if, elif, else, for, while, break, continue, return, exit, func, int, float, bool, string, switch, case, default, true, false
-- symbols: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=, ^=, (, ), {, }, [, ], ,, :, ;
-- comments: same as c++
-- identifiers: [a-zA-Z_][a-zA-Z0-9_]*
-- int: [0-9]+
-- float: [0-9]+\.[0-9]+
-- string: "[^"]*"
-- bool: true, false
-- operators: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=
-- precedence:
-    0 (highest): function call, scope (())
-    1: unary operators (- (negative), ! (not))
-    2: exponentiation (^)
-    3: multiplication (*, /, %)
-    4: addition (+, -)
-    5: Comparison1 (<, <=, >, >=)
-    6: Comparison2 (==, !=)
-    7: Logical AND (&&)
-    8: Logical OR (||)
-    9 (lowest): assignment (=, +=, -=, *=, /=, %=)
-*/
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -89,10 +65,9 @@ int main(int argc, char* argv[]) {
   Lexer lexer(code);
 
   // tokenize the code
-  // std::vector<std::string> tokens = lexer.tokenize();
   std::vector<Token> tokens = lexer.tokenize();
 
-  // display the tokenized code (as an array) if the user wants to
+  // display the tokenized code (in array format) if the user wants to
   if (show_tokens) {
     std::cout << "Tokenized code:" << std::endl;
     std::cout << "[";
@@ -113,8 +88,7 @@ int main(int argc, char* argv[]) {
     // Compiler compiler(tokens);
     // compiler.compile();
   } else {
-    // std::cerr << "Error: parsing and interpreting are not implemented yet" << std::endl;
-    // spawn a parser and parse the code
+    // spawn a parser and parse the tokenized code
     Parser parser(tokens);
     std::vector<std::unique_ptr<ASTNode>> ast = parser.parse();
 
@@ -123,7 +97,6 @@ int main(int argc, char* argv[]) {
       std::cout << "Abstract syntax tree:" << std::endl;
       std::cout << "[";
       for (size_t i = 0; i < ast.size(); i++) {
-        // Capture the output of to_string() and print it
         std::cout << ast[i]->to_string();
         if (i < ast.size() - 1) {
           std::cout << ", ";
