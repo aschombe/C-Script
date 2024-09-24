@@ -429,6 +429,7 @@ std::unique_ptr<ASTNode> Parser::parse_switch() {
     }
     current++; // consume "}"
   }
+  current++; // consume "}"
   return std::make_unique<SCDNode>(std::move(expression), std::move(cases), std::move(default_body), tokens[current].line, tokens[current].col);
 }
 

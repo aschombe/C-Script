@@ -30,6 +30,9 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] Type Checker (very simple)
 
 ## TODO
+- [ ] Parser thinks all assignment ops are binary ops
+- [ ] IEE thinks ; is a variable
+- [ ] Switch state
 - [ ] Implement ++ and -- operators
 - [ ] Scoping/Environments
 - [ ] Interpreter:

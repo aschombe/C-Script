@@ -70,7 +70,7 @@ class Lexer {
   // map types
   std::map<std::string, TokenType> types = {
     {"int", TYPE},
-    {"float", TYPE},
+    {"double", TYPE},
     {"bool", TYPE},
     {"string", TYPE}
   };
