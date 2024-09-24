@@ -31,7 +31,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## TODO
 - [ ] Parser thinks all assignment ops are binary ops
-- [ ] Implement ++ and -- operators
+- [ ] Implement ++ and -- operators (precedence goes with unary ops)
 - [ ] Scoping/Environments
 - [ ] Interpreter:
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
