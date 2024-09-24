@@ -293,101 +293,101 @@ Value Interpreter::interp_let(const LetNode* node) {
 }
 
 Value Interpreter::interp_set(const SetNode* node) {
-  std::string op = node->op;
-  Value left = interp(node->left);
-  Value right = interp(node->right);
+  /* std::string op = node->op; */
+  /* std::string var = node->ident; */
+  /* Value right = interp(node->right); */
   
-  if (op == "=") {
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<double>(right));
-    } else if (left.index() == 2 && right.index() == 2) {
-      scope.set_variable(std::get<std::string>(left), std::get<std::string>(right));
-    } else if (left.index() == 3 && right.index() == 3) {
-      scope.set_variable(std::get<std::string>(left), std::get<bool>(right));
-    } else {
-      throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()));
-    }
-  } else if (op == "+=") {
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(left) + std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(left) + std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<double>(left) + std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<double>(left) + std::get<double>(right));
-    } else {
-      throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()));
-    }
-  } else if (op == "-=") {
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(left) - std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(left) - std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<double>(left) - std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<double>(left) - std::get<double>(right));
-    } else {
-      throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()));
-    }
-  } else if (op == "*=") {
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(left) * std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(left) * std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<double>(left) * std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<double>(left) * std::get<double>(right));
-    } else {
-      throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()));
-    }
-  } else if (op == "/=") {
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(left) / std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(left) / std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<double>(left) / std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<double>(left) / std::get<double>(right));
-    } else {
-      throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()));
-    }
-  } else if (op == "%=") {
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(left) % std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::get<int>(left) % static_cast<int>(std::get<double>(right)));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), static_cast<int>(std::get<double>(left)) % std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), static_cast<int>(std::get<double>(left)) % static_cast<int>(std::get<double>(right)));
-    } else {
-      throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()));
-    }
-  } else if (op == "^=") {
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::pow(std::get<int>(left), std::get<int>(right)));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::pow(std::get<int>(left), std::get<double>(right)));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(std::get<std::string>(left), std::pow(std::get<double>(left), std::get<int>(right)));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(std::get<std::string>(left), std::pow(std::get<double>(left), std::get<double>(right)));
-    } else {
-      throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()));
-    }
-  } else {
-    throw std::runtime_error("Invalid operation: " + op);
-  }
+  /* if (op == "=") { */
+  /*   if (left.index() == 0 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(right)); */
+  /*   } else if (left.index() == 0 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<double>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<double>(right)); */
+  /*   } else if (left.index() == 2 && right.index() == 2) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<std::string>(right)); */
+  /*   } else if (left.index() == 3 && right.index() == 3) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<bool>(right)); */
+  /*   } else { */
+  /*     throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index())); */
+  /*   } */
+  /* } else if (op == "+=") { */
+  /*   if (left.index() == 0 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(left) + std::get<int>(right)); */
+  /*   } else if (left.index() == 0 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(left) + std::get<double>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<double>(left) + std::get<int>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<double>(left) + std::get<double>(right)); */
+  /*   } else { */
+  /*     throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index())); */
+  /*   } */
+  /* } else if (op == "-=") { */
+  /*   if (left.index() == 0 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(left) - std::get<int>(right)); */
+  /*   } else if (left.index() == 0 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(left) - std::get<double>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<double>(left) - std::get<int>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<double>(left) - std::get<double>(right)); */
+  /*   } else { */
+  /*     throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index())); */
+  /*   } */
+  /* } else if (op == "*=") { */
+  /*   if (left.index() == 0 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(left) * std::get<int>(right)); */
+  /*   } else if (left.index() == 0 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(left) * std::get<double>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<double>(left) * std::get<int>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<double>(left) * std::get<double>(right)); */
+  /*   } else { */
+  /*     throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index())); */
+  /*   } */
+  /* } else if (op == "/=") { */
+  /*   if (left.index() == 0 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(left) / std::get<int>(right)); */
+  /*   } else if (left.index() == 0 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(left) / std::get<double>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<double>(left) / std::get<int>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<double>(left) / std::get<double>(right)); */
+  /*   } else { */
+  /*     throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index())); */
+  /*   } */
+  /* } else if (op == "%=") { */
+  /*   if (left.index() == 0 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(left) % std::get<int>(right)); */
+  /*   } else if (left.index() == 0 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::get<int>(left) % static_cast<int>(std::get<double>(right))); */
+  /*   } else if (left.index() == 1 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), static_cast<int>(std::get<double>(left)) % std::get<int>(right)); */
+  /*   } else if (left.index() == 1 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), static_cast<int>(std::get<double>(left)) % static_cast<int>(std::get<double>(right))); */
+  /*   } else { */
+  /*     throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index())); */
+  /*   } */
+  /* } else if (op == "^=") { */
+  /*   if (left.index() == 0 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::pow(std::get<int>(left), std::get<int>(right))); */
+  /*   } else if (left.index() == 0 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::pow(std::get<int>(left), std::get<double>(right))); */
+  /*   } else if (left.index() == 1 && right.index() == 0) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::pow(std::get<double>(left), std::get<int>(right))); */
+  /*   } else if (left.index() == 1 && right.index() == 1) { */
+  /*     scope.set_variable(std::get<std::string>(left), std::pow(std::get<double>(left), std::get<double>(right))); */
+  /*   } else { */
+  /*     throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index())); */
+  /*   } */
+  /* } else { */
+  /*   throw std::runtime_error("Invalid operation: " + op); */
+  /* } */
 
   return Value();
 }
