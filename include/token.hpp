@@ -145,10 +145,10 @@ inline std::string token_type_to_string(TokenType type) {
 
 inline std::string token_to_string(const Token& token) {
   // print all of the token information
-  std::string result = "                          \
-  Token: " + token_type_to_string(token.type) + " \
-  Value: " + token.value + "                      \
-  Line: " + std::to_string(token.line) + "        \
+  std::string result = "\
+  Token: " + token_type_to_string(token.type) + "\
+  Value: " + token.value + "\
+  Line: " + std::to_string(token.line) + "\
   Column: " + std::to_string(token.col);
   return result;
 }

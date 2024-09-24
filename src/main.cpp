@@ -98,11 +98,7 @@ int main(int argc, char* argv[]) {
     std::cout << "[";
     for (size_t i = 0; i < tokens.size(); i++) {
       std::cout << "{";
-      /* std::cout << "\"type\": \"" << token_type_to_string(tokens[i].type) << "\", "; */
-      /* std::cout << "\"line\": " << tokens[i].line << ", "; */
-      /* std::cout << "\"column\": " << tokens[i].col << ", "; */
-      /* std::cout << "\"value\": \"" << tokens[i].value << "\""; */
-      token_to_string(tokens[i]);
+      std::cout << token_to_string(tokens[i]);
       std::cout << "}";
       if (i < tokens.size() - 1) {
         std::cout << ", ";
@@ -117,24 +113,24 @@ int main(int argc, char* argv[]) {
     // Compiler compiler(tokens);
     // compiler.compile();
   } else {
-    std::cerr << "Error: parsing and interpreting are not implemented yet" << std::endl;
+    // std::cerr << "Error: parsing and interpreting are not implemented yet" << std::endl;
     // spawn a parser and parse the code
-    // Parser parser(tokens);
-    // std::vector<std::unique_ptr<ASTNode>> ast = parser.parse();
+    Parser parser(tokens);
+    std::vector<std::unique_ptr<ASTNode>> ast = parser.parse();
 
-    // // print the AST if the user wants to
-    // if (show_ast) {
-    //   std::cout << "Abstract syntax tree:" << std::endl;
-    //   std::cout << "[";
-    //   for (size_t i = 0; i < ast.size(); i++) {
-    //     // Capture the output of to_string() and print it
-    //     std::cout << ast[i]->to_string();
-    //     if (i < ast.size() - 1) {
-    //       std::cout << ", ";
-    //     }
-    //   }
-    //   std::cout << "]" << std::endl;
-    // }
+    // print the AST if the user wants to
+    if (show_ast) {
+      std::cout << "Abstract syntax tree:" << std::endl;
+      std::cout << "[";
+      for (size_t i = 0; i < ast.size(); i++) {
+        // Capture the output of to_string() and print it
+        std::cout << ast[i]->to_string();
+        if (i < ast.size() - 1) {
+          std::cout << ", ";
+        }
+      }
+      std::cout << "]" << std::endl;
+    }
 
     // // interpret the code
     // Interpreter interpreter(ast);
