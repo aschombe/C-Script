@@ -100,6 +100,8 @@ class Lexer {
 
   // map multi-character symbols to their token type
   std::map<std::string, TokenType> multi_symbols = {
+    {"++", INCREMENT},
+    {"--", DECREMENT},
     {"==", EQ},
     {"!=", NE},
     {"<=", LTE},

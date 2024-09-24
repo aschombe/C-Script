@@ -40,6 +40,6 @@ class Parser {
   std::unique_ptr<ASTNode> parse_term();
   std::unique_ptr<ASTNode> parse_factor();
   std::unique_ptr<ASTNode> parse_exponentiation();
-  std::unique_ptr<ASTNode> parse_unary();
+  std::unique_ptr<ASTNode> parse_unary(); // !, -, ++, --
   std::unique_ptr<ASTNode> parse_primary();
 };
