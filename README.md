@@ -44,7 +44,6 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 ## Notes
 
 What should I do if a func param has the same name as a global variable?
-Ideas:
 - [ ] Local variable takes precedence
 - [ ] Global variable takes precedence
 - [ ] Error
