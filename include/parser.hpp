@@ -15,6 +15,7 @@ class Parser {
   size_t current = 0;
 
   bool is_keyword(const Token& token);
+  bool is_assignment(const Token& token);
 
   std::unique_ptr<ASTNode> parse_keyword();
 

@@ -31,7 +31,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## TODO
 - [ ] Parser thinks all assignment ops are binary ops
-    - [ ] Probably due to how parse_keyword is implemented
+    - [ ] Based on testing, parse_set is never called
 - [ ] Implement ++ and -- operators in the parser (precedence goes with unary ops)
 - [ ] Scoping/Environments
 - [ ] Interpreter:

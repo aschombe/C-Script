@@ -50,7 +50,6 @@ class Lexer {
   // keywords, symbols, and literals
   std::map<std::string, TokenType> keywords = {
     {"let", LET},
-    {"set", SET},
     {"del", DEL},
     {"if", IF},
     {"elif", ELIF},

@@ -6,13 +6,17 @@
 #include <regex>
 
 bool Parser::is_keyword(const Token& token) {
-  return token.value == "let" || token.value == "set" || token.value == "del" || token.value == "if" || token.value == "for" || token.value == "while" || token.value == "break" || token.value == "continue" || token.value == "return" || token.value == "exit" || token.value == "func" || token.value == "switch";
+  return token.type == LET || token.type == DEL || token.type == IF || token.type == FOR || token.type == WHILE || token.type == BREAK || token.type == CONTINUE || token.type == RETURN || token.type == EXIT || token.type == FUNC || token.type == SWITCH;
+}
+
+bool Parser::is_assignment(const Token& token) {
+  return token.type == ASSIGN || token.type == ADD_ASSIGN || token.type == SUB_ASSIGN || token.type == MUL_ASSIGN || token.type == DIV_ASSIGN || token.type == MOD_ASSIGN || token.type == POW_ASSIGN;
 }
 
 std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
   while (current < tokens.size()) {
     std::unique_ptr<ASTNode> node = nullptr;
-    if (is_keyword(tokens[current])) {
+    if (is_keyword(tokens[current]) || is_assignment(tokens[current])) {
       node = parse_keyword();
     } else {
       node = parse_expression();
@@ -30,32 +34,26 @@ std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_keyword() {
-  if (tokens[current].value == "let") {
-    return parse_let();
-  } else if (tokens[current].value == "set") {
-    return parse_set();
-  } else if (tokens[current].value == "del") {
-    return parse_del();
-  } else if (tokens[current].value == "if") {
-    return parse_if();
-  } else if (tokens[current].value == "for") {
-    return parse_for();
-  } else if (tokens[current].value == "while") {
-    return parse_while();
-  } else if (tokens[current].value == "break") {
-    return parse_break();
-  } else if (tokens[current].value == "continue") {
-    return parse_continue();
-  } else if (tokens[current].value == "return") {
-    return parse_return();
-  } else if (tokens[current].value == "exit") {
-    return parse_exit();
-  } else if (tokens[current].value == "func") {
-    return parse_func();
-  } else if (tokens[current].value == "switch") {
-    return parse_switch();
-  } else {
-    return parse_expression();
+  switch (tokens[current].type) {
+    case LET: return parse_let();
+    case ASSIGN: return parse_set();
+    case ADD_ASSIGN: return parse_set();
+    case SUB_ASSIGN: return parse_set();
+    case MUL_ASSIGN: return parse_set();
+    case DIV_ASSIGN: return parse_set();
+    case MOD_ASSIGN: return parse_set();
+    case POW_ASSIGN: return parse_set();
+    case DEL: return parse_del();
+    case IF: return parse_if();
+    case FOR: return parse_for();
+    case WHILE: return parse_while();
+    case BREAK: return parse_break();
+    case CONTINUE: return parse_continue();
+    case RETURN: return parse_return();
+    case EXIT: return parse_exit();
+    case FUNC: return parse_func();
+    case SWITCH: return parse_switch();
+    default: return parse_expression();
   }
 }
 
@@ -82,12 +80,24 @@ std::unique_ptr<ASTNode> Parser::parse_let() {
 
 std::unique_ptr<ASTNode> Parser::parse_set() {
   // set -> IDENTIFIER ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" ) expression ";"
-  std::string identifier = tokens[current].value;
-  current++; // consume IDENTIFIER
-  if (tokens[current].value != "=" && tokens[current].value != "+=" && tokens[current].value != "-=" && tokens[current].value != "*=" && tokens[current].value != "/=" && tokens[current].value != "%=" && tokens[current].value != "^=") {
-    throw std::runtime_error("Expected assignment operator after identifier in set statement");
-  }
+  /* std::string identifier = tokens[current].value; */
+  /* current++; // consume IDENTIFIER */
+  /* if (tokens[current].value != "=" && tokens[current].value != "+=" && tokens[current].value != "-=" && tokens[current].value != "*=" && tokens[current].value != "/=" && tokens[current].value != "%=" && tokens[current].value != "^=") { */
+  /*   throw std::runtime_error("Expected assignment operator after identifier in set statement"); */
+  /* } */
+  /* std::string op = tokens[current].value; */
+  /* current++; // consume assignment operator */
+  /* std::unique_ptr<ASTNode> expression = parse_expression(); */
+  /* if (tokens[current].value != ";") { */
+  /*   throw std::runtime_error("Expected ';' after expression in set statement"); */
+  /* } */
+  /* current++; // consume ";" */
+  /* return std::make_unique<SetNode>(op, identifier, std::move(expression), tokens[current].line, tokens[current].col); */
+  // if we hit this case, we're probably looking at the assignment operator, so the previous token should be the identifier
+  std::string identifier = tokens[current - 1].value;
+  std::cout << "identifier: " << identifier << std::endl;
   std::string op = tokens[current].value;
+  std::cout << "op: " << op << std::endl;
   current++; // consume assignment operator
   std::unique_ptr<ASTNode> expression = parse_expression();
   if (tokens[current].value != ";") {
