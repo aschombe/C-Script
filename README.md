@@ -35,7 +35,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [ ] File imports (for functions, new keyword: import <relative filepath>)
     - [ ]  The filepath should be relative to the file using import, not the location of the cst caller
         - [ ] When you pass the file path to the cst tool, use that to extract the absolute path and pass it to the interpreter
-- [ ] Structs
+- [ ] Structs: rust (implement methods for struct) or c (pass struct to functions, will require a change to types.hpp)?
 - [ ] Type Checker (proper type checker)
 - [ ] Interpreter:
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
