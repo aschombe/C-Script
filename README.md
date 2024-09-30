@@ -34,6 +34,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [ ] Scoping/Environments
 - [ ] File imports (for functions, new keyword: import <relative filepath>)
     - [ ]  The filepath should be relative to the file using import, not the location of the cst caller
+        - [ ] When you pass the file path to the cst tool, use that to extract the absolute path and pass it to the interpreter
 - [ ] Structs
 - [ ] Type Checker (proper type checker)
 - [ ] Interpreter:
