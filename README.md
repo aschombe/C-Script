@@ -33,6 +33,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [ ] Find a nice way to implement ++ and -- alongside ! and - in a single node
 - [ ] Scoping/Environments
 - [ ] File imports (for functions, new keyword: import <relative filepath>)
+- [ ] Structs
 - [ ] Type Checker (proper type checker)
 - [ ] Interpreter:
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
