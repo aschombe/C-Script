@@ -27,17 +27,18 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] CST command line tool
 - [x] AST
 - [x] Tokenizer
-- [x] Type Checker (very simple)
 
 ## TODO
 - [ ] Parser thinks all assignment ops are binary ops
     - [ ] Based on testing, parse_set is never called
 - [ ] Implement ++ and -- operators in the parser (precedence goes with unary ops)
 - [ ] Scoping/Environments
+- [ ] File imports (for functions, new keyword: import <relative filepath>)
+- [ ] Type Checker (proper type checker)
 - [ ] Interpreter:
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
 - [ ] Maybe function overloading (based on: number of arguments and types of arguments)
-- [ ] Add snippets to token struct:
+- [ ] Add snippets to token struct (populated during tokenizing):
     - [ ] Starting point: start of line (after previous newline)
     - [ ] Ending point: new line
 - [ ] Compiler
