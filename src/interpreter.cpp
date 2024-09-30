@@ -23,7 +23,7 @@ Keywords and symbols in my language:
 */
 
 #include "../include/interpreter.hpp"
-#include "../include/checker.hpp"
+/* #include "../include/checker.hpp" */
 #include <iostream>
 #include <cmath>
 

@@ -1,4 +1,6 @@
 #include "../include/scope.hpp"
+#include <iostream>
+#include <stdexcept>
 
 Scope::Scope() {
   scopes.push_back(ScopeMap());

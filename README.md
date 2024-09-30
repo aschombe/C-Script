@@ -29,9 +29,8 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] Tokenizer
 
 ## TODO
-- [ ] Parser thinks all assignment ops are binary ops
-    - [ ] Based on testing, parse_set is never called
-- [ ] Implement ++ and -- operators in the parser (precedence goes with unary ops)
+- [ ] ^= doesn't parse correctly, neither do ! or - on their own (unary nodes)
+- [ ] Find a nice way to implement ++ and -- alongside ! and - in a single node
 - [ ] Scoping/Environments
 - [ ] File imports (for functions, new keyword: import <relative filepath>)
 - [ ] Type Checker (proper type checker)

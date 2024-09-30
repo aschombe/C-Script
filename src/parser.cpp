@@ -36,13 +36,13 @@ std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
 std::unique_ptr<ASTNode> Parser::parse_keyword() {
   switch (tokens[current].type) {
     case LET: return parse_let();
-    case ASSIGN: return parse_set();
-    case ADD_ASSIGN: return parse_set();
-    case SUB_ASSIGN: return parse_set();
-    case MUL_ASSIGN: return parse_set();
-    case DIV_ASSIGN: return parse_set();
-    case MOD_ASSIGN: return parse_set();
-    case POW_ASSIGN: return parse_set();
+    case ASSIGN: return parse_assignment();
+    case ADD_ASSIGN: return parse_assignment();
+    case SUB_ASSIGN: return parse_assignment();
+    case MUL_ASSIGN: return parse_assignment();
+    case DIV_ASSIGN: return parse_assignment();
+    case MOD_ASSIGN: return parse_assignment();
+    case POW_ASSIGN: return parse_assignment();
     case DEL: return parse_del();
     case IF: return parse_if();
     case FOR: return parse_for();
@@ -76,35 +76,6 @@ std::unique_ptr<ASTNode> Parser::parse_let() {
   }
   current++; // consume ";"
   return std::make_unique<LetNode>(identifier, var_type, std::move(expression), tokens[current].line, tokens[current].col);
-}
-
-std::unique_ptr<ASTNode> Parser::parse_set() {
-  // set -> IDENTIFIER ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" ) expression ";"
-  /* std::string identifier = tokens[current].value; */
-  /* current++; // consume IDENTIFIER */
-  /* if (tokens[current].value != "=" && tokens[current].value != "+=" && tokens[current].value != "-=" && tokens[current].value != "*=" && tokens[current].value != "/=" && tokens[current].value != "%=" && tokens[current].value != "^=") { */
-  /*   throw std::runtime_error("Expected assignment operator after identifier in set statement"); */
-  /* } */
-  /* std::string op = tokens[current].value; */
-  /* current++; // consume assignment operator */
-  /* std::unique_ptr<ASTNode> expression = parse_expression(); */
-  /* if (tokens[current].value != ";") { */
-  /*   throw std::runtime_error("Expected ';' after expression in set statement"); */
-  /* } */
-  /* current++; // consume ";" */
-  /* return std::make_unique<SetNode>(op, identifier, std::move(expression), tokens[current].line, tokens[current].col); */
-  // if we hit this case, we're probably looking at the assignment operator, so the previous token should be the identifier
-  std::string identifier = tokens[current - 1].value;
-  std::cout << "identifier: " << identifier << std::endl;
-  std::string op = tokens[current].value;
-  std::cout << "op: " << op << std::endl;
-  current++; // consume assignment operator
-  std::unique_ptr<ASTNode> expression = parse_expression();
-  if (tokens[current].value != ";") {
-    throw std::runtime_error("Expected ';' after expression in set statement");
-  }
-  current++; // consume ";"
-  return std::make_unique<SetNode>(op, identifier, std::move(expression), tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_del() {
@@ -454,10 +425,13 @@ std::unique_ptr<ASTNode> Parser::parse_assignment() {
 
   while (current < tokens.size()) {
     if (tokens[current].value == "=" || tokens[current].value == "+=" || tokens[current].value == "-=" || tokens[current].value == "*=" || tokens[current].value == "/=" || tokens[current].value == "%=") {
+      std::string ident = tokens[current - 1].value;
       std::string op = tokens[current].value;
       current++;
       std::unique_ptr<ASTNode> right = parse_logical_or();
-      node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col);
+      current++;
+      /* node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col); */
+      node = std::make_unique<SetNode>(op, ident, std::move(right), tokens[current].line, tokens[current].col);
     } else {
       break;
     }
@@ -599,6 +573,10 @@ std::unique_ptr<ASTNode> Parser::parse_unary() {
     current++;
     std::unique_ptr<ASTNode> right = parse_unary();
     return std::make_unique<UnaryOpNode>(op, std::move(right), tokens[current].line, tokens[current].col);
+  /* } else if (tokens[current].value == "++" || tokens[current].value == "--") { */
+  /*   std::string ident = tokens[current - 1].value; */
+  /*   std::string op = tokens[current].value; */
+  /*   return std::make_unique<UnaryOpNode>(op, ) */
   } else {
     return parse_primary();
   }

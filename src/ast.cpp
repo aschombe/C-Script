@@ -1,4 +1,5 @@
 #include "../include/ast.hpp"
+#include <iostream>
 
 void print_ast(const std::vector<std::unique_ptr<ASTNode>>& ast) {
   std::cout << "Abstract syntax tree:" << std::endl;
