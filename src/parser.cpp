@@ -6,7 +6,7 @@
 #include <regex>
 
 bool Parser::is_keyword(const Token& token) {
-  return token.type == LET || token.type == DEL || token.type == IF || token.type == FOR || token.type == WHILE || token.type == BREAK || token.type == CONTINUE || token.type == RETURN || token.type == EXIT || token.type == FUNC || token.type == SWITCH;
+  return token.type == LET || token.type == DEL || token.type == IF || token.type == FOR || token.type == WHILE || token.type == BREAK || token.type == CONTINUE || token.type == RETURN || token.type == EXIT || token.type == FUNC || token.type == SWITCH || token.type == IMPORT;
 }
 
 bool Parser::is_assignment(const Token& token) {
@@ -35,6 +35,7 @@ std::vector<std::unique_ptr<ASTNode>> Parser::parse() {
 
 std::unique_ptr<ASTNode> Parser::parse_keyword() {
   switch (tokens[current].type) {
+    case IMPORT: return parse_import();
     case LET: return parse_let();
     case ASSIGN: return parse_assignment();
     case ADD_ASSIGN: return parse_assignment();
@@ -55,6 +56,15 @@ std::unique_ptr<ASTNode> Parser::parse_keyword() {
     case SWITCH: return parse_switch();
     default: return parse_expression();
   }
+}
+
+std::unique_ptr<ASTNode> Parser::parse_import() {
+  // import -> "<filepath>";
+  current++; // consume "import"
+  std::string rel_fpath = tokens[current].value;
+  current++; // filepath
+  current++; // consume ;
+  return std::make_unique<ImportNode>(rel_fpath, tokens[current].line, tokens[current].col);
 }
 
 std::unique_ptr<ASTNode> Parser::parse_let() {

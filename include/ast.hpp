@@ -490,4 +490,21 @@ class SCDNode : public ASTNode {
   }
 };
 
+class ImportNode : public ASTNode {
+  public:
+  std::string value;
+  ImportNode(std::string rel_fpath, int line, int col) : value(rel_fpath) {
+    this->line = line;
+    this->col = col;
+  }
+
+  int node_type() const override {
+    return 20;
+  }
+
+  std::string to_string() const override {
+    return "Import(" + value + ")";
+  }
+};
+
 void print_ast(const std::vector<std::unique_ptr<ASTNode>>& ast);

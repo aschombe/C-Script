@@ -19,6 +19,7 @@ class Parser {
 
   std::unique_ptr<ASTNode> parse_keyword();
 
+  std::unique_ptr<ASTNode> parse_import();
   std::unique_ptr<ASTNode> parse_let();
   std::unique_ptr<ASTNode> parse_set();
   std::unique_ptr<ASTNode> parse_del();

@@ -13,6 +13,7 @@ enum TokenType {
   TYPE,
 
   // Keywords
+  IMPORT,
   LET,
   DEL,
   IF,
@@ -86,6 +87,7 @@ inline std::string token_type_to_string(TokenType type) {
     case STRING: return "string";
     case IDENTIFIER: return "identifier";
     case TYPE: return "type";
+    case IMPORT: return "import";
     case LET: return "let";
     case DEL: return "del";
     case IF: return "if";
