@@ -63,6 +63,7 @@ Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
 
 Value Interpreter::interp_import(const ImportNode* node) {
   std::string rel_fpath = node->value;
+  // this method can fail
   const std::filesystem::path import_path = std::filesystem::current_path() / rel_fpath;
   if (!std::filesystem::exists(import_path)) {
     throw std::runtime_error("File does not exist: " + import_path.generic_string());
