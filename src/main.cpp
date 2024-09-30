@@ -106,8 +106,8 @@ int main(int argc, char* argv[]) {
     }
 
     // // interpret the code
-    // Interpreter interpreter(ast);
-    // interpreter.run();
+    Interpreter interpreter(ast);
+    interpreter.run();
   }
 
   return 0;

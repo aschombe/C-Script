@@ -1,3 +1,4 @@
 // ^= doesn't parse correctly
 // ! and - don't parse correctly on their own
-import "test";
+// import "test";
+import "examples/test.csf";
