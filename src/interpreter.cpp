@@ -63,9 +63,11 @@ Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
 
 Value Interpreter::interp_import(const ImportNode* node) {
   std::string rel_fpath = node->value;
-  /* const std::filesystem::path import_path = std::filesystem::u8path(rel_fpath); */
   const std::filesystem::path import_path = std::filesystem::current_path() / rel_fpath;
-  std::cout << "Full path: " << import_path << std::endl;
+  if (!std::filesystem::exists(import_path)) {
+    throw std::runtime_error("File does not exist: " + import_path.generic_string());
+  }
+  // Todo
   return Value();
 }
 
