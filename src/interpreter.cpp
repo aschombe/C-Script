@@ -1,31 +1,9 @@
-/*
-Keywords and symbols in my language:
-- keyworks: let, set, del, if, elif, else, for, while, break, continue, return, exit, func, int, float, bool, string, switch, case, default, true, false
-- symbols: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=, ^=, (, ), {, }, [, ], ,, :, ;
-- comments: same as c++
-- identifiers: [a-zA-Z_][a-zA-Z0-9_]*
-- int: [0-9]+
-- float: [0-9]+\.[0-9]+
-- string: "[^"]*"
-- bool: true, false
-- operators: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=
-- precedence:
-    0 (highest): function call, scope (())
-    1: unary operators (- (negative), ! (not))
-    2: exponentiation (^)
-    3: multiplication (*, /, %)
-    4: addition (+, -)
-    5: Comparison1 (<, <=, >, >=)
-    6: Comparison2 (==, !=)
-    7: Logical AND (&&)
-    8: Logical OR (||)
-    9 (lowest): assignment (=, +=, -=, *=, /=, %=)
-*/
 
 #include "../include/interpreter.hpp"
 /* #include "../include/checker.hpp" */
 #include <iostream>
 #include <cmath>
+#include <filesystem>
 
 Interpreter::Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast) : ast(ast) {}
 
@@ -76,9 +54,19 @@ Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
       return interp_exit(dynamic_cast<const ExitNode*>(node.get()));
     case 19: // SCD
       return interp_scd(dynamic_cast<const SCDNode*>(node.get()));
+    case 20: // import
+      return interp_import(dynamic_cast<const ImportNode*>(node.get()));
     default:
       throw std::runtime_error("Invalid node type: " + std::to_string(node->node_type())); 
   }
+}
+
+Value Interpreter::interp_import(const ImportNode* node) {
+  std::string rel_fpath = node->value;
+  /* const std::filesystem::path import_path = std::filesystem::u8path(rel_fpath); */
+  const std::filesystem::path import_path = std::filesystem::current_path() / rel_fpath;
+  std::cout << "Full path: " << import_path << std::endl;
+  return Value();
 }
 
 Value Interpreter::interp_binop(const BinOpNode* node) {

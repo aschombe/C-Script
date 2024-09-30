@@ -14,6 +14,7 @@ class Interpreter {
   Scope scope;
   
   Value interp(const std::unique_ptr<ASTNode>& node);
+  Value interp_import(const ImportNode* node);
   Value interp_binop(const BinOpNode* node);
   Value interp_unaryop(const UnaryOpNode* node);
   Value interp_let(const LetNode* node);
