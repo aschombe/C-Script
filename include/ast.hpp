@@ -128,6 +128,7 @@ class UnaryOpNode : public ASTNode {
   public:
   std::string op;
   std::unique_ptr<ASTNode> expr;
+  /* std::variant<std::unique_ptr<ASTNode>, std::string> expr; */
   UnaryOpNode(const std::string& op, std::unique_ptr<ASTNode> expr, int line, int col) : op(op), expr(std::move(expr)) {
     this->line = line;
     this->col = col;

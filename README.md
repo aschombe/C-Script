@@ -43,6 +43,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [ ] Add snippets to token struct (populated during tokenizing):
     - [ ] Starting point: start of line (after previous newline)
     - [ ] Ending point: new line
+- [ ] Documentation (maybe doxygen)
 - [ ] Compiler
  
 ## Notes
