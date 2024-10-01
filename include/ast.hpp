@@ -508,4 +508,23 @@ class ImportNode : public ASTNode {
   }
 };
 
+class PostFixNode : public ASTNode {
+  public:
+  std::string op;
+  std::string ident;
+  PostFixNode(const std::string& op, const std::string& ident, int line, int col) : op(op), ident(ident) {
+    this->line = line;
+    this->col = col;
+  }
+
+  int node_type() const override {
+    return 21;
+  }
+
+  std::string to_string() const override {
+    return "PostFixNode(" + op + ", " + ident + ")";
+  }
+};
+
+
 void print_ast(const std::vector<std::unique_ptr<ASTNode>>& ast);

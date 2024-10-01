@@ -272,6 +272,21 @@ Value Interpreter::interp_unaryop(const UnaryOpNode* node) {
   }
 }
 
+Value Interpreter::interp_postfix(const PostFixNode* node) {
+  std::string op = node->op;
+  std::string ident = node->ident;
+  
+  if (op == "++") {
+    std::cout << "Increment" << std::endl;
+    return Value();
+  } else if (op == "--") {
+    std::cout << "Decrement" << std::endl;
+    return Value();
+  } else {
+    throw std::runtime_error("Invalid operation: " + op);
+  }
+}
+
 Value Interpreter::interp_let(const LetNode* node) {
   std::string name = node->name;
   Value value = interp(node->value);

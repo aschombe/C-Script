@@ -17,6 +17,7 @@ class Interpreter {
   Value interp_import(const ImportNode* node);
   Value interp_binop(const BinOpNode* node);
   Value interp_unaryop(const UnaryOpNode* node);
+  Value interp_postfix(const PostFixNode* node);
   Value interp_let(const LetNode* node);
   Value interp_set(const SetNode* node);
   Value interp_del(const DelNode* node);  

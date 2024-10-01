@@ -11,7 +11,7 @@ Keywords and symbols in my language:
 - operators: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=
 - precedence:
     0 (highest): function call, scope (())
-    1: unary operators (- (negative), ! (not))
+    1: unary operators (- (negative), ! (not), ++ (increment), -- (decrement))
     2: exponentiation (^)
     3: multiplication (*, /, %)
     4: addition (+, -)
@@ -583,7 +583,7 @@ std::unique_ptr<ASTNode> Parser::parse_factor() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_exponentiation() {
-  // exponentiation -> unary ( "^" unary )* ;
+  // exponentiation -> unary | postfix ( "^" unary | postfix )* ;
   std::unique_ptr<ASTNode> node = parse_unary();
 
   while (current < tokens.size()) {
@@ -607,10 +607,10 @@ std::unique_ptr<ASTNode> Parser::parse_unary() {
     current++;
     std::unique_ptr<ASTNode> right = parse_unary();
     return std::make_unique<UnaryOpNode>(op, std::move(right), tokens[current].line, tokens[current].col);
-  /* } else if (tokens[current].value == "++" || tokens[current].value == "--") { */
-  /*   std::string ident = tokens[current - 1].value; */
-  /*   std::string op = tokens[current].value; */
-  /*   return std::make_unique<UnaryOpNode>(op, ) */
+  } else if (tokens[current].value == "++" || tokens[current].value == "--") {
+    std::string ident = tokens[current - 1].value;
+    std::string op = tokens[current].value;
+    return std::make_unique<PostFixNode>(op, ident, tokens[current].line, tokens[current].col);
   } else {
     return parse_primary();
   }
