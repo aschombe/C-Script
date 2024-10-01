@@ -29,6 +29,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] Tokenizer
 
 ## TODO
+- [ ] Parser infinite loops on postfix operators
 - [ ] ^= doesn't parse correctly
 - [ ] Find a nice way to implement ++ and -- alongside ! and - in a single node (maybe create new node type, or change how unary works)
 - [ ] Scoping/Environments
