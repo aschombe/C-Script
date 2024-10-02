@@ -1,10 +1,11 @@
 #pragma once
 #include "ast.hpp"
 #include "scope.hpp"
+#include <filesystem>
 
 class Interpreter {
   public:
-  Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast);
+  Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast, const std::filesystem::path file);
 
   // the main function to run the interpreter
   void run();
@@ -12,6 +13,7 @@ class Interpreter {
   private:
   const std::vector<std::unique_ptr<ASTNode>>& ast;
   Scope scope;
+  std::filesystem::path ran_file;
   
   Value interp(const std::unique_ptr<ASTNode>& node);
   Value interp_import(const ImportNode* node);

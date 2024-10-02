@@ -610,6 +610,12 @@ std::unique_ptr<ASTNode> Parser::parse_unary() {
   } else if (tokens[current].value == "++" || tokens[current].value == "--") {
     std::string ident = tokens[current - 1].value;
     std::string op = tokens[current].value;
+    current++;
+    // remove previous token
+    ast.erase(ast.begin()+current-1);
+    if (tokens[current].value == ";") {
+      current++;
+    }
     return std::make_unique<PostFixNode>(op, ident, tokens[current].line, tokens[current].col);
   } else {
     return parse_primary();

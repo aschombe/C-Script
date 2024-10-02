@@ -3,9 +3,8 @@
 /* #include "../include/checker.hpp" */
 #include <iostream>
 #include <cmath>
-#include <filesystem>
 
-Interpreter::Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast) : ast(ast) {}
+Interpreter::Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast, const std::filesystem::path file) : ast(ast), ran_file(file) {}
 
 void Interpreter::run() {
   // iterate over the AST nodes
@@ -56,6 +55,8 @@ Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
       return interp_scd(dynamic_cast<const SCDNode*>(node.get()));
     case 20: // import
       return interp_import(dynamic_cast<const ImportNode*>(node.get()));
+    case 21: // postfix
+      return interp_postfix(dynamic_cast<const PostFixNode*>(node.get()));
     default:
       throw std::runtime_error("Invalid node type: " + std::to_string(node->node_type())); 
   }
@@ -67,7 +68,8 @@ Value Interpreter::interp_import(const ImportNode* node) {
     rel_fpath = rel_fpath.substr(1, rel_fpath.length()-2);
   }
   // this method can fail
-  const std::filesystem::path import_path = std::filesystem::current_path() / rel_fpath;
+  /* const std::filesystem::path import_path = std::filesystem::current_path() / rel_fpath; */
+  const std::filesystem::path import_path = this->ran_file / rel_fpath;
   if (!std::filesystem::exists(import_path)) {
     throw std::runtime_error("File does not exist: " + import_path.generic_string());
   }

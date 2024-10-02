@@ -1,11 +1,12 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <vector>
 #include "../include/lexer.hpp"
 #include "../include/parser.hpp"
 
 #include "../include/interpreter.hpp"
-#include "../include/compiler.hpp"
+/* #include "../include/compiler.hpp" */
 
 
 int main(int argc, char* argv[]) {
@@ -48,6 +49,7 @@ int main(int argc, char* argv[]) {
     std::cerr << "Error: could not open file " << file_name << std::endl;
     return 1;
   }
+  std::filesystem::path ran_file = std::filesystem::absolute(file_name);
 
   std::string code;
   std::string line;
@@ -106,7 +108,7 @@ int main(int argc, char* argv[]) {
     }
 
     // // interpret the code
-    Interpreter interpreter(ast);
+    Interpreter interpreter(ast, ran_file);
     interpreter.run();
   }
 
