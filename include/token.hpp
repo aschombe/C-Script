@@ -9,11 +9,13 @@ enum TokenType {
   DOUBLE,
   BOOL,
   STRING,
+  STRUCT,
   IDENTIFIER,
   TYPE,
 
   // Keywords
-  STRUCT, // also a type
+  STRUCTDEF,
+  STRUCTDECL,
   IMPORT,
   LET,
   DEL,

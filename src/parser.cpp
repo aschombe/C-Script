@@ -7,10 +7,11 @@ Keywords and symbols in my language:
 - int: [0-9]+
 - float: [0-9]+\.[0-9]+
 - string: "[^"]*"
+- structs
 - bool: true, false
-- operators: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=
+- operators: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=, .
 - precedence:
-    0 (highest): function call, scope (()), primitives, struct access
+    0 (highest): function call, scope (()), primitives, struct access (.)
     1: unary operators (- (negative), ! (not), ++ (increment), -- (decrement))
     2: exponentiation (^)
     3: multiplication (*, /, %)
@@ -78,7 +79,8 @@ std::unique_ptr<ASTNode> Parser::parse_keyword() {
     case EXIT: return parse_exit();
     case FUNC: return parse_func();
     case SWITCH: return parse_switch();
-    case STRUCT: return parse_structdef();
+    case STRUCTDEF: return parse_structdef();
+    case STRUCTDECL: return parse_structdecl();
     default: return parse_expression();
   }
 }
@@ -655,6 +657,13 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
   // primary -> INT | Double | STRING | BOOL | "(" expression ")" | FuncCall | StructAccess
 
   // if current token in '.', previous one is the struct name, next one is the struct field
+  if (tokens[current].value == ".") {
+    std::string struct_name = tokens[current - 1].value;
+    ast.erase(ast.begin()+current-1);
+    current++;
+    std::string struct_field = tokens[current].value;
+    
+  }
 
   if (tokens[current].value == "(") {
     current++;
