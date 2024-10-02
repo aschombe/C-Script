@@ -526,5 +526,4 @@ class PostFixNode : public ASTNode {
   }
 };
 
-
 void print_ast(const std::vector<std::unique_ptr<ASTNode>>& ast);
