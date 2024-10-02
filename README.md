@@ -31,14 +31,14 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 ## TODO
 - [ ] Proper error handling and displaying (instead of std::runtime_error)
 - [ ] Structs: rust (implement methods for struct) or c (pass struct to functions, will require a change to types.hpp)?
+- [ ] Add snippets to token struct (populated during tokenizing):
+    - [ ] Starting point: start of line (after previous newline)
+    - [ ] Ending point: new line
 - [ ] Type Checker (proper type checker)
 - [ ] Interpreter (everything):
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
     - [ ] Maybe allow absolute file paths for importing
     - [ ] Maybe function overloading (based on: number of arguments and types of arguments)
-- [ ] Add snippets to token struct (populated during tokenizing):
-    - [ ] Starting point: start of line (after previous newline)
-    - [ ] Ending point: new line
 - [ ] Documentation (doxygen)
 - [ ] Compiler
  
