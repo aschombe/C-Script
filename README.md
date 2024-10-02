@@ -30,7 +30,6 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## TODO
 - [ ] Proper error handling and displaying (instead of std::runtime_error)
-- [ ] ^= doesn't parse correctly
 - [ ] Scoping/Environments
 - [ ] Structs: rust (implement methods for struct) or c (pass struct to functions, will require a change to types.hpp)?
 - [ ] Type Checker (proper type checker)

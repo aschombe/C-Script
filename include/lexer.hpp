@@ -114,7 +114,5 @@ class Lexer {
     {"/=", DIV_ASSIGN},
     {"%=", MOD_ASSIGN},
     {"^=", POW_ASSIGN},
-    {"++", INCREMENT},
-    {"--", DECREMENT},
   };
 };

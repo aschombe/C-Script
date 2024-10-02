@@ -34,7 +34,7 @@ class Parser {
   std::unique_ptr<ASTNode> parse_switch();
 
   std::unique_ptr<ASTNode> parse_expression();
-  std::unique_ptr<ASTNode> parse_assignment(); // =, +=, -=, *=, /=, %=
+  std::unique_ptr<ASTNode> parse_assignment(); // =, +=, -=, *=, /=, %=, ^=
   std::unique_ptr<ASTNode> parse_logical_or();
   std::unique_ptr<ASTNode> parse_logical_and();
   std::unique_ptr<ASTNode> parse_equality();

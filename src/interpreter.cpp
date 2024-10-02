@@ -278,14 +278,15 @@ Value Interpreter::interp_postfix(const PostFixNode* node) {
   std::string ident = node->ident;
   
   if (op == "++") {
+    /* scope.set_variable(ident, Value(scope.get_variable(ident) + 1)); */
     std::cout << "Increment" << std::endl;
-    return Value();
   } else if (op == "--") {
     std::cout << "Decrement" << std::endl;
-    return Value();
   } else {
     throw std::runtime_error("Invalid operation: " + op);
   }
+
+  return Value();
 }
 
 Value Interpreter::interp_let(const LetNode* node) {
@@ -367,6 +368,8 @@ Value Interpreter::interp_set(const SetNode* node) {
     } else {
       throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()));
     }
+  } else if (op == "^=") {
+    std::cout << "Todo: ^=" << std::endl;
   } else {
     throw std::runtime_error("Invalid operation: " + op);
   }

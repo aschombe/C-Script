@@ -454,11 +454,11 @@ std::unique_ptr<ASTNode> Parser::parse_expression() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_assignment() {
-  // assignment -> logical_or ( ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) logical_or )* ;
+  // assignment -> logical_or ( ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=") logical_or )* ;
   std::unique_ptr<ASTNode> node = parse_logical_or();
 
   while (current < tokens.size()) {
-    if (tokens[current].value == "=" || tokens[current].value == "+=" || tokens[current].value == "-=" || tokens[current].value == "*=" || tokens[current].value == "/=" || tokens[current].value == "%=") {
+    if (tokens[current].value == "=" || tokens[current].value == "+=" || tokens[current].value == "-=" || tokens[current].value == "*=" || tokens[current].value == "/=" || tokens[current].value == "%=" || tokens[current].value == "^=") {
       std::string ident = tokens[current - 1].value;
       std::string op = tokens[current].value;
       current++;
