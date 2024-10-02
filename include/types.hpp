@@ -7,6 +7,7 @@ enum class Var_Types {
   DOUBLE,
   BOOL,
   STRING,
+  STRUCT,
   UNKNOWN
 };
 
@@ -20,6 +21,8 @@ inline std::string var_type_to_string(Var_Types type) {
       return "bool";
     case Var_Types::STRING:
       return "string";
+    case Var_Types::STRUCT:
+      return "struct";
     case Var_Types::UNKNOWN:
       return "unknown";
   }
@@ -36,6 +39,8 @@ inline Var_Types string_to_var_type(const std::string& type) {
     return Var_Types::BOOL;
   } else if (type == "string") {
     return Var_Types::STRING;
+  } else if (type == "struct") {
+    return Var_Types::STRUCT;
   }
 
   return Var_Types::UNKNOWN;
@@ -47,6 +52,7 @@ enum class Func_Types {
   DOUBLE,
   BOOL,
   STRING,
+  STRUCT,
   UNKNOWN
 };
 
@@ -62,6 +68,8 @@ inline std::string func_type_to_string(Func_Types type) {
       return "bool";
     case Func_Types::STRING:
       return "string";
+    case Func_Types::STRUCT:
+      return "struct";
     case Func_Types::UNKNOWN:
       return "unknown";
   }
@@ -80,6 +88,8 @@ inline Func_Types string_to_func_type(const std::string& type) {
     return Func_Types::BOOL;
   } else if (type == "string") {
     return Func_Types::STRING;
+  } else if (type == "struct") {
+    return Func_Types::STRUCT;
   }
 
   return Func_Types::UNKNOWN;

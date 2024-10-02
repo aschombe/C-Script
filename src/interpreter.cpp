@@ -57,6 +57,8 @@ Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
       return interp_import(dynamic_cast<const ImportNode*>(node.get()));
     case 21: // postfix
       return interp_postfix(dynamic_cast<const PostFixNode*>(node.get()));
+    case 22: // struct definition
+      return interp_struct(dynamic_cast<const StructNode*>(node.get()));
     default:
       throw std::runtime_error("Invalid node type: " + std::to_string(node->node_type())); 
   }

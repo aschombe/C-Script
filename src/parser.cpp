@@ -78,6 +78,7 @@ std::unique_ptr<ASTNode> Parser::parse_keyword() {
     case EXIT: return parse_exit();
     case FUNC: return parse_func();
     case SWITCH: return parse_switch();
+    case STRUCT: return parse_struct();
     default: return parse_expression();
   }
 }
@@ -89,6 +90,30 @@ std::unique_ptr<ASTNode> Parser::parse_import() {
   current++; // filepath
   current++; // consume ;
   return std::make_unique<ImportNode>(rel_fpath, tokens[current].line, tokens[current].col);
+}
+
+std::unique_ptr<ASTNode> Parser::parse_struct() {
+  // struct <name> {
+  //  <field_name>: type;
+  //  <field_name>: type;
+  // };
+  current++; // consume struct
+  std::string name = tokens[current].value;
+  current++; // consume {
+  std::vector<std::pair<std::string, Var_Types>> fields;
+  std::string f_name;
+  std::string f_type;
+  do {
+    f_name = tokens[current].value;
+    current++; // consume field name
+    current++; // consume :
+    f_type = tokens[current].value;
+    current++; //consume field type
+    current++; // consume ;
+    fields.push_back(std::make_pair(f_name, string_to_var_type(f_type)));
+  } while(tokens[current].value != "}");
+  current++; // consume "}"
+  current++; // consume ;
 }
 
 std::unique_ptr<ASTNode> Parser::parse_let() {

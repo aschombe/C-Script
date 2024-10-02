@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <variant>
+#include <unordered_map>
 #include "types.hpp"
 
 typedef std::variant<int, double, bool, std::string> Value;
@@ -523,6 +524,21 @@ class PostFixNode : public ASTNode {
 
   std::string to_string() const override {
     return "PostFixNode(" + op + ", " + ident + ")";
+  }
+};
+
+class StructNode : public ASTNode {
+  std::string name;
+  std::unordered_map<std::string, Var_Types> fields;
+  
+  StructNode(const std::string& name, std::unordered_map<std::string, Var_Types> fields, int line, int col) : name(name), fields(fields) {
+    this->line = line;
+    this->col = col;
+  }
+
+  std::string to_string() const override {
+    std::string result = "StructNode(" + name + ", ";
+    // iterate through the unordered map and add field: type; to this
   }
 };
 
