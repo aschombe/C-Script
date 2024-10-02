@@ -67,9 +67,8 @@ Value Interpreter::interp_import(const ImportNode* node) {
   if (rel_fpath.length() >= 2 && rel_fpath.front() == '"' && rel_fpath.back() == '"') {
     rel_fpath = rel_fpath.substr(1, rel_fpath.length()-2);
   }
-  // this method can fail
-  /* const std::filesystem::path import_path = std::filesystem::current_path() / rel_fpath; */
-  const std::filesystem::path import_path = this->ran_file / rel_fpath;
+
+  const std::filesystem::path import_path = this->ran_file.parent_path() / rel_fpath;
   if (!std::filesystem::exists(import_path)) {
     throw std::runtime_error("File does not exist: " + import_path.generic_string());
   }
