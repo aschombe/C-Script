@@ -29,11 +29,9 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] Tokenizer
 
 ## TODO
+- [ ] Proper error handling and displaying (instead of std::runtime_error)
 - [ ] ^= doesn't parse correctly
 - [ ] Scoping/Environments
-- [ ] File imports (for functions, new keyword: import <relative filepath>)
-    - [ ]  The filepath should be relative to the file using import, not the location of the cst caller
-        - [ ] When you pass the file path to the cst tool, use that to extract the absolute path and pass it to the interpreter
 - [ ] Structs: rust (implement methods for struct) or c (pass struct to functions, will require a change to types.hpp)?
 - [ ] Type Checker (proper type checker)
 - [ ] Interpreter:
@@ -42,6 +40,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [ ] Add snippets to token struct (populated during tokenizing):
     - [ ] Starting point: start of line (after previous newline)
     - [ ] Ending point: new line
+- [ ] Maybe allow absolute file paths for importing
 - [ ] Documentation (maybe doxygen)
 - [ ] Compiler
  
