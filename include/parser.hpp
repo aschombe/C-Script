@@ -32,7 +32,9 @@ class Parser {
   std::unique_ptr<ASTNode> parse_exit();
   std::unique_ptr<ASTNode> parse_func();
   std::unique_ptr<ASTNode> parse_switch();
-  std::unique_ptr<ASTNode> parse_struct();
+  std::unique_ptr<ASTNode> parse_structdef();
+  std::unique_ptr<ASTNode> parse_structdecl();
+  /* std::unique_ptr<ASTNode> parse_structaccess(); */
 
   std::unique_ptr<ASTNode> parse_expression();
   std::unique_ptr<ASTNode> parse_assignment(); // =, +=, -=, *=, /=, %=, ^=
@@ -44,5 +46,5 @@ class Parser {
   std::unique_ptr<ASTNode> parse_factor();
   std::unique_ptr<ASTNode> parse_exponentiation();
   std::unique_ptr<ASTNode> parse_unary(); // !, -, ++, --
-  std::unique_ptr<ASTNode> parse_primary();
+  std::unique_ptr<ASTNode> parse_primary(); // also includes struct access (struct.field)
 };

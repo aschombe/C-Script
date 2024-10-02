@@ -13,7 +13,7 @@ enum TokenType {
   TYPE,
 
   // Keywords
-  STRUCT,
+  STRUCT, // also a type
   IMPORT,
   LET,
   DEL,
@@ -65,6 +65,7 @@ enum TokenType {
   COMMA,
   COLON,
   SEMICOLON,
+  PERIOD,
 
   // End of
   END_OF_FILE
@@ -138,6 +139,7 @@ inline std::string token_type_to_string(TokenType type) {
     case COMMA: return ",";
     case COLON: return ":";
     case SEMICOLON: return ";";
+    case PERIOD: return ".";
     case END_OF_FILE: return "end of file";
     default: throw std::runtime_error("Unknown token type");
   }

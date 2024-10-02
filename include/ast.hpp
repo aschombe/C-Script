@@ -527,18 +527,36 @@ class PostFixNode : public ASTNode {
   }
 };
 
-class StructNode : public ASTNode {
+class StructDef : public ASTNode {
   std::string name;
   std::unordered_map<std::string, Var_Types> fields;
   
-  StructNode(const std::string& name, std::unordered_map<std::string, Var_Types> fields, int line, int col) : name(name), fields(fields) {
+  StructDef(const std::string& name, std::unordered_map<std::string, Var_Types> fields, int line, int col) : name(name), fields(fields) {
     this->line = line;
     this->col = col;
   }
 
-  std::string to_string() const override {
-    std::string result = "StructNode(" + name + ", ";
-    // iterate through the unordered map and add field: type; to this
+  int node_type() const override {
+    return 22;
+  }
+
+  /* std::string to_string() const override { */
+  /*   std::string result = "StructNode(" + name + ", "; */
+  /*   // iterate through the unordered map and add field: type; to this */
+  /* } */
+};
+
+// StructName { <field_name}: value, ... }
+class StructDecl : public ASTNode {
+  
+  int node_type() const override {
+    return 23;
+  }
+};
+
+class StructAccess : public ASTNode {
+  int node_type() const override {
+    return 24;
   }
 };
 

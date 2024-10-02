@@ -96,7 +96,8 @@ class Lexer {
   {"]", RBRACKET},
   {",", COMMA},
   {":", COLON},
-  {";", SEMICOLON}
+  {";", SEMICOLON},
+  {".", PERIOD},
   };
 
   // map multi-character symbols to their token type

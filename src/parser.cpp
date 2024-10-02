@@ -10,7 +10,7 @@ Keywords and symbols in my language:
 - bool: true, false
 - operators: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=
 - precedence:
-    0 (highest): function call, scope (())
+    0 (highest): function call, scope (()), primitives, struct access
     1: unary operators (- (negative), ! (not), ++ (increment), -- (decrement))
     2: exponentiation (^)
     3: multiplication (*, /, %)
@@ -78,7 +78,7 @@ std::unique_ptr<ASTNode> Parser::parse_keyword() {
     case EXIT: return parse_exit();
     case FUNC: return parse_func();
     case SWITCH: return parse_switch();
-    case STRUCT: return parse_struct();
+    case STRUCT: return parse_structdef();
     default: return parse_expression();
   }
 }
@@ -92,7 +92,7 @@ std::unique_ptr<ASTNode> Parser::parse_import() {
   return std::make_unique<ImportNode>(rel_fpath, tokens[current].line, tokens[current].col);
 }
 
-std::unique_ptr<ASTNode> Parser::parse_struct() {
+std::unique_ptr<ASTNode> Parser::parse_structdef() {
   // struct <name> {
   //  <field_name>: type;
   //  <field_name>: type;
@@ -114,6 +114,10 @@ std::unique_ptr<ASTNode> Parser::parse_struct() {
   } while(tokens[current].value != "}");
   current++; // consume "}"
   current++; // consume ;
+}
+
+std::unique_ptr<ASTNode> Parser::parse_structdecl() {
+
 }
 
 std::unique_ptr<ASTNode> Parser::parse_let() {
@@ -648,7 +652,10 @@ std::unique_ptr<ASTNode> Parser::parse_unary() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_primary() {
-  // primary -> INT | Double | STRING | BOOL | "(" expression ")" | FuncCall
+  // primary -> INT | Double | STRING | BOOL | "(" expression ")" | FuncCall | StructAccess
+
+  // if current token in '.', previous one is the struct name, next one is the struct field
+
   if (tokens[current].value == "(") {
     current++;
     std::unique_ptr<ASTNode> node = parse_expression();
