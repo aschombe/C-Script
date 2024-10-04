@@ -32,8 +32,8 @@ class Parser {
   std::unique_ptr<ASTNode> parse_exit();
   std::unique_ptr<ASTNode> parse_func();
   std::unique_ptr<ASTNode> parse_switch();
-  std::unique_ptr<ASTNode> parse_structdef();
-  std::unique_ptr<ASTNode> parse_structdecl();
+  std::unique_ptr<ASTNode> parse_struct_def();
+  /* std::unique_ptr<ASTNode> parse_structdecl(); */
   /* std::unique_ptr<ASTNode> parse_structaccess(); */
 
   std::unique_ptr<ASTNode> parse_expression();

@@ -528,6 +528,7 @@ class PostFixNode : public ASTNode {
 };
 
 class StructDef : public ASTNode {
+  public:
   std::string name;
   std::unordered_map<std::string, Var_Types> fields;
   
@@ -540,35 +541,39 @@ class StructDef : public ASTNode {
     return 22;
   }
 
-  /* std::string to_string() const override { */
-  /*   std::string result = "StructNode(" + name + ", "; */
-  /*   // iterate through the unordered map and add field: type; to this */
-  /* } */
+  std::string to_string() const override {
+    std::string result = "StructDef(" + name + ", [";
+    for (auto& field : fields) {
+      result += field.first + ": " + var_type_to_string(field.second);
+    }
+    result += "])";
+    return result;
+  }
 };
 
 // StructName { <field_name}: value, ... }
-class StructDecl : public ASTNode {
+/* class StructDecl : public ASTNode { */
   
-  int node_type() const override {
-    return 23;
-  }
-};
+/*   int node_type() const override { */
+/*     return 23; */
+/*   } */
+/* }; */
 
-class StructAccess : public ASTNode {
-  std::string struct_name;
-  std::string struct_field;
-  StructAccess(const std::string& struct_name, const std::string& struct_field, int line, int col) : struct_name(struct_name), struct_field(struct_field) {
-    this->line = line;
-    this->col = col;
-  }
+/* class StructAccess : public ASTNode { */
+/*   std::string struct_name; */
+/*   std::string struct_field; */
+/*   StructAccess(const std::string& struct_name, const std::string& struct_field, int line, int col) : struct_name(struct_name), struct_field(struct_field) { */
+/*     this->line = line; */
+/*     this->col = col; */
+/*   } */
 
-  int node_type() const override {
-    return 24;
-  }
+/*   int node_type() const override { */
+/*     return 24; */
+/*   } */
 
-  std::string to_string() const override {
-    return "StructAccess(" + struct_name + ", " + struct_field + ")";
-  }
-};
+/*   std::string to_string() const override { */
+/*     return "StructAccess(" + struct_name + ", " + struct_field + ")"; */
+/*   } */
+/* }; */
 
 void print_ast(const std::vector<std::unique_ptr<ASTNode>>& ast);

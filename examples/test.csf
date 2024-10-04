@@ -1,1 +1,4 @@
-person.name
+struct Person {
+  name: string;
+  age: int;
+};

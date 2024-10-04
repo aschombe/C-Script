@@ -14,8 +14,7 @@ enum TokenType {
   TYPE,
 
   // Keywords
-  STRUCTDEF,
-  STRUCTDECL,
+  STRUCT_DEF,
   IMPORT,
   LET,
   DEL,

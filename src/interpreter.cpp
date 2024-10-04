@@ -58,11 +58,7 @@ Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
     case 21: // postfix
       return interp_postfix(dynamic_cast<const PostFixNode*>(node.get()));
     case 22: // struct definition
-      return interp_structdef(dynamic_cast<const StructDef*>(node.get()));
-    case 23:
-      return interp_structdecl(dynamic_cast<const StructDecl*>(node.get()));
-    case 24:
-      return interp_structaccess(dynamic_cast<const StructAccess*>(node.get()));
+      return interp_struct_def(dynamic_cast<const StructDef*>(node.get()));
     default:
       throw std::runtime_error("Invalid node type: " + std::to_string(node->node_type())); 
   }
@@ -476,20 +472,8 @@ Value Interpreter::interp_scd(const SCDNode* node) {
   return Value();
 }
 
-Value Interpreter::interp_structdef(const StructDef* node) {
+Value Interpreter::interp_struct_def(const StructDef* node) {
   std::cout << "TODO: Implement struct def" << std::endl;
-  (void)node;
-  return Value();
-}
-
-Value Interpreter::interp_structdecl(const StructDecl* node) {
-  std::cout << "TODO: Implement struct decl" << std::endl;
-  (void)node;
-  return Value();
-}
-
-Value Interpreter::interp_structaccess(const StructAccess* node) {
-  std::cout << "TODO: Implement struct access" << std::endl;
   (void)node;
   return Value();
 }

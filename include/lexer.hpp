@@ -50,7 +50,7 @@ class Lexer {
   // keywords, symbols, and literals
   std::map<std::string, TokenType> keywords = {
     {"import", IMPORT},
-    {"struct", STRUCT},
+    {"struct", STRUCT_DEF},
     {"let", LET},
     {"del", DEL},
     {"if", IF},
