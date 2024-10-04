@@ -108,8 +108,9 @@ int main(int argc, char* argv[]) {
     }
 
     // // interpret the code
-    Interpreter interpreter(ast, ran_file);
-    interpreter.run();
+    /* Interpreter interpreter(ast, ran_file); */
+    /* interpreter.run(); */
+    std::cout << "Error: interpretation is not implemented yet" << std::endl;
   }
 
   return 0;

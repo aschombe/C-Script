@@ -31,7 +31,7 @@ Keywords and symbols in my language:
 #include <regex>
 
 bool Parser::is_keyword(const Token& token) {
-  return token.type == LET || token.type == DEL || token.type == IF || token.type == FOR || token.type == WHILE || token.type == BREAK || token.type == CONTINUE || token.type == RETURN || token.type == EXIT || token.type == FUNC || token.type == SWITCH || token.type == IMPORT;
+  return token.type == LET || token.type == DEL || token.type == IF || token.type == FOR || token.type == WHILE || token.type == BREAK || token.type == CONTINUE || token.type == RETURN || token.type == EXIT || token.type == FUNC || token.type == SWITCH || token.type == IMPORT || token.type == STRUCT_DEF;
 }
 
 bool Parser::is_assignment(const Token& token) {
@@ -104,16 +104,19 @@ std::unique_ptr<ASTNode> Parser::parse_struct_def() {
   std::unordered_map<std::string, Var_Types> fields;
   std::string f_name;
   std::string f_type;
-  do {
+  while (tokens[current].value != "}") {
     f_name = tokens[current].value;
     current++; // consume field name
     current++; // consume :
     f_type = tokens[current].value;
-    current++; //consume field type
-    current++; // consume ;
+    current++; // consume type
     fields[f_name] = string_to_var_type(f_type);
-  } while(tokens[current].value != "}");
-  current++; // consume "}"
+    if (tokens[current].value != ";") {
+      throw std::runtime_error("Expected ';' after field type in struct definition");
+    }
+    current++; // consume ;
+  }
+  current++; // consume }
   current++; // consume ;
   return std::make_unique<StructDef>(name, fields, tokens[current].line, tokens[current].col);
 }

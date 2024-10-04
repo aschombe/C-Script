@@ -88,10 +88,11 @@ inline std::string token_type_to_string(TokenType type) {
     case DOUBLE: return "double";
     case BOOL: return "bool";
     case STRING: return "string";
+    case STRUCT: return "struct";
     case IDENTIFIER: return "identifier";
     case TYPE: return "type";
     case IMPORT: return "import";
-    case STRUCT: return "struct";
+    case STRUCT_DEF: return "struct_def";
     case LET: return "let";
     case DEL: return "del";
     case IF: return "if";
