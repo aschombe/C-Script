@@ -100,7 +100,8 @@ std::unique_ptr<ASTNode> Parser::parse_struct_def() {
   // };
   current++; // consume struct
   std::string name = tokens[current].value;
-  current++; // consume {
+  current++; // consume name
+  current++; // consume ;
   std::unordered_map<std::string, Var_Types> fields;
   std::string f_name;
   std::string f_type;
@@ -656,14 +657,14 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
   // primary -> INT | Double | STRING | BOOL | "(" expression ")" | FuncCall | StructAccess
 
   // if current token in '.', previous one is the struct name, next one is the struct field
-  if (tokens[current].value == ".") {
-    std::string struct_name = tokens[current - 1].value;
-    ast.erase(ast.begin()+current-1);
-    current++;
-    std::string struct_field = tokens[current].value;
+  /* if (tokens[current].value == ".") { */
+  /*   std::string struct_name = tokens[current - 1].value; */
+  /*   ast.erase(ast.begin()+current-1); */
+  /*   current++; */
+  /*   std::string struct_field = tokens[current].value; */
     
-  }
-
+  /* } */
+ 
   if (tokens[current].value == "(") {
     current++;
     std::unique_ptr<ASTNode> node = parse_expression();
@@ -675,9 +676,20 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
   } else {
     std::string token = tokens[current].value;
 
+    // check for struct initialization
+    // <name> { <field>: value, <feld>: value, ..., <field>: value }
+    if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == "{") {
+      std::string name = token;
+      current++; // consume the identifier
+      current++; // consume the {
+      std::unordered_map<std::string, Var_Type> fields;
+      std::string f_name;
+      std::string f_type;
+      while (tokens[current].value != "}") {
+      }
+
     // Check for function call
-    if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && 
-        current + 1 < tokens.size() && tokens[current + 1].value == "(") {
+    if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == "(") {
       current++; // consume the identifier
       current++; // consume the '('
 

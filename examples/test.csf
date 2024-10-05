@@ -1,3 +1,5 @@
 struct Person {
+  age: int;
   name: string;
+  weight: double;
 };

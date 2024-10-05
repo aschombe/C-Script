@@ -544,7 +544,7 @@ class StructDef : public ASTNode {
   std::string to_string() const override {
     std::string result = "StructDef(" + name + ", [";
     for (auto& field : fields) {
-      result += field.first + ": " + var_type_to_string(field.second);
+      result += field.first + ": " + var_type_to_string(field.second) + ", ";
     }
     result += "])";
     return result;
