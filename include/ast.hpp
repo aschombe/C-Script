@@ -531,10 +531,12 @@ class StructDef : public ASTNode {
   public:
   std::string name;
   std::unordered_map<std::string, Var_Types> fields;
-  
+  int num_fields;
+
   StructDef(const std::string& name, std::unordered_map<std::string, Var_Types> fields, int line, int col) : name(name), fields(fields) {
     this->line = line;
     this->col = col;
+    num_fields = fields.size();
   }
 
   int node_type() const override {
@@ -543,8 +545,13 @@ class StructDef : public ASTNode {
 
   std::string to_string() const override {
     std::string result = "StructDef(" + name + ", [";
+    int i = 0;
     for (auto& field : fields) {
-      result += field.first + ": " + var_type_to_string(field.second) + ", ";
+      result += field.first + ": " + var_type_to_string(field.second);
+      if (i < num_fields - 1) {
+        result += ", ";
+      }
+      i++;
     }
     result += "])";
     return result;
@@ -556,10 +563,12 @@ class StructInit : public ASTNode {
   public:
   std::string name;
   std::unordered_map<std::string, std::shared_ptr<ASTNode>> fields;
+  int num_fields;
 
   StructInit(const std::string& name, std::unordered_map<std::string, std::shared_ptr<ASTNode>> fields, int line, int col) : name(name), fields(fields) {
     this->line = line;
     this->col = col;
+    num_fields = fields.size();
   }
 
   int node_type() const override {
@@ -568,8 +577,13 @@ class StructInit : public ASTNode {
 
   std::string to_string() const override {
     std::string result = "StructInit(" + name + ", [";
+    int i = 0;
     for (auto& field : fields) {
-      result += field.first + ": " + field.second->to_string() + ", ";
+      result += field.first + ": " + field.second->to_string();
+      if (i < num_fields - 1) {
+        result += ", ";
+      }
+      i++;
     }
     result += "])";
     return result;
