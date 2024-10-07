@@ -552,6 +552,31 @@ class StructDef : public ASTNode {
 };
 
 // StructName { <field_name}: value, ... }
+class StructInit : public ASTNode {
+  public:
+  std::string name;
+  std::unordered_map<std::string, std::unique_ptr<ASTNode>> fields;
+
+  StructInit(const std::string& name, std::unordered_map<std::string, std::unique_ptr<ASTNode>> fields, int line, int col) : name(name), fields(fields) {
+    this->line = line;
+    this->col = col;
+  }
+
+  int node_type() const override {
+    return 23;
+  }
+
+  std::string to_string() const override {
+    std::string result = "StructInit(" + name + ", [";
+    for (auto& field : fields) {
+      result += field.first + ": " + field.second->to_string() + ", ";
+    }
+    result += "])";
+    return result;
+  }
+};
+
+// StructName { <field_name}: value, ... }
 /* class StructDecl : public ASTNode { */
   
 /*   int node_type() const override { */

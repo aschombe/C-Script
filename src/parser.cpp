@@ -654,7 +654,7 @@ std::unique_ptr<ASTNode> Parser::parse_unary() {
 }
 
 std::unique_ptr<ASTNode> Parser::parse_primary() {
-  // primary -> INT | Double | STRING | BOOL | "(" expression ")" | FuncCall | StructAccess
+  // primary -> INT | Double | STRING | BOOL | "(" expression ")" | FuncCall | StructInit
 
   // if current token in '.', previous one is the struct name, next one is the struct field
   /* if (tokens[current].value == ".") { */
@@ -682,11 +682,30 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
       std::string name = token;
       current++; // consume the identifier
       current++; // consume the {
-      std::unordered_map<std::string, Var_Type> fields;
+      std::unordered_map<std::string, std::unique_ptr<ASTNode>> fields;
       std::string f_name;
       std::string f_type;
       while (tokens[current].value != "}") {
+        f_name = tokens[current].value;
+        current++; // consume field name
+        if (tokens[current].value != ":") {
+          throw std::runtime_error("Expected ':' after field name in struct initialization");
+        }
+        current++; // consume :
+        std::unique_ptr<ASTNode> value = parse_expression();
+        fields[f_name] = std::move(value);
+        if (tokens[current].value == ",") {
+          current++; // consume ','
+        } else {
+          break;
+        }
       }
+      if (tokens[current].value != "}") {
+        throw std::runtime_error("Expected '}' after struct initialization");
+      }
+      current++; // consume the '}'
+      return std::make_unique<StructInit>(name, std::move(fields), tokens[current].line, tokens[current].col);
+    }
 
     // Check for function call
     if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == "(") {
