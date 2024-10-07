@@ -11,7 +11,7 @@ Keywords and symbols in my language:
 - bool: true, false
 - operators: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=, .
 - precedence:
-    0 (highest): function call, scope (()), primitives, struct access (.)
+    0 (highest): function call, scope (()), primitives, struct access (.), struct initialization
     1: unary operators (- (negative), ! (not), ++ (increment), -- (decrement))
     2: exponentiation (^)
     3: multiplication (*, /, %)
@@ -495,7 +495,6 @@ std::unique_ptr<ASTNode> Parser::parse_assignment() {
       current++;
       std::unique_ptr<ASTNode> right = parse_logical_or();
       current++;
-      /* node = std::make_unique<BinOpNode>(op, std::move(node), std::move(right), tokens[current].line, tokens[current].col); */
       node = std::make_unique<SetNode>(op, ident, std::move(right), tokens[current].line, tokens[current].col);
     } else {
       break;
@@ -730,6 +729,10 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
         throw std::runtime_error("Expected ')' after function arguments");
       }
       current++; // consume the ')'
+
+      if (tokens[current].value == ";") {
+        current++; // consume the ';'
+      }
 
       return std::make_unique<CallNode>(token, std::move(args), tokens[current].line, tokens[current].col);
     }

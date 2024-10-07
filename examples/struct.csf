@@ -10,4 +10,12 @@
    weight: 70.5
  };
 
-let y:int = x.age;
+print(x.age);
+
+func birthday(p:struct): void {
+  p.age += 1;
+}
+
+birthday(x);
+
+print(x.age);
