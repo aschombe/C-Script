@@ -30,9 +30,6 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## TODO
 - [ ] Proper error handling and displaying (instead of std::runtime_error)
-- [ ] Structs:
-    - [ ] StructInit
-    - [ ] StructAccess
 - [ ] Add snippets to token struct (populated during tokenizing):
     - [ ] Starting point: start of line (after previous newline)
     - [ ] Ending point: new line
