@@ -682,7 +682,7 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
       std::string name = token;
       current++; // consume the identifier
       current++; // consume the {
-      std::unordered_map<std::string, std::unique_ptr<ASTNode>> fields;
+      std::unordered_map<std::string, std::shared_ptr<ASTNode>> fields;
       std::string f_name;
       std::string f_type;
       while (tokens[current].value != "}") {

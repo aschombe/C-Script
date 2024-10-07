@@ -1,5 +1,13 @@
-struct Person {
-  age: int;
-  name: string;
-  weight: double;
-};
+// struct Person {
+//   age: int;
+//   name: string;
+//   weight: double;
+// };
+
+// let x:struct = Person {
+//   age: 10,
+//   name: "John",
+//   weight: 70.5
+// };
+
+let y:int = x.age;
