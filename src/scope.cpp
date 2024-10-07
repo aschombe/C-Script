@@ -1,6 +1,6 @@
 #include "../include/scope.hpp"
+#include "../include/error_handler.hpp"
 #include <iostream>
-#include <stdexcept>
 
 Scope::Scope() {
   scopes.push_back(ScopeMap());
@@ -38,7 +38,8 @@ Value Scope::get_variable(const std::string& name) {
       return std::get<Variable>(scopes[i][name]).second;
     }
   }
-  throw std::runtime_error("Variable " + name + " not found");
+  ErrorHandler error(ErrorType::SEMANTIC, "Variable " + name + " not found", Token());
+  throw error;
 }
 
 Function Scope::get_function(const std::string& name) {
@@ -47,7 +48,8 @@ Function Scope::get_function(const std::string& name) {
       return std::get<Function>(scopes[i][name]);
     }
   }
-  throw std::runtime_error("Function " + name + " not found");
+  ErrorHandler error(ErrorType::SEMANTIC, "Function " + name + " not found", Token());
+  throw error;
 }
 
 bool Scope::variable_exists(const std::string& name) {
@@ -84,7 +86,8 @@ void Scope::set_variable(const std::string& name, const Value& value) {
       return;
     }
   }
-  throw std::runtime_error("Variable " + name + " not found");
+  ErrorHandler error(ErrorType::SEMANTIC, "Variable " + name + " not found", Token());
+  throw error;
 }
 
 void Scope::delete_variable(const std::string& name) {
@@ -94,7 +97,8 @@ void Scope::delete_variable(const std::string& name) {
       return;
     }
   }
-  throw std::runtime_error("Variable " + name + " not found");
+  ErrorHandler error(ErrorType::SEMANTIC, "Variable " + name + " not found", Token());
+  throw error;
 }
 
 void Scope::print_scope() {

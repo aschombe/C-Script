@@ -1,5 +1,5 @@
 #include "../include/lexer.hpp"
-#include <stdexcept>
+#include "../include/error_handler.hpp"
 
 // constructor
 Lexer::Lexer(std::string code) {
@@ -177,7 +177,8 @@ Token Lexer::next_token() {
         }
         return this->token; // Return the float token
       } else {
-        throw std::runtime_error("Invalid float literal at line " + std::to_string(this->line) + ", column " + std::to_string(this->column));
+        ErrorHandler error{ErrorType::LEXICAL, "Invalid float literal", this->token};
+        throw error;
       }
     }
     return this->token; // Return the int token if no decimal point follows
@@ -218,12 +219,8 @@ Token Lexer::next_token() {
     return this->token;
   }
 
-  // unknown token, throw an error with the current line and column, and token
-  std::string snippet = extract_snippet(this->pos);
-  std::string error_msg = "Unknown token at line " + std::to_string(this->line) + ", column " + std::to_string(this->column) + "\n";
-  error_msg += snippet + "\n";
-  error_msg += std::string(this->column - 1, ' ') + "^";
-  throw std::runtime_error(error_msg);
+  ErrorHandler error{ErrorType::LEXICAL, "Unknown token", Token{UNKNOWN, this->line, this->column, "", extract_snippet(this->pos)}};
+  throw error;
 }
 
 // peek the next token (don't consume it)

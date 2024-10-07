@@ -68,8 +68,8 @@ enum TokenType {
   SEMICOLON,
   PERIOD,
 
-  // End of
-  END_OF_FILE
+  END_OF_FILE,
+  UNKNOWN,
 };
 
 struct Token {
@@ -143,7 +143,7 @@ inline std::string token_type_to_string(TokenType type) {
     case SEMICOLON: return ";";
     case PERIOD: return ".";
     case END_OF_FILE: return "end of file";
-    default: throw std::runtime_error("Unknown token type");
+    case UNKNOWN: return "unknown";
   }
 
   return "";

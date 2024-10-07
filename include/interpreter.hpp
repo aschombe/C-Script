@@ -34,4 +34,6 @@ class Interpreter {
   Value interp_exit(const ExitNode* node);
   Value interp_scd(const SCDNode* node);
   Value interp_struct_def(const StructDef* node);
+  Value interp_struct_init(const StructInit* node);
+  Value interp_struct_access(const StructAccess* node);
 };

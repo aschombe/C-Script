@@ -27,9 +27,11 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] CST command line tool
 - [x] AST
 - [x] Tokenizer
+- [x] Error handling
 
 ## TODO
-- [ ] Proper error handling and displaying (instead of std::runtime_error)
+- [ ] Allow error handler to also accept AST nodes to grab line number, col number and snippet (also fix this issue with scoping errors)
+- [ ] Return AST is parsing incorrectly
 - [ ] Type Checker (proper type checker)
 - [ ] Interpreter (everything):
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)

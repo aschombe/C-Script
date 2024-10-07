@@ -1,32 +1,7 @@
-/*
-Keywords and symbols in my language:
-- keyworks: let, set, del, if, elif, else, for, while, break, continue, return, exit, func, int, float, bool, string, switch, case, default, true, false
-- symbols: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=, ^=, (, ), {, }, [, ], ,, :, ;
-- comments: same as c++
-- identifiers: [a-zA-Z_][a-zA-Z0-9_]*
-- int: [0-9]+
-- float: [0-9]+\.[0-9]+
-- string: "[^"]*"
-- structs
-- bool: true, false
-- operators: +, -, *, /, %, ^, ==, !=, <, <=, >, >=, &&, ||, =, +=, -=, *=, /=, %=, .
-- precedence:
-    0 (highest): function call, scope (()), primitives, struct access (.), struct initialization
-    1: unary operators (- (negative), ! (not), ++ (increment), -- (decrement))
-    2: exponentiation (^)
-    3: multiplication (*, /, %)
-    4: addition (+, -)
-    5: Comparison1 (<, <=, >, >=)
-    6: Comparison2 (==, !=)
-    7: Logical AND (&&)
-    8: Logical OR (||)
-    9 (lowest): assignment (=, +=, -=, *=, /=, %=)
-*/
-
 #include "../include/parser.hpp"
 #include "../include/ast.hpp"
 #include "../include/types.hpp"
-#include <stdexcept>
+#include "../include/error_handler.hpp"
 #include <iostream>
 #include <regex>
 
@@ -113,7 +88,8 @@ std::unique_ptr<ASTNode> Parser::parse_struct_def() {
     current++; // consume type
     fields[f_name] = string_to_var_type(f_type);
     if (tokens[current].value != ";") {
-      throw std::runtime_error("Expected ';' after field type in struct definition");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected ';' after field type in struct definition", tokens[current]);
+      throw error;
     }
     current++; // consume ;
   }
@@ -132,12 +108,14 @@ std::unique_ptr<ASTNode> Parser::parse_let() {
   Var_Types var_type = string_to_var_type(type);
   current++; // consume TYPE
   if (tokens[current].value != "=") {
-    throw std::runtime_error("Expected '=' after type in let statement");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '=' after type in let statement", tokens[current]);
+    throw error;
   }
   current++; // consume "="
   std::unique_ptr<ASTNode> expression = parse_expression();
   if (tokens[current].value != ";") {
-    throw std::runtime_error("Expected ';' after expression in let statement");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ';' after expression in let statement", tokens[current]);
+    throw error;
   }
   current++; // consume ";"
   return std::make_unique<LetNode>(identifier, var_type, std::move(expression), tokens[current].line, tokens[current].col);
@@ -149,7 +127,8 @@ std::unique_ptr<ASTNode> Parser::parse_del() {
   std::string identifier = tokens[current].value;
   current++; // consume IDENTIFIER
   if (tokens[current].value != ";") {
-    throw std::runtime_error("Expected ';' after identifier in del statement");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ';' after identifier in del statement", tokens[current]);
+    throw error;
   }
   current++; // consume ";"
   return std::make_unique<DelNode>(identifier, tokens[current].line, tokens[current].col);
@@ -159,22 +138,25 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
   // if -> "if" (expression) "{" ( keyword | expression )* "}" ( "elif" (expression) "{" ( keyword | expression )* "}" )* ( "else" "{" ( keyword | expression )* "}" )?
   current++; // consume "if"
   if (tokens[current].value != "(") {
-    throw std::runtime_error("Expected '(' after 'if'");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '(' after 'if'", tokens[current]);
   }
   current++; // consume "("
   std::unique_ptr<ASTNode> if_condition = parse_expression();
   if (tokens[current].value != ")") {
-    throw std::runtime_error("Expected ')' after if condition");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ')' after if condition", tokens[current]);
+    throw error;
   }
   current++; // consume ")"
   if (tokens[current].value != "{") {
-    throw std::runtime_error("Expected '{' after if condition");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '{' after if condition", tokens[current]);
+    throw error;
   }
   current++; // consume "{"
   std::vector<std::unique_ptr<ASTNode>> if_body;
   while (tokens[current].value != "}") {
     if (current >= tokens.size()) {
-      throw std::runtime_error("Expected '}' after if body");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected '}' after if body", tokens[current]);
+      throw error;
     }
     if (is_keyword(tokens[current])) {
       if_body.push_back(parse_keyword());
@@ -188,22 +170,26 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
   while (current < tokens.size() && tokens[current].value == "elif") {
     current++; // consume "elif"
     if (tokens[current].value != "(") {
-      throw std::runtime_error("Expected '(' after 'elif'");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected '(' after 'elif'", tokens[current]);
+      throw error;
     }
     current++; // consume "("
     std::unique_ptr<ASTNode> elif_condition = parse_expression();
     if (tokens[current].value != ")") {
-      throw std::runtime_error("Expected ')' after elif condition");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected ')' after elif condition", tokens[current]);
+      throw error;
     }
     current++; // consume ")"
     if (tokens[current].value != "{") {
-      throw std::runtime_error("Expected '{' after elif condition");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected '{' after elif condition", tokens[current]);
+      throw error;
     }
     current++; // consume "{"
     std::vector<std::unique_ptr<ASTNode>> elif_body;
     while (tokens[current].value != "}") {
       if (current >= tokens.size()) {
-        throw std::runtime_error("Expected '}' after elif body");
+        ErrorHandler error(ErrorType::SYNTACTIC, "Expected '}' after elif body", tokens[current]);
+        throw error;
       }
       if (is_keyword(tokens[current])) {
         elif_body.push_back(parse_keyword());
@@ -219,12 +205,14 @@ std::unique_ptr<ASTNode> Parser::parse_if() {
   if (current < tokens.size() && tokens[current].value == "else") {
     current++; // consume "else"
     if (tokens[current].value != "{") {
-      throw std::runtime_error("Expected '{' after 'else'");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected '{' after else", tokens[current]);
+      throw error;
     }
     current++; // consume "{"
     while (tokens[current].value != "}") {
       if (current >= tokens.size()) {
-        throw std::runtime_error("Expected '}' after else body");
+        ErrorHandler error(ErrorType::SYNTACTIC, "Expected '}' after else body", tokens[current]);
+        throw error;
       }
       if (is_keyword(tokens[current])) {
         else_body.push_back(parse_keyword());
@@ -241,33 +229,39 @@ std::unique_ptr<ASTNode> Parser::parse_for() {
   // for -> "for" (IDENTIFIER; expression; expression) "{" ( keyword | expression )* "}"
   current++; // consume "for"
   if (tokens[current].value != "(") {
-    throw std::runtime_error("Expected '(' after 'for'");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '(' after 'for'", tokens[current]);
+    throw error;
   }
   current++; // consume "("
   std::string identifier = tokens[current].value;
   current++; // consume IDENTIFIER
   if (tokens[current].value != ";") {
-    throw std::runtime_error("Expected ';' after identifier in for statement");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ';' after identifier in for statement", tokens[current]);
+    throw error;
   }
   current++; // consume ";"
   std::unique_ptr<ASTNode> condition = parse_expression();
   if (tokens[current].value != ";") {
-    throw std::runtime_error("Expected ';' after condition in for statement");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ';' after condition in for statement", tokens[current]);
+    throw error;
   }
   current++; // consume ";"
   std::unique_ptr<ASTNode> increment = parse_expression();
   if (tokens[current].value != ")") {
-    throw std::runtime_error("Expected ')' after increment in for statement");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ')' after increment in for statement", tokens[current]);
+    throw error;
   }
   current++; // consume ")"
   if (tokens[current].value != "{") {
-    throw std::runtime_error("Expected '{' after for statement");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '{' after for statement", tokens[current]);
+    throw error;
   }
   current++; // consume "{"
   std::vector<std::unique_ptr<ASTNode>> body;
   while (tokens[current].value != "}") {
     if (current >= tokens.size()) {
-      throw std::runtime_error("Expected '}' after for body");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected '}' after for body", tokens[current]);
+      throw error;
     }
     if (is_keyword(tokens[current])) {
       body.push_back(parse_keyword());
@@ -283,22 +277,26 @@ std::unique_ptr<ASTNode> Parser::parse_while() {
   // while -> "while" (expression) "{" ( keyword | expression )* "}"
   current++; // consume "while"
   if (tokens[current].value != "(") {
-    throw std::runtime_error("Expected '(' after 'while'");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '(' after 'while'", tokens[current]);
+    throw error;
   }
   current++; // consume "("
   std::unique_ptr<ASTNode> condition = parse_expression();
   if (tokens[current].value != ")") {
-    throw std::runtime_error("Expected ')' after condition in while statement");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ')' after while condition", tokens[current]);
+    throw error;
   }
   current++; // consume ")"
   if (tokens[current].value != "{") {
-    throw std::runtime_error("Expected '{' after while condition");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '{' after while condition", tokens[current]);
+    throw error;
   }
   current++; // consume "{"
   std::vector<std::unique_ptr<ASTNode>> body;
   while (tokens[current].value != "}") {
     if (current >= tokens.size()) {
-      throw std::runtime_error("Expected '}' after while body");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected '}' after while body", tokens[current]);
+      throw error;
     }
     if (is_keyword(tokens[current])) {
       body.push_back(parse_keyword());
@@ -314,7 +312,8 @@ std::unique_ptr<ASTNode> Parser::parse_break() {
   // break -> "break" ";"
   current++; // consume "break"
   if (tokens[current].value != ";") {
-    throw std::runtime_error("Expected ';' after 'break'");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ';' after 'break'", tokens[current]);
+    throw error;
   }
   current++; // consume ";"
   return std::make_unique<BreakNode>(tokens[current].line, tokens[current].col);
@@ -324,7 +323,8 @@ std::unique_ptr<ASTNode> Parser::parse_continue() {
   // continue -> "continue" ";"
   current++; // consume "continue"
   if (tokens[current].value != ";") {
-    throw std::runtime_error("Expected ';' after 'continue'");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ';' after 'continue'", tokens[current]);
+    throw error;
   }
   current++; // consume ";"
   return std::make_unique<ContinueNode>(tokens[current].line, tokens[current].col);
@@ -335,7 +335,8 @@ std::unique_ptr<ASTNode> Parser::parse_return() {
   current++; // consume "return"
   std::unique_ptr<ASTNode> expression = parse_expression();
   if (tokens[current].value != ";") {
-    throw std::runtime_error("Expected ';' after expression in return statement");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ';' after expression in return statement", tokens[current]);
+    throw error;
   }
   current++; // consume ";"
   return std::make_unique<ReturnNode>(std::move(expression), tokens[current].line, tokens[current].col);
@@ -346,7 +347,8 @@ std::unique_ptr<ASTNode> Parser::parse_exit() {
   current++; // consume "exit"
   std::unique_ptr<ASTNode> expression = parse_expression();
   if (tokens[current].value != ";") {
-    throw std::runtime_error("Expected ';' after expression in exit statement");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ';' after expression in exit statement", tokens[current]);
+    throw error;
   }
   current++; // consume ";"
   return std::make_unique<ExitNode>(std::move(expression), tokens[current].line, tokens[current].col);
@@ -359,7 +361,8 @@ std::unique_ptr<ASTNode> Parser::parse_func() {
   std::string identifier = tokens[current].value;
   current++; // consume IDENTIFIER
   if (tokens[current].value != "(") {
-    throw std::runtime_error("Expected '(' after function identifier");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '(' after function identifier", tokens[current]);
+    throw error;
   }
   current++; // consume "("
   std::vector<std::pair<std::string, Var_Types>> args;
@@ -368,7 +371,8 @@ std::unique_ptr<ASTNode> Parser::parse_func() {
       std::string arg_identifier = tokens[current].value;
       current++; // consume IDENTIFIER
       if (tokens[current].value != ":") {
-        throw std::runtime_error("Expected ':' after argument identifier in function declaration");
+        ErrorHandler error(ErrorType::SYNTACTIC, "Expected ':' after argument identifier in function declaration", tokens[current]);
+        throw error;
       }
       current++; // consume ":"
       std::string arg_type = tokens[current].value;
@@ -382,23 +386,27 @@ std::unique_ptr<ASTNode> Parser::parse_func() {
     } while (current < tokens.size());
   }
   if (tokens[current].value != ")") {
-    throw std::runtime_error("Expected ')' after function arguments");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ')' after function arguments", tokens[current]);
+    throw error;
   }
   current++; // consume ")"
   if (tokens[current].value != ":") {
-    throw std::runtime_error("Expected ':' after function arguments closing parenthesis");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ':' after function arguments closing parenthesis", tokens[current]);
+    throw error;
   }
   current++; // consume ":"
   Func_Types return_type = string_to_func_type(tokens[current].value);
   current++; // consume return type
   if (tokens[current].value != "{") {
-    throw std::runtime_error("Expected '{' after function declaration");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '{' after function declaration", tokens[current]);
+    throw error;
   }
   current++; // consume "{"
   std::vector<std::unique_ptr<ASTNode>> body;
   while (tokens[current].value != "}") {
     if (current >= tokens.size()) {
-      throw std::runtime_error("Expected '}' after function body");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected '}' after function body", tokens[current]);
+      throw error;
     }
     if (is_keyword(tokens[current])) {
       body.push_back(parse_keyword());
@@ -414,38 +422,45 @@ std::unique_ptr<ASTNode> Parser::parse_switch() {
   // switch -> "switch" (expression) "{" ( "case" (expression) "{" ( keyword | expression )* "}" )+ ( "default" "{" ( keyword | expression )* "}" )?
   current++; // consume "switch"
   if (tokens[current].value != "(") {
-    throw std::runtime_error("Expected '(' after 'switch'");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '(' after 'switch'", tokens[current]);
+    throw error;
   }
   current++; // consume "("
   std::unique_ptr<ASTNode> expression = parse_expression();
   if (tokens[current].value != ")") {
-    throw std::runtime_error("Expected ')' after switch expression");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected ')' after switch expression", tokens[current]);
+    throw error;
   }
   current++; // consume ")"
   if (tokens[current].value != "{") {
-    throw std::runtime_error("Expected '{' after switch expression");
+    ErrorHandler error(ErrorType::SYNTACTIC, "Expected '{' after switch expression", tokens[current]);
+    throw error;
   }
   current++; // consume "{"
   std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> cases;
   while (current < tokens.size() && tokens[current].value == "case") {
     current++; // consume "case"
     if (tokens[current].value != "(") {
-      throw std::runtime_error("Expected '(' after 'case'");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected '(' after 'case'", tokens[current]);
+      throw error;
     }
     current++; // consume "("
     std::unique_ptr<ASTNode> case_expression = parse_expression();
     if (tokens[current].value != ")") {
-      throw std::runtime_error("Expected ')' after case expression");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected ')' after case expression", tokens[current]);
+      throw error;
     }
     current++; // consume ")"
     if (tokens[current].value != "{") {
-      throw std::runtime_error("Expected '{' after case expression");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected '{' after case expression", tokens[current]);
+      throw error;
     }
     current++; // consume "{"
     std::vector<std::unique_ptr<ASTNode>> case_body;
     while (tokens[current].value != "}") {
       if (current >= tokens.size()) {
-        throw std::runtime_error("Expected '}' after case body");
+        ErrorHandler error(ErrorType::SYNTACTIC, "Expected '}' after case body", tokens[current]);
+        throw error;
       }
       if (is_keyword(tokens[current])) {
         case_body.push_back(parse_keyword());
@@ -460,12 +475,14 @@ std::unique_ptr<ASTNode> Parser::parse_switch() {
   if (current < tokens.size() && tokens[current].value == "default") {
     current++; // consume "default"
     if (tokens[current].value != "{") {
-      throw std::runtime_error("Expected '{' after 'default'");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected '{' after 'default'", tokens[current]);
+      throw error;
     }
     current++; // consume "{"
     while (tokens[current].value != "}") {
       if (current >= tokens.size()) {
-        throw std::runtime_error("Expected '}' after default body");
+        ErrorHandler error(ErrorType::SYNTACTIC, "Expected '}' after default body", tokens[current]);
+        throw error;
       }
       if (is_keyword(tokens[current])) {
         default_body.push_back(parse_keyword());
@@ -659,7 +676,8 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
     current++;
     std::unique_ptr<ASTNode> node = parse_expression();
     if (tokens[current].value != ")") {
-      throw std::runtime_error("Expected ')' after expression");
+      ErrorHandler error(ErrorType::SYNTACTIC, "Expected ')' after expression", tokens[current]);
+      throw error;
     }
     current++;
     return node;
@@ -679,7 +697,8 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
         f_name = tokens[current].value;
         current++; // consume field name
         if (tokens[current].value != ":") {
-          throw std::runtime_error("Expected ':' after field name in struct initialization");
+          ErrorHandler error(ErrorType::SYNTACTIC, "Expected ':' after field name in struct initialization", tokens[current]);
+          throw error;
         }
         current++; // consume :
         std::unique_ptr<ASTNode> value = parse_expression();
@@ -691,7 +710,8 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
         }
       }
       if (tokens[current].value != "}") {
-        throw std::runtime_error("Expected '}' after struct initialization");
+        ErrorHandler error(ErrorType::SYNTACTIC, "Expected '}' after struct initialization", tokens[current]);
+        throw error;
       }
       current++; // consume the '}'
       return std::make_unique<StructInit>(name, std::move(fields), tokens[current].line, tokens[current].col);
@@ -726,7 +746,8 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
       }
       
       if (tokens[current].value != ")") {
-        throw std::runtime_error("Expected ')' after function arguments");
+        ErrorHandler error(ErrorType::SYNTACTIC, "Expected ')' after function arguments", tokens[current]);
+        throw error;
       }
       current++; // consume the ')'
 
@@ -766,5 +787,6 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
     return std::make_unique<VariableNode>(token, tokens[current].line, tokens[current].col);
   }
 
-  throw std::runtime_error("Failed to parse primary");
+  ErrorHandler error(ErrorType::SYNTACTIC, "Expected primary expression", tokens[current]);
+  throw error;
 }
