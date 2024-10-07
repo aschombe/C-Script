@@ -27,6 +27,9 @@ class Lexer {
   // get the current position
   size_t get_pos();
 
+  // extract a snippet of code around a position
+  std::string extract_snippet(size_t pos);
+
   // get the current token
   Token get_token();
 

@@ -77,7 +77,7 @@ struct Token {
   int line;
   int col;
   std::string value;
-  /* std::string snippet; */
+  std::string snippet;
 };
 
 // token_to_string

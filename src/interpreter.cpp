@@ -82,6 +82,7 @@ Value Interpreter::interp_import(const ImportNode* node) {
     throw std::runtime_error("Failed to open file: " + import_path.generic_string());
   }
 
+  std::cout << "TODO: Implement import" << std::endl;
 
   return Value();
 }

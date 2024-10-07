@@ -34,6 +34,24 @@ size_t Lexer::get_pos() {
   return this->pos;
 }
 
+std::string Lexer::extract_snippet(size_t pos) {
+  // backtrack to the previous newline and advance to the next newline, thats our entire snippet
+  size_t start = pos;
+  while (start > 0 && this->code[start] != '\n') {
+    start--;
+  }
+  if (this->code[start] == '\n') {
+    start++;
+  }
+
+  size_t end = pos;
+  while (end < this->code.size() && this->code[end] != '\n') {
+    end++;
+  }
+
+  return this->code.substr(start, end - start);
+}
+
 // get the next token
 Token Lexer::next_token() {
   // skip whitespace (space, tab, newline)
@@ -49,7 +67,7 @@ Token Lexer::next_token() {
 
   // check if we reached the end of the code
   if (this->pos >= this->code.size()) {
-    this->token = Token{END_OF_FILE, this->line, this->column, ""};
+    this->token = Token{END_OF_FILE, this->line, this->column, "", ""};
     return this->token;
   }
 
@@ -81,7 +99,9 @@ Token Lexer::next_token() {
   // check for types (int, float, string, bool)
   for (auto type : types) {
     if (this->code.substr(this->pos, type.first.size()) == type.first) {
-      this->token = Token{type.second, this->line, this->column, type.first};
+      /* this->token = Token{type.second, this->line, this->column, type.first}; */
+      std::string snippet = extract_snippet(this->pos);
+      this->token = Token{type.second, this->line, this->column, type.first, snippet};
       this->pos += type.first.size();
       this->column += type.first.size();
       return this->token;
@@ -91,7 +111,8 @@ Token Lexer::next_token() {
   // check for keywords
   for (auto keyword : keywords) {
     if (this->code.substr(this->pos, keyword.first.size()) == keyword.first) {
-      this->token = Token{keyword.second, this->line, this->column, keyword.first};
+      std::string snippet = extract_snippet(this->pos);
+      this->token = Token{keyword.second, this->line, this->column, keyword.first, snippet};
       this->pos += keyword.first.size();
       this->column += keyword.first.size();
       return this->token;
@@ -101,7 +122,8 @@ Token Lexer::next_token() {
 
   // identifiers: [a-zA-Z_][a-zA-Z0-9_]*
   if (std::isalpha(this->code[this->pos]) || this->code[this->pos] == '_') {
-    this->token = Token{IDENTIFIER, this->line, this->column, ""};
+    std::string snippet = extract_snippet(this->pos);
+    this->token = Token{IDENTIFIER, this->line, this->column, "", snippet};
     while (this->pos < this->code.size() && (std::isalnum(this->code[this->pos]) || this->code[this->pos] == '_')) {
       this->token.value += this->code[this->pos];
       this->pos++;
@@ -113,7 +135,8 @@ Token Lexer::next_token() {
   // multi-character symbols
   for (auto symbol : multi_symbols) {
     if (this->code.substr(this->pos, symbol.first.size()) == symbol.first) {
-      this->token = Token{symbol.second, this->line, this->column, symbol.first};
+      std::string snippet = extract_snippet(this->pos);
+      this->token = Token{symbol.second, this->line, this->column, symbol.first, snippet};
       this->pos += symbol.first.size();
       this->column += symbol.first.size();
       return this->token;
@@ -122,7 +145,8 @@ Token Lexer::next_token() {
 
   // single-character symbols
   if (single_symbols.find(std::string(1, this->code[this->pos])) != single_symbols.end()) {
-    this->token = Token{single_symbols[std::string(1, this->code[this->pos])], this->line, this->column, std::string(1, this->code[this->pos])};
+    std::string snippet = extract_snippet(this->pos);
+    this->token = Token{single_symbols[std::string(1, this->code[this->pos])], this->line, this->column, std::string(1, this->code[this->pos]), snippet};
     this->pos++;
     this->column++;
     return this->token;
@@ -130,7 +154,8 @@ Token Lexer::next_token() {
 
   // int: [0-9]+
   if (std::isdigit(this->code[this->pos])) {
-    this->token = Token{INT, this->line, this->column, ""};
+    std::string snippet = extract_snippet(this->pos);
+    this->token = Token{INT, this->line, this->column, "", snippet};
     while (this->pos < this->code.size() && std::isdigit(this->code[this->pos])) {
       this->token.value += this->code[this->pos];
       this->pos++;
@@ -160,7 +185,8 @@ Token Lexer::next_token() {
 
   // string: "[^"]*"
   if (this->code[this->pos] == '"') {
-    this->token = Token{STRING, this->line, this->column, ""};
+    std::string snippet = extract_snippet(this->pos);
+    this->token = Token{STRING, this->line, this->column, "", snippet};
     this->token.value += this->code[this->pos];
     this->pos++;
     this->column++;
@@ -177,22 +203,27 @@ Token Lexer::next_token() {
 
   // bool: true, false
   if (this->code.substr(this->pos, 4) == "true") {
-    this->token = Token{BOOL, this->line, this->column, "true"};
+    std::string snippet = extract_snippet(this->pos);
+    this->token = Token{BOOL, this->line, this->column, "true", snippet};
     this->pos += 4;
     this->column += 4;
     return this->token;
   }
 
   if (this->code.substr(this->pos, 5) == "false") {
-    this->token = Token{BOOL, this->line, this->column, "false"};
+    std::string snippet = extract_snippet(this->pos);
+    this->token = Token{BOOL, this->line, this->column, "false", snippet};
     this->pos += 5;
     this->column += 5;
     return this->token;
   }
 
   // unknown token, throw an error with the current line and column, and token
-  std::string snippet = this->code.substr(this->pos, 10);
-  throw std::runtime_error("Unknown token '" + snippet + "' at line " + std::to_string(this->line) + ", column " + std::to_string(this->column));
+  std::string snippet = extract_snippet(this->pos);
+  std::string error_msg = "Unknown token at line " + std::to_string(this->line) + ", column " + std::to_string(this->column) + "\n";
+  error_msg += snippet + "\n";
+  error_msg += std::string(this->column - 1, ' ') + "^";
+  throw std::runtime_error(error_msg);
 }
 
 // peek the next token (don't consume it)
