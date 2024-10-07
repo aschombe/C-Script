@@ -28,6 +28,10 @@ void Scope::add_function(const std::string& name, const std::vector<Argument>& a
   scopes.back()[name] = Function(name, args, body);
 }
 
+void Scope::add_struct(const std::string& name, const std::unordered_map<std::string, Var_Types>& members) {
+  scopes.back()[name] = Struct(name, members);
+}
+
 Value Scope::get_variable(const std::string& name) {
   for (int i = scopes.size() - 1; i >= 0; i--) {
     if (scopes[i].find(name) != scopes[i].end()) {
@@ -56,6 +60,15 @@ bool Scope::variable_exists(const std::string& name) {
 }
 
 bool Scope::function_exists(const std::string& name) {
+  for (int i = scopes.size() - 1; i >= 0; i--) {
+    if (scopes[i].find(name) != scopes[i].end()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool Scope::struct_exists(const std::string& name) {
   for (int i = scopes.size() - 1; i >= 0; i--) {
     if (scopes[i].find(name) != scopes[i].end()) {
       return true;

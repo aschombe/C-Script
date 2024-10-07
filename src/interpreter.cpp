@@ -3,6 +3,7 @@
 /* #include "../include/checker.hpp" */
 #include <iostream>
 #include <cmath>
+#include <fstream>
 
 Interpreter::Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast, const std::filesystem::path file) : ast(ast), ran_file(file) {}
 
@@ -74,7 +75,14 @@ Value Interpreter::interp_import(const ImportNode* node) {
   if (!std::filesystem::exists(import_path)) {
     throw std::runtime_error("File does not exist: " + import_path.generic_string());
   }
-  // Todo
+  
+  // open the file, read it and look for function and struct definitions to add to the scope
+  std::ifstream file(import_path);
+  if (!file.is_open()) {
+    throw std::runtime_error("Failed to open file: " + import_path.generic_string());
+  }
+
+
   return Value();
 }
 

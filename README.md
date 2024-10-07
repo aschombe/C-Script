@@ -38,7 +38,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
     - [ ] Maybe allow absolute file paths for importing
     - [ ] Maybe function overloading (based on: number of arguments and types of arguments)
-- [ ] Documentation (doxygen)
+- [ ] Documentation
 - [ ] Compiler
  
 ## Notes
