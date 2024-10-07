@@ -32,7 +32,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 ## TODO
 - [ ] Allow error handler to also accept AST nodes to grab line number, col number and snippet (also fix this issue with scoping errors)
 - [ ] Return AST is parsing incorrectly
-- [ ] Type Checker (proper type checker)
+- [ ] Type Checker (proper type checker) (maybe get rid of current scoping and implement proper environments)
 - [ ] Interpreter (everything):
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
     - [ ] Maybe allow absolute file paths for importing
