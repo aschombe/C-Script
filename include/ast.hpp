@@ -576,21 +576,22 @@ class StructInit : public ASTNode {
   }
 };
 
-/* class StructAccess : public ASTNode { */
-/*   std::string struct_name; */
-/*   std::string struct_field; */
-/*   StructAccess(const std::string& struct_name, const std::string& struct_field, int line, int col) : struct_name(struct_name), struct_field(struct_field) { */
-/*     this->line = line; */
-/*     this->col = col; */
-/*   } */
+class StructAccess : public ASTNode {
+  public:
+  std::string struct_name;
+  std::string struct_field;
+  StructAccess(const std::string& struct_name, const std::string& struct_field, int line, int col) : struct_name(struct_name), struct_field(struct_field) {
+    this->line = line;
+    this->col = col;
+  }
 
-/*   int node_type() const override { */
-/*     return 24; */
-/*   } */
+  int node_type() const override {
+    return 24;
+  }
 
-/*   std::string to_string() const override { */
-/*     return "StructAccess(" + struct_name + ", " + struct_field + ")"; */
-/*   } */
-/* }; */
+  std::string to_string() const override {
+    return "StructAccess(" + struct_name + ", " + struct_field + ")";
+  }
+};
 
 void print_ast(const std::vector<std::unique_ptr<ASTNode>>& ast);

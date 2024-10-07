@@ -656,15 +656,6 @@ std::unique_ptr<ASTNode> Parser::parse_unary() {
 std::unique_ptr<ASTNode> Parser::parse_primary() {
   // primary -> INT | Double | STRING | BOOL | "(" expression ")" | FuncCall | StructInit
 
-  // if current token in '.', previous one is the struct name, next one is the struct field
-  /* if (tokens[current].value == ".") { */
-  /*   std::string struct_name = tokens[current - 1].value; */
-  /*   ast.erase(ast.begin()+current-1); */
-  /*   current++; */
-  /*   std::string struct_field = tokens[current].value; */
-    
-  /* } */
- 
   if (tokens[current].value == "(") {
     current++;
     std::unique_ptr<ASTNode> node = parse_expression();
@@ -705,6 +696,16 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
       }
       current++; // consume the '}'
       return std::make_unique<StructInit>(name, std::move(fields), tokens[current].line, tokens[current].col);
+    }
+
+    // Check for struct access
+    if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == ".") {
+      std::string struct_name = token;
+      current++; // consume the identifier
+      current++; // consume the '.'
+      std::string struct_field = tokens[current].value;
+      current++; // consume the field
+      return std::make_unique<StructAccess>(struct_name, struct_field, tokens[current].line, tokens[current].col);
     }
 
     // Check for function call
