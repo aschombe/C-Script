@@ -1,9 +1,7 @@
 #pragma once
 
 #include <string>
-#include <iostream>
 #include <exception>
-#include "token.hpp"
 
 enum class ErrorType {
   LEXICAL,
@@ -15,8 +13,14 @@ enum class ErrorType {
 
 class ErrorHandler : public std::exception {
   public:
-  ErrorHandler() = default;
-  ErrorHandler(ErrorType type, std::string message, const Token& token) : type(type), message(message), token(token) {}
+  /* ErrorHandler(ErrorType type, std::string message, int line, int col, std::string snippet) : type(type), message(message), line(line), col(col), snippet(snippet) {} */
+  ErrorHandler(ErrorType type, std::string message, int line, int col, std::string snippet) {
+    this->type = type;
+    this->message = message;
+    this->line = line;
+    this->col = col;
+    this->snippet = snippet;
+  }
 
   const char* what() const noexcept override {
     error_message = to_string(); 
@@ -47,13 +51,13 @@ class ErrorHandler : public std::exception {
     std::string error_msg = message + "\n";
     
     if (type == ErrorType::WARNING) {
-      error_msg += error_type + "warning at line " + std::to_string(token.line) + ", column " + std::to_string(token.col) + "\n";
+      error_msg += error_type + "warning at line " + std::to_string(line) + ", column " + std::to_string(col) + "\n";
     } else {
-      error_msg += error_type + " error at line " + std::to_string(token.line) + ", column " + std::to_string(token.col) + "\n";
+      error_msg += error_type + " error at line " + std::to_string(line) + ", column " + std::to_string(col) + "\n";
     }
 
-    error_msg += token.snippet + "\n";
-    error_msg += std::string(token.col - 1, ' ') + "^ " + message;
+    error_msg += snippet + "\n";
+    error_msg += std::string(col - 1, ' ') + "^ " + message;
     
     return error_msg;
   }
@@ -61,6 +65,8 @@ class ErrorHandler : public std::exception {
   private:
   ErrorType type;
   std::string message;
-  Token token;
+  std::string snippet;
+  int line;
+  int col;
   mutable std::string error_message;
 };

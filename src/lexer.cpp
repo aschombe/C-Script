@@ -177,7 +177,7 @@ Token Lexer::next_token() {
         }
         return this->token; // Return the float token
       } else {
-        ErrorHandler error{ErrorType::LEXICAL, "Invalid float literal", this->token};
+        ErrorHandler error{ErrorType::LEXICAL, "Invalid float literal", this->line, this->column, extract_snippet(this->pos)};
         throw error;
       }
     }
@@ -219,7 +219,7 @@ Token Lexer::next_token() {
     return this->token;
   }
 
-  ErrorHandler error{ErrorType::LEXICAL, "Unknown token", Token{UNKNOWN, this->line, this->column, "", extract_snippet(this->pos)}};
+  ErrorHandler error{ErrorType::LEXICAL, "Unknown token", this->line, this->column, extract_snippet(this->pos)};
   throw error;
 }
 

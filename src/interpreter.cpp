@@ -66,7 +66,7 @@ Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
     case 24: // struct access
       return Value();
     default:
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid node type: " + std::to_string(node->node_type()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid node type: " + std::to_string(node->node_type()), node->line, node->col, node->snippet};
       throw error;
   }
 }
@@ -79,14 +79,14 @@ Value Interpreter::interp_import(const ImportNode* node) {
 
   const std::filesystem::path import_path = this->ran_file.parent_path() / rel_fpath;
   if (!std::filesystem::exists(import_path)) {
-    ErrorHandler error{ErrorType::SEMANTIC, "File does not exist: " + import_path.generic_string(), Token()};
+    ErrorHandler error{ErrorType::SEMANTIC, "File does not exist: " + import_path.generic_string(), node->line, node->col, node->snippet};
     throw error;
   }
   
   // open the file, read it and look for function and struct definitions to add to the scope
   std::ifstream file(import_path);
   if (!file.is_open()) {
-    ErrorHandler error{ErrorType::SEMANTIC, "Failed to open file: " + import_path.generic_string(), Token()};
+    ErrorHandler error{ErrorType::SEMANTIC, "Failed to open file: " + import_path.generic_string(), node->line, node->col, node->snippet};
     throw error;
   }
 
@@ -110,8 +110,7 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       return Value(std::get<double>(left) + std::get<double>(right));
     } else {
-      /* throw std::runtime_error("Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index())); */
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "-") {
@@ -124,7 +123,7 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       return Value(std::get<double>(left) - std::get<double>(right));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "*") {
@@ -137,7 +136,7 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       return Value(std::get<double>(left) * std::get<double>(right));
     } else {
-        ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
         throw error;
     }
   } else if (op == "/") {
@@ -150,7 +149,8 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       return Value(std::get<double>(left) / std::get<double>(right));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      /* ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()}; */
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "%") {
@@ -163,7 +163,7 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       return Value(static_cast<int>(std::get<double>(left)) % static_cast<int>(std::get<double>(right)));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "^") {
@@ -176,7 +176,7 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       return Value(std::pow(std::get<double>(left), std::get<double>(right)));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "==") {
@@ -193,7 +193,7 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 3 && right.index() == 3) {
       return Value(std::get<bool>(left) == std::get<bool>(right));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "!=") {
@@ -210,7 +210,7 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 3 && right.index() == 3) {
       return Value(std::get<bool>(left) != std::get<bool>(right));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "<") {
@@ -223,7 +223,7 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       return Value(std::get<double>(left) < std::get<double>(right));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "<=") {
@@ -236,7 +236,7 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       return Value(std::get<double>(left) <= std::get<double>(right));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == ">") {
@@ -249,7 +249,7 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       return Value(std::get<double>(left) > std::get<double>(right));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == ">=") {
@@ -262,25 +262,25 @@ Value Interpreter::interp_binop(const BinOpNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       return Value(std::get<double>(left) >= std::get<double>(right));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "&&") {
     if (left.index() == 3 && right.index() == 3) {
       return Value(std::get<bool>(left) && std::get<bool>(right));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "||") {
     if (left.index() == 3 && right.index() == 3) {
       return Value(std::get<bool>(left) || std::get<bool>(right));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else {
-    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, Token()};
+    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
     throw error;
   }
 }
@@ -295,18 +295,18 @@ Value Interpreter::interp_unaryop(const UnaryOpNode* node) {
     } else if (val.index() == 1) {
       return Value(-std::get<double>(val));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(val.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(val.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "!") {
     if (val.index() == 3) {
       return Value(!std::get<bool>(val));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(val.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(val.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else {
-    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, Token()};
+    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
     throw error;
   }
 }
@@ -321,7 +321,7 @@ Value Interpreter::interp_postfix(const PostFixNode* node) {
   } else if (op == "--") {
     std::cout << "Decrement" << std::endl;
   } else {
-    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, Token()};
+    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
     throw error;
   }
 
@@ -353,7 +353,7 @@ Value Interpreter::interp_set(const SetNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       scope.set_variable(var, Value(std::get<double>(left) + std::get<double>(right)));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "-=") {
@@ -367,7 +367,7 @@ Value Interpreter::interp_set(const SetNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       scope.set_variable(var, Value(std::get<double>(left) - std::get<double>(right)));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "*=") {
@@ -381,7 +381,7 @@ Value Interpreter::interp_set(const SetNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       scope.set_variable(var, Value(std::get<double>(left) * std::get<double>(right)));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "/=") {
@@ -395,7 +395,7 @@ Value Interpreter::interp_set(const SetNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       scope.set_variable(var, Value(std::get<double>(left) / std::get<double>(right)));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "%=") {
@@ -409,13 +409,13 @@ Value Interpreter::interp_set(const SetNode* node) {
     } else if (left.index() == 1 && right.index() == 1) {
       scope.set_variable(var, Value(static_cast<int>(std::get<double>(left)) % static_cast<int>(std::get<double>(right))));
     } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()};
+      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
       throw error;
     }
   } else if (op == "^=") {
     std::cout << "Todo: ^=" << std::endl;
   } else {
-    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, Token()};
+    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
     throw error;
   }
 
