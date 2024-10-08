@@ -14,4 +14,4 @@ Flags:
 - '-c': Compile the code
 - Interpreting the code is the default behavior
 
-The file should have the extension `.rss`. You can find some example files in the `examples` directory.
+The file should have the extension `.csf`. You can find some example files in the `examples` directory.
