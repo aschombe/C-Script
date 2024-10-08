@@ -30,7 +30,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] Error handling
 
 ## TODO
-- [ ] Allow error handler to also accept AST nodes to grab line number, col number and snippet (also fix this issue with scoping errors)
+- [ ] Allow error handler (also fix scoping errors) to also accept AST nodes to grab line number, col number and snippet (also fix this issue with scoping errors)
 - [ ] Return AST is parsing incorrectly
 - [ ] Type Checker (proper type checker) (maybe get rid of current scoping and implement proper environments)
 - [ ] Interpreter (everything):
@@ -38,7 +38,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
     - [ ] Maybe allow absolute file paths for importing
     - [ ] Maybe function overloading (based on: number of arguments and types of arguments)
 - [ ] Documentation
-- [ ] Compiler
+- [ ] Compiler (transpiler to C for now)
  
 ## Notes
 
