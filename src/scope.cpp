@@ -38,7 +38,7 @@ Value Scope::get_variable(const std::string& name) {
       return std::get<Variable>(scopes[i][name]).second;
     }
   }
-  ErrorHandler error(ErrorType::SEMANTIC, "Variable " + name + " not found", Token());
+  ErrorHandler error{ErrorType::SEMANTIC, "Variable " + name + " not found", 0, 0, ""};
   throw error;
 }
 
@@ -48,7 +48,7 @@ Function Scope::get_function(const std::string& name) {
       return std::get<Function>(scopes[i][name]);
     }
   }
-  ErrorHandler error(ErrorType::SEMANTIC, "Function " + name + " not found", Token());
+  ErrorHandler error{ErrorType::SEMANTIC, "Function " + name + " not found", 0, 0, ""};
   throw error;
 }
 
@@ -86,7 +86,7 @@ void Scope::set_variable(const std::string& name, const Value& value) {
       return;
     }
   }
-  ErrorHandler error(ErrorType::SEMANTIC, "Variable " + name + " not found", Token());
+  ErrorHandler error{ErrorType::SEMANTIC, "Variable " + name + " not found", 0, 0, ""};
   throw error;
 }
 
@@ -97,7 +97,7 @@ void Scope::delete_variable(const std::string& name) {
       return;
     }
   }
-  ErrorHandler error(ErrorType::SEMANTIC, "Variable " + name + " not found", Token());
+  ErrorHandler error{ErrorType::SEMANTIC, "Variable " + name + " not found", 0, 0, ""};
   throw error;
 }
 
