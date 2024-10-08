@@ -33,7 +33,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [ ] Potentially rework scoping (use environments or just make current scoping better)
 - [ ] Allow error handler withing scoping
     - [x] Generalized error handler to accept line, col and snippet so it can accept input from tokens or ast nodes
-    - [ ] Find a way for error handling to work with scoping
+    - [ ] Find a way for error handling to work with scoping (propogate errors from scoping to the interpreter and then to the error handler)
 - [ ] Return AST is parsing incorrectly
 - [ ] Type Checker (proper type checker) (maybe get rid of current scoping and implement proper environments)
 - [ ] Interpreter (everything):
