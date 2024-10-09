@@ -38,6 +38,9 @@ Value Scope::get_variable(const std::string& name) {
       return std::get<Variable>(scopes[i][name]).second;
     }
   }
+
+  // This should never happen (interpreter checks that the variable exists before trying to get it)
+  return Value();
 }
 
 Function Scope::get_function(const std::string& name) {
@@ -46,6 +49,9 @@ Function Scope::get_function(const std::string& name) {
       return std::get<Function>(scopes[i][name]);
     }
   }
+
+  // This should never happen (interpreter checks that the function exists before trying to get it)
+  return Function("", {}, {});
 }
 
 bool Scope::variable_exists(const std::string& name) {
