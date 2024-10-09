@@ -13,7 +13,6 @@ enum class ErrorType {
 
 class ErrorHandler : public std::exception {
   public:
-  /* ErrorHandler(ErrorType type, std::string message, int line, int col, std::string snippet) : type(type), message(message), line(line), col(col), snippet(snippet) {} */
   ErrorHandler(ErrorType type, std::string message, int line, int col, std::string snippet) {
     this->type = type;
     this->message = message;

@@ -87,8 +87,8 @@ int main(int argc, char* argv[]) {
   // compile the code if the user wants to
   if (compile) {
     std::cerr << "Error: compilation is not implemented yet" << std::endl;
-    // Compiler compiler(tokens);
-    // compiler.compile();
+    /* Compiler compiler(tokens); */
+    /* compiler.run(); */
   } else {
     // spawn a parser and parse the tokenized code
     Parser parser(tokens);

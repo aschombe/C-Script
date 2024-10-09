@@ -21,6 +21,8 @@ Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
       return std::get<int>(node->value);
     case 1: // DoubleNode
       return std::get<double>(node->value);
+    case 2: // StringNode
+      return std::get<std::string>(node->value);
     case 3: // BoolNode
       return std::get<bool>(node->value);
     case 4: // VariableNode
