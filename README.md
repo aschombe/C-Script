@@ -31,8 +31,10 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 
 ## TODO
 - [ ] Potentially rework scoping (use environments or just make current scoping better)
+- [ ] Function definitions and function calls segfault during parsing
 - [ ] Return statements with more than one expression are parsing incorrectly
     - [ ] return n * factorial(n-1); parses incorrectly (it misses the factorial(n-1) and then segfaults)
+    - [ ] Upon further testing factorial(n-1); misses the (n-1) then seg faults
 - [ ] Type Checker (proper type checker) (maybe get rid of current scoping and implement proper environments)
 - [ ] Interpreter (everything):
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
