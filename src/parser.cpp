@@ -337,6 +337,7 @@ std::unique_ptr<ASTNode> Parser::parse_return() {
   current++; // consume "return"
   std::cout << "Current token: " << tokens[current].value << std::endl;
   std::unique_ptr<ASTNode> expression = parse_expression();
+
   if (tokens[current].value != ";") {
     ErrorHandler error{ErrorType::SYNTACTIC, "Expected ';' after expression in return statement", tokens[current].line, tokens[current].col, tokens[current].snippet};
     throw error;
@@ -755,10 +756,6 @@ std::unique_ptr<ASTNode> Parser::parse_primary() {
         throw error;
       }
       current++; // consume the ')'
-
-      /* if (tokens[current].value == ";") { */
-      /*   current++; // consume the ';' */
-      /* } */
 
       return std::make_unique<CallNode>(token, std::move(args), tokens[current].line, tokens[current].col, tokens[current].snippet);
     }
