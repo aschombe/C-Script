@@ -678,116 +678,116 @@ std::unique_ptr<ASTNode> Parser::parse_unary() {
 std::unique_ptr<ASTNode> Parser::parse_primary() {
   // primary -> INT | Double | STRING | BOOL | "(" expression ")" | FuncCall | StructInit
 
-  /* if (tokens[current].value == "(") { */
-  /*   current++; */
-  /*   std::unique_ptr<ASTNode> node = parse_expression(); */
-  /*   if (tokens[current].value != ")") { */
-  /*     ErrorHandler error{ErrorType::SYNTACTIC, "Expected ')' after expression", tokens[current].line, tokens[current].col, tokens[current].snippet}; */
-  /*     throw error; */
-  /*   } */
-  /*   current++; */
-  /*   return node; */
-  /* } else { */
-  /*   std::string token = tokens[current].value; */
+  if (tokens[current].value == "(") {
+    current++;
+    std::unique_ptr<ASTNode> node = parse_expression();
+    if (tokens[current].value != ")") {
+      ErrorHandler error{ErrorType::SYNTACTIC, "Expected ')' after expression", tokens[current].line, tokens[current].col, tokens[current].snippet};
+      throw error;
+    }
+    current++;
+    return node;
+  } else {
+    std::string token = tokens[current].value;
 
-  /*   // check for struct initialization */
-  /*   // <name> { <field>: value, <feld>: value, ..., <field>: value } */
-  /*   if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == "{") { */
-  /*     std::string name = token; */
-  /*     current++; // consume the identifier */
-  /*     current++; // consume the { */
-  /*     std::unordered_map<std::string, std::shared_ptr<ASTNode>> fields; */
-  /*     std::string f_name; */
-  /*     std::string f_type; */
-  /*     while (tokens[current].value != "}") { */
-  /*       f_name = tokens[current].value; */
-  /*       current++; // consume field name */
-  /*       if (tokens[current].value != ":") { */
-  /*         ErrorHandler error{ErrorType::SYNTACTIC, "Expected ':' after field name in struct initialization", tokens[current].line, tokens[current].col, tokens[current].snippet}; */
-  /*         throw error; */
-  /*       } */
-  /*       current++; // consume : */
-  /*       std::unique_ptr<ASTNode> value = parse_expression(); */
-  /*       fields[f_name] = std::move(value); */
-  /*       if (tokens[current].value == ",") { */
-  /*         current++; // consume ',' */
-  /*       } else { */
-  /*         break; */
-  /*       } */
-  /*     } */
-  /*     if (tokens[current].value != "}") { */
-  /*       ErrorHandler error{ErrorType::SYNTACTIC, "Expected '}' after struct initialization", tokens[current].line, tokens[current].col, tokens[current].snippet}; */
-  /*       throw error; */
-  /*     } */
-  /*     current++; // consume the '}' */
-  /*     return std::make_unique<StructInit>(name, std::move(fields), tokens[current].line, tokens[current].col, tokens[current].snippet); */
-  /*   } */
+    // check for struct initialization
+    // <name> { <field>: value, <feld>: value, ..., <field>: value }
+    if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == "{") {
+      std::string name = token;
+      current++; // consume the identifier
+      current++; // consume the {
+      std::unordered_map<std::string, std::shared_ptr<ASTNode>> fields;
+      std::string f_name;
+      std::string f_type;
+      while (tokens[current].value != "}") {
+        f_name = tokens[current].value;
+        current++; // consume field name
+        if (tokens[current].value != ":") {
+          ErrorHandler error{ErrorType::SYNTACTIC, "Expected ':' after field name in struct initialization", tokens[current].line, tokens[current].col, tokens[current].snippet};
+          throw error;
+        }
+        current++; // consume :
+        std::unique_ptr<ASTNode> value = parse_expression();
+        fields[f_name] = std::move(value);
+        if (tokens[current].value == ",") {
+          current++; // consume ','
+        } else {
+          break;
+        }
+      }
+      if (tokens[current].value != "}") {
+        ErrorHandler error{ErrorType::SYNTACTIC, "Expected '}' after struct initialization", tokens[current].line, tokens[current].col, tokens[current].snippet};
+        throw error;
+      }
+      current++; // consume the '}'
+      return std::make_unique<StructInit>(name, std::move(fields), tokens[current].line, tokens[current].col, tokens[current].snippet);
+    }
 
-  /*   // Check for struct access */
-  /*   if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == ".") { */
-  /*     std::string struct_name = token; */
-  /*     current++; // consume the identifier */
-  /*     current++; // consume the '.' */
-  /*     std::string struct_field = tokens[current].value; */
-  /*     current++; // consume the field */
-  /*     return std::make_unique<StructAccess>(struct_name, struct_field, tokens[current].line, tokens[current].col, tokens[current].snippet); */
-  /*   } */
+    // Check for struct access
+    if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == ".") {
+      std::string struct_name = token;
+      current++; // consume the identifier
+      current++; // consume the '.'
+      std::string struct_field = tokens[current].value;
+      current++; // consume the field
+      return std::make_unique<StructAccess>(struct_name, struct_field, tokens[current].line, tokens[current].col, tokens[current].snippet);
+    }
 
-  /*   // Check for function call */
-  /*   if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == "(") { */
-  /*     current++; // consume the identifier */
-  /*     current++; // consume the '(' */
+    // Check for function call
+    if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == "(") {
+      current++; // consume the identifier
+      current++; // consume the '('
 
-  /*     std::vector<std::unique_ptr<ASTNode>> args; */
-  /*     // Optionally parse arguments if they exist */
-  /*     if (tokens[current].value != ")") { */
-  /*       do { */
-  /*         args.push_back(parse_expression()); */
-  /*         if (tokens[current].value == ",") { */
-  /*           current++; // consume ',' */
-  /*         } else { */
-  /*           break; */
-  /*         } */
-  /*       } while (current < tokens.size()); */
-  /*     } */
+      std::vector<std::unique_ptr<ASTNode>> args;
+      // Optionally parse arguments if they exist
+      if (tokens[current].value != ")") {
+        do {
+          args.push_back(parse_expression());
+          if (tokens[current].value == ",") {
+            current++; // consume ','
+          } else {
+            break;
+          }
+        } while (current < tokens.size());
+      }
       
-  /*     if (tokens[current].value != ")") { */
-  /*       ErrorHandler error{ErrorType::SYNTACTIC, "Expected ')' after function arguments", tokens[current].line, tokens[current].col, tokens[current].snippet}; */
-  /*       throw error; */
-  /*     } */
-  /*     current++; // consume the ')' */
+      if (tokens[current].value != ")") {
+        ErrorHandler error{ErrorType::SYNTACTIC, "Expected ')' after function arguments", tokens[current].line, tokens[current].col, tokens[current].snippet};
+        throw error;
+      }
+      current++; // consume the ')'
 
-  /*     return std::make_unique<CallNode>(token, std::move(args), tokens[current].line, tokens[current].col, tokens[current].snippet); */
-  /*   } */
+      return std::make_unique<CallNode>(token, std::move(args), tokens[current].line, tokens[current].col, tokens[current].snippet);
+    }
 
-  /*   // Check for INT */
-  /*   if (std::regex_match(token, std::regex("[0-9]+"))) { */
-  /*     current++; */
-  /*     return std::make_unique<IntNode>(std::stoi(token), tokens[current].line, tokens[current].col, tokens[current].snippet); */
-  /*   } */
+    // Check for INT
+    if (std::regex_match(token, std::regex("[0-9]+"))) {
+      current++;
+      return std::make_unique<IntNode>(std::stoi(token), tokens[current].line, tokens[current].col, tokens[current].snippet);
+    }
 
-  /*   // Check for FLOAT */
-  /*   if (std::regex_match(token, std::regex("[0-9]+\\.[0-9]+"))) { */
-  /*     current++; */
-  /*     return std::make_unique<DoubleNode>(std::stof(token), tokens[current].line, tokens[current].col, tokens[current].snippet); */
-  /*   } */
+    // Check for FLOAT
+    if (std::regex_match(token, std::regex("[0-9]+\\.[0-9]+"))) {
+      current++;
+      return std::make_unique<DoubleNode>(std::stof(token), tokens[current].line, tokens[current].col, tokens[current].snippet);
+    }
 
-  /*   // Check for STRING */
-  /*   if (std::regex_match(token, std::regex("\"[^\"]*\""))) { */
-  /*     current++; */
-  /*     return std::make_unique<StringNode>(token.substr(1, token.size() - 2), tokens[current].line, tokens[current].col, tokens[current].snippet); */
-  /*   } */
+    // Check for STRING
+    if (std::regex_match(token, std::regex("\"[^\"]*\""))) {
+      current++;
+      return std::make_unique<StringNode>(token.substr(1, token.size() - 2), tokens[current].line, tokens[current].col, tokens[current].snippet);
+    }
 
-  /*   // Check for Bool */
-  /*   if (token == "true" || token == "false") { */
-  /*     current++; */
-  /*     return std::make_unique<BoolNode>(token == "true", tokens[current].line, tokens[current].col, tokens[current].snippet); */
-  /*   } */
+    // Check for Bool
+    if (token == "true" || token == "false") {
+      current++;
+      return std::make_unique<BoolNode>(token == "true", tokens[current].line, tokens[current].col, tokens[current].snippet);
+    }
 
-  /*   // If it's not a primary, assume it's a variable */
-  /*   current++; */
-  /*   return std::make_unique<VariableNode>(token, tokens[current].line, tokens[current].col, tokens[current].snippet); */
-  /* } */
+    // If it's not a primary, assume it's a variable
+    current++;
+    return std::make_unique<VariableNode>(token, tokens[current].line, tokens[current].col, tokens[current].snippet);
+  }
   // reorder the parsing of primary expressions, check for literals first (int, double, string, bool)
   // TODO
   ErrorHandler error{ErrorType::SYNTACTIC, "Expected primary expression", tokens[current].line, tokens[current].col, tokens[current].snippet};

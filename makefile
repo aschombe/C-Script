@@ -26,7 +26,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 clean:
 	rm -f $(OBJ_DIR)/*.o $(EXEC)
 
-memcheck:
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(EXEC)
+# memcheck:
+# 	valgrind --leak-check=full --show-leak-kinds=all -s --track-origins=yes $(EXEC)
+# 	just run valgrind manually:
+# 	valgrind --leak-check=full --log-file="valgrind_output.txt" bin/cst examples/arith.csf
 
 .PHONY: all clean
