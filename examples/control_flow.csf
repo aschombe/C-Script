@@ -1,0 +1,31 @@
+// let x:int = 3;
+// if (x == 1) {
+//   x = 1;
+// } elif (x == 2) {
+//   x = 2;
+// } else {
+//   x = 3;
+// }
+
+// let x:int = 0;
+// for (x; x < 10; x = x + 1) {
+//   x = x + 1;
+// }
+
+// let x:int = 0;
+// while (x < 10) {
+//   x = x + 1;
+// }
+
+// let x:int = 5;
+// switch (x) {
+//   case (1) {
+//     x = 1;
+//   }
+//   case (2) {
+//     x = 2;
+//   }
+//   default {
+//     x = 3;
+//   }
+// }

@@ -32,6 +32,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 ## TODO
 - [ ] Potentially rework scoping (use environments or just make current scoping better)
 - [ ] Function definitions and function calls segfault during parsing
+- [ ] Everything in the control_flow example segfaults or doesnt work
 - [ ] Return statements with more than one expression are parsing incorrectly
     - [ ] return n * factorial(n-1); parses incorrectly (it misses the factorial(n-1) and then segfaults)
     - [ ] Upon further testing factorial(n-1); misses the (n-1) then seg faults
