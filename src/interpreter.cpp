@@ -24,6 +24,10 @@ Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
     case 3: // BoolNode
       return std::get<bool>(node->value);
     case 4: // VariableNode
+      if (!scope.variable_exists(std::get<std::string>(node->value))) {
+        ErrorHandler error{ErrorType::SEMANTIC, "Variable " + std::get<std::string>(node->value) + " not found", node->line, node->col, node->snippet};
+        throw error;
+      }
       return scope.get_variable(std::get<std::string>(node->value));
     case 5: // BinOp
       return interp_binop(dynamic_cast<const BinOpNode*>(node.get()));
@@ -338,6 +342,12 @@ Value Interpreter::interp_let(const LetNode* node) {
 Value Interpreter::interp_set(const SetNode* node) {
   std::string op = node->op;
   std::string var = node->ident;
+
+  if (!scope.variable_exists(var)) {
+    ErrorHandler error{ErrorType::SEMANTIC, "Variable " + var + " not found", node->line, node->col, node->snippet};
+    throw error;
+  }
+
   Value right = interp(node->right);
   
   if (op == "=") {
@@ -423,6 +433,10 @@ Value Interpreter::interp_set(const SetNode* node) {
 }
 
 Value Interpreter::interp_del(const DelNode* node) {
+  if (!scope.variable_exists(node->name)) {
+    ErrorHandler error{ErrorType::SEMANTIC, "Variable " + node->name + " not found", node->line, node->col, node->snippet};
+    throw error;
+  }
   scope.delete_variable(node->name);
   return Value();
 }
@@ -495,6 +509,39 @@ Value Interpreter::interp_call(const CallNode* node) {
   std::cout << "TODO: Implement call" << std::endl;
   (void)node;
   return Value();
+
+  /* std::string func_name = node->name; */
+  /* std::vector<Value> args = node->args; */
+
+  /* // check if the function exists */
+  /* if (!scope.function_exists(func_name)) { */
+  /*   ErrorHandler error{ErrorType::SEMANTIC, "Function " + func_name + " not found", node->line, node->col, node->snippet}; */
+  /*   throw error; */
+  /* } */
+
+  /* // get the function from the scope */
+  /* Function func = scope.get_function(func_name); */
+
+  /* // check if the number of arguments is correct */
+  /* if (args.size() != func.args.size()) { */
+  /*   ErrorHandler error{ErrorType::SEMANTIC, "Function " + func_name + " expects " + std::to_string(func.args.size()) + " arguments, got " + std::to_string(args.size()), node->line, node->col, node->snippet}; */
+  /*   throw error; */
+  /* } */
+
+  /* // create a new scope for the function */
+  /* Scope func_scope = Scope(scope); */
+
+  /* // add the arguments to the function scope */
+  /* for (int i = 0; i < args.size(); i++) { */
+  /*   func_scope.add_variable(func.args[i], args[i]); */
+  /* } */
+
+  /* // iterate over the function body */
+  /* for (auto& n : func.body) { */
+  /*   interp(n); */
+  /* } */
+
+  /* return Value(); */
 }
 
 Value Interpreter::interp_return(const ReturnNode* node) {
