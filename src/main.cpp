@@ -58,16 +58,21 @@ int main(int argc, char* argv[]) {
   }
 
   // if the file is empty, return error
-  if (code.empty()) {
-    std::cerr << "Error: file is empty" << std::endl;
-    return 1;
-  }
+  /* if (code.empty()) { */
+  /*   std::cerr << "Error: file is empty" << std::endl; */
+  /*   return 1; */
+  /* } */
 
   // create a lexer
   Lexer lexer(code);
 
   // tokenize the code
   std::vector<Token> tokens = lexer.tokenize();
+
+  if (tokens.empty()) {
+    std::cerr << "Error: no code to tokenize" << std::endl;
+    return 1;
+  }
 
   // display the tokenized code (in array format) if the user wants to
   if (show_tokens) {
