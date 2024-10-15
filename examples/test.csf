@@ -1,5 +1,7 @@
-let x:int = 5;
+// let x:int = 5;
+// 
+// if (x > @) {
+//   exit(1);
+// }
 
-if (x > @) {
-  exit(1);
-}
+1

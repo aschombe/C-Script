@@ -5,4 +5,4 @@
 //   return n * factorial(n - 1);
 // }
 
-// return factorial(n-1);
+return factorial(n-1);

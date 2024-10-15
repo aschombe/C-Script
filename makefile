@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -Wextra -std=c++17
+CFLAGS = -Wall -Wextra -g -std=c++17
 
 # make sure the obj and bin directories exist
 $(shell mkdir -p obj bin)
