@@ -70,6 +70,7 @@ Operators:
 
 ## Precedence
 The precedence of operators in C-Script is as follows:
+(1 is the highest precedence, 10 is the lowest)
 1. Literals, function calls, scope (()), struct member access, struct initialization
 2. Unary and postfix operators (-, !, ++, --)
 3. Exponentiation (^)
