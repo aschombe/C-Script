@@ -9,11 +9,6 @@ Lexer::Lexer(std::string code) {
   this->pos = 0;
 }
 
-// destructor
-Lexer::~Lexer() {
-  // nothing to do here yet
-}
-
 // get current token
 Token Lexer::get_token() {
   return this->token;

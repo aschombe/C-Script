@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
   } else {
     // spawn a parser and parse the tokenized code
     Parser parser(tokens);
-    std::vector<std::unique_ptr<ASTNode>> ast = parser.parse();
+    std::vector<ASTNode*> ast = parser.parse();
 
     // print the AST if the user wants to
     if (show_ast) {
@@ -114,6 +114,7 @@ int main(int argc, char* argv[]) {
 
     // // interpret the code
     Interpreter interpreter(ast, ran_file);
+
     interpreter.run();
     /* std::cout << "Error: interpretation is not implemented yet" << std::endl; */
   }

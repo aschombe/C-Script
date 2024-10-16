@@ -116,9 +116,10 @@ class VariableNode : public ASTNode {
 class BinOpNode : public ASTNode {
   public:
   std::string op;
-  std::unique_ptr<ASTNode> left;
-  std::unique_ptr<ASTNode> right;
-  BinOpNode(const std::string& op, std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right, int line, int col, std::string snippet) : op(op), left(std::move(left)), right(std::move(right)) {
+  
+  ASTNode* left;
+  ASTNode* right;
+  BinOpNode(const std::string& op, ASTNode* left, ASTNode* right, int line, int col, std::string snippet) : op(op), left(left), right(right) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -136,9 +137,9 @@ class BinOpNode : public ASTNode {
 class UnaryOpNode : public ASTNode {
   public:
   std::string op;
-  std::unique_ptr<ASTNode> expr;
-  /* std::variant<std::unique_ptr<ASTNode>, std::string> expr; */
-  UnaryOpNode(const std::string& op, std::unique_ptr<ASTNode> expr, int line, int col, std::string snippet) : op(op), expr(std::move(expr)) {
+  ASTNode* expr;
+
+  UnaryOpNode(const std::string& op, ASTNode* expr, int line, int col, std::string snippet) : op(op), expr(expr) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -157,8 +158,9 @@ class LetNode : public ASTNode {
   public:
   std::string name;
   Var_Types type;
-  std::unique_ptr<ASTNode> value;
-  LetNode(const std::string& name, Var_Types type, std::unique_ptr<ASTNode> value, int line, int col, std::string snippet) : name(name), type(type), value(std::move(value)) {
+
+  ASTNode* value;
+  LetNode(const std::string& name, Var_Types type, ASTNode* value, int line, int col, std::string snippet) : name(name), type(type), value(value) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -177,8 +179,9 @@ class SetNode : public ASTNode {
   public:
   std::string op;
   std::string ident;
-  std::unique_ptr<ASTNode> right;
-  SetNode(const std::string& op, const std::string& ident, std::unique_ptr<ASTNode> right, int line, int col, std::string snippet) : op(op), ident(ident), right(std::move(right)) {
+
+  ASTNode* right;
+  SetNode(const std::string& op, const std::string& ident, ASTNode* right, int line, int col, std::string snippet) : op(op), ident(ident), right(right) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -213,11 +216,12 @@ class DelNode : public ASTNode {
 
 class IEENode : public ASTNode {
   public:
-  std::unique_ptr<ASTNode> if_condition;
-  std::vector<std::unique_ptr<ASTNode>> if_body;
-  std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> elifs;
-  std::vector<std::unique_ptr<ASTNode>> else_body;
-  IEENode(std::unique_ptr<ASTNode> if_condition, std::vector<std::unique_ptr<ASTNode>> if_body, std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> elifs, std::vector<std::unique_ptr<ASTNode>> else_body, int line, int col, std::string snippet) : if_condition(std::move(if_condition)), if_body(std::move(if_body)), elifs(std::move(elifs)), else_body(std::move(else_body)) {
+
+  ASTNode* if_condition;
+  std::vector<ASTNode*> if_body;
+  std::vector<std::pair<ASTNode*, std::vector<ASTNode*>>> elifs;
+  std::vector<ASTNode*> else_body;
+  IEENode(ASTNode* if_condition, std::vector<ASTNode*> if_body, std::vector<std::pair<ASTNode*, std::vector<ASTNode*>>> elifs, std::vector<ASTNode*> else_body, int line, int col, std::string snippet) : if_condition(if_condition), if_body(if_body), elifs(elifs), else_body(else_body) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -264,10 +268,11 @@ class IEENode : public ASTNode {
 class ForNode : public ASTNode {
   public:
   std::string init;
-  std::unique_ptr<ASTNode> condition;
-  std::unique_ptr<ASTNode> increment;
-  std::vector<std::unique_ptr<ASTNode>> body;
-  ForNode(const std::string& init, std::unique_ptr<ASTNode> condition, std::unique_ptr<ASTNode> increment, std::vector<std::unique_ptr<ASTNode>> body, int line, int col, std::string snippet) : init(init), condition(std::move(condition)), increment(std::move(increment)), body(std::move(body)) {
+  ASTNode* condition;
+  ASTNode* increment;
+  std::vector<ASTNode*> body;
+
+  ForNode(const std::string& init, ASTNode* condition, ASTNode* increment, std::vector<ASTNode*> body, int line, int col, std::string snippet) : init(init), condition(condition), increment(increment), body(body) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -292,9 +297,10 @@ class ForNode : public ASTNode {
 
 class WhileNode : public ASTNode {
   public:
-  std::unique_ptr<ASTNode> condition;
-  std::vector<std::unique_ptr<ASTNode>> body;
-  WhileNode(std::unique_ptr<ASTNode> condition, std::vector<std::unique_ptr<ASTNode>> body, int line, int col, std::string snippet) : condition(std::move(condition)), body(std::move(body)) {
+
+  ASTNode* condition;
+  std::vector<ASTNode*> body;
+  WhileNode(ASTNode* condition, std::vector<ASTNode*> body, int line, int col, std::string snippet) : condition(condition), body(body) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -357,8 +363,8 @@ class FuncNode : public ASTNode {
   Func_Types type;
   // vector of (arg, type) pairs
   std::vector<std::pair<std::string, Var_Types>> args;
-  std::vector<std::unique_ptr<ASTNode>> body;
-  FuncNode(const std::string& name, Func_Types type, std::vector<std::pair<std::string, Var_Types>> args, std::vector<std::unique_ptr<ASTNode>> body, int line, int col, std::string snippet) : name(name), type(type), args(args), body(std::move(body)) {
+  std::vector<ASTNode*> body;
+  FuncNode(const std::string& name, Func_Types type, std::vector<std::pair<std::string, Var_Types>> args, std::vector<ASTNode*> body, int line, int col, std::string snippet) : name(name), type(type), args(args), body(body) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -391,8 +397,9 @@ class FuncNode : public ASTNode {
 class CallNode : public ASTNode {
   public:
   std::string name;
-  std::vector<std::unique_ptr<ASTNode>> args;
-  CallNode(const std::string& name, std::vector<std::unique_ptr<ASTNode>> args, int line, int col, std::string snippet) : name(name), args(std::move(args)) {
+
+  std::vector<ASTNode*> args;
+  CallNode(const std::string& name, std::vector<ASTNode*> args, int line, int col, std::string snippet) : name(name), args(args) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -417,8 +424,9 @@ class CallNode : public ASTNode {
 
 class ReturnNode : public ASTNode {
   public:
-  std::unique_ptr<ASTNode> value;
-  ReturnNode(std::unique_ptr<ASTNode> value, int line, int col, std::string snippet) : value(std::move(value)) {
+
+  ASTNode* value;
+  ReturnNode(ASTNode* value, int line, int col, std::string snippet) : value(value) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -435,8 +443,15 @@ class ReturnNode : public ASTNode {
 
 class ExitNode : public ASTNode {
   public:
-  std::unique_ptr<ASTNode> value;
-  ExitNode(std::unique_ptr<ASTNode> value, int line, int col, std::string snippet) : value(std::move(value)) {
+  // ASTNode* value;
+  // ExitNode(ASTNode* value, int line, int col, std::string snippet) : value(std::move(value)) {
+  //   this->line = line;
+  //   this->col = col;
+  //   this->snippet = snippet;
+  // }
+
+  ASTNode* value;
+  ExitNode(ASTNode* value, int line, int col, std::string snippet) : value(value) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -474,10 +489,10 @@ switch (expr) {
 */
 class SCDNode : public ASTNode {
   public:
-  std::unique_ptr<ASTNode> value;
-  std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> cases;
-  std::vector<std::unique_ptr<ASTNode>> default_body;
-  SCDNode(std::unique_ptr<ASTNode> value, std::vector<std::pair<std::unique_ptr<ASTNode>, std::vector<std::unique_ptr<ASTNode>>>> cases, std::vector<std::unique_ptr<ASTNode>> default_body, int line, int col, std::string snippet) : value(std::move(value)), cases(std::move(cases)), default_body(std::move(default_body)) {
+  ASTNode* value;
+  std::vector<std::pair<ASTNode*, std::vector<ASTNode*>>> cases;
+  std::vector<ASTNode*> default_body;
+  SCDNode(ASTNode* value, std::vector<std::pair<ASTNode*, std::vector<ASTNode*>>> cases, std::vector<ASTNode*> default_body, int line, int col, std::string snippet) : value(std::move(value)), cases(std::move(cases)), default_body(std::move(default_body)) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -587,10 +602,10 @@ class StructDef : public ASTNode {
 class StructInit : public ASTNode {
   public:
   std::string name;
-  std::unordered_map<std::string, std::shared_ptr<ASTNode>> fields;
+  std::unordered_map<std::string, ASTNode*> fields;
   int num_fields;
 
-  StructInit(const std::string& name, std::unordered_map<std::string, std::shared_ptr<ASTNode>> fields, int line, int col, std::string snippet) : name(name), fields(fields) {
+  StructInit(const std::string& name, std::unordered_map<std::string, ASTNode*> fields, int line, int col, std::string snippet) : name(name), fields(fields) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
@@ -635,7 +650,7 @@ class StructAccess : public ASTNode {
   }
 };
 
-inline void print_ast(const std::vector<std::unique_ptr<ASTNode>>& ast) {
+inline void print_ast(const std::vector<ASTNode*>& ast) {
   std::cout << "Abstract syntax tree:" << std::endl;
   std::cout << "[";
   for (size_t i = 0; i < ast.size(); i++) {

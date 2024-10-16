@@ -9,9 +9,6 @@ class Lexer {
   // constructor
   Lexer(std::string code);
 
-  // destructor
-  ~Lexer();
-
   // get the next token
   Token next_token();
 

@@ -14,11 +14,17 @@ typedef std::pair<std::string, Var_Types> Argument;
 struct Function {
   std::string name;
   std::vector<Argument> args;
-  std::vector<std::shared_ptr<ASTNode>> body;
+  // std::vector<std::shared_ptr<ASTNode>> body;
+  std::vector<ASTNode*> body;
+
+  // Function(const std::string& name,
+  //          const std::vector<Argument>& args,
+  //          const std::vector<std::shared_ptr<ASTNode>>& body)       
+  //   : name(name), args(args), body(body) {}
 
   Function(const std::string& name,
            const std::vector<Argument>& args,
-           const std::vector<std::shared_ptr<ASTNode>>& body)       
+           const std::vector<ASTNode*>& body)
     : name(name), args(args), body(body) {}
 };
 
@@ -44,7 +50,8 @@ class Scope {
   void push_scope();
   void pop_scope();
   void add_variable(const std::string& name, const Value& value);
-  void add_function(const std::string& name, const std::vector<Argument>& args, const std::vector<std::shared_ptr<ASTNode>>& body);
+  // void add_function(const std::string& name, const std::vector<Argument>& args, const std::vector<std::shared_ptr<ASTNode>>& body);
+  void add_function(const std::string& name, const std::vector<Argument>& args, const std::vector<ASTNode*>& body);
   void add_struct(const std::string& name, const std::unordered_map<std::string, Var_Types>& members);
 
   Value get_variable(const std::string& name);

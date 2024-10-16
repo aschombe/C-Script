@@ -24,7 +24,7 @@ void Scope::add_variable(const std::string& name, const Value& value) {
   scopes.back()[name] = Variable(name, value);
 }
 
-void Scope::add_function(const std::string& name, const std::vector<Argument>& args, const std::vector<std::shared_ptr<ASTNode>>& body) {
+void Scope::add_function(const std::string& name, const std::vector<Argument>& args, const std::vector<ASTNode*>& body) {
   scopes.back()[name] = Function(name, args, body);
 }
 

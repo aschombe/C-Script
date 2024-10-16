@@ -6,7 +6,8 @@
 #include <cmath>
 #include <fstream>
 
-Interpreter::Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast, const std::filesystem::path file) : ast(ast), ran_file(file) {}
+// Interpreter::Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast, const std::filesystem::path file) : ast(ast), ran_file(file) {}
+Interpreter::Interpreter(const std::vector<ASTNode*>& ast, const std::filesystem::path file) : ast(ast), ran_file(file) {}
 
 void Interpreter::run() {
   // iterate over the AST nodes
@@ -15,7 +16,8 @@ void Interpreter::run() {
   }
 }
 
-Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
+// Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
+Value Interpreter::interp(const ASTNode* node) {
   switch(node->node_type()) {
     case 0: // IntNode
       return std::get<int>(node->value);
@@ -32,41 +34,59 @@ Value Interpreter::interp(const std::unique_ptr<ASTNode>& node) {
       }
       return scope.get_variable(std::get<std::string>(node->value));
     case 5: // BinOp
-      return interp_binop(dynamic_cast<const BinOpNode*>(node.get()));
+      // return interp_binop(dynamic_cast<const BinOpNode*>(node.get()));
+      return interp_binop(dynamic_cast<const BinOpNode*>(node));
     case 6: // UnaryOp
-      return interp_unaryop(dynamic_cast<const UnaryOpNode*>(node.get()));
+      // return interp_unaryop(dynamic_cast<const UnaryOpNode*>(node.get()));
+      return interp_unaryop(dynamic_cast<const UnaryOpNode*>(node));
     case 7: // Let
-      return interp_let(dynamic_cast<const LetNode*>(node.get()));
+      // return interp_let(dynamic_cast<const LetNode*>(node.get()));
+      return interp_let(dynamic_cast<const LetNode*>(node));
     case 8: // Set
-      return interp_set(dynamic_cast<const SetNode*>(node.get()));
+      // return interp_set(dynamic_cast<const SetNode*>(node.get()));
+      return interp_set(dynamic_cast<const SetNode*>(node));
     case 9: // Del
-      return interp_del(dynamic_cast<const DelNode*>(node.get()));
+      // return interp_del(dynamic_cast<const DelNode*>(node.get()));
+      return interp_del(dynamic_cast<const DelNode*>(node));
     case 10: // IEEE
-      return interp_iee(dynamic_cast<const IEENode*>(node.get()));
+      // return interp_iee(dynamic_cast<const IEENode*>(node.get()));
+      return interp_iee(dynamic_cast<const IEENode*>(node));
     case 11: // For
-      return interp_for(dynamic_cast<const ForNode*>(node.get()));
+      // return interp_for(dynamic_cast<const ForNode*>(node.get()));
+      return interp_for(dynamic_cast<const ForNode*>(node));
     case 12: // While
-      return interp_while(dynamic_cast<const WhileNode*>(node.get()));
+      // return interp_while(dynamic_cast<const WhileNode*>(node.get()));
+      return interp_while(dynamic_cast<const WhileNode*>(node));
     case 13: // Break
-      return interp_break(dynamic_cast<const BreakNode*>(node.get()));
+      // return interp_break(dynamic_cast<const BreakNode*>(node.get()));
+      return interp_break(dynamic_cast<const BreakNode*>(node));
     case 14: // Continue
-      return interp_continue(dynamic_cast<const ContinueNode*>(node.get()));
+      // return interp_continue(dynamic_cast<const ContinueNode*>(node.get()));
+      return interp_continue(dynamic_cast<const ContinueNode*>(node));
     case 15: // Func
-      return interp_func(dynamic_cast<const FuncNode*>(node.get()));
+      // return interp_func(dynamic_cast<const FuncNode*>(node.get()));
+      return interp_func(dynamic_cast<const FuncNode*>(node));
     case 16: // Call
-      return interp_call(dynamic_cast<const CallNode*>(node.get()));
+      // return interp_call(dynamic_cast<const CallNode*>(node.get()));
+      return interp_call(dynamic_cast<const CallNode*>(node));
     case 17: // Return
-      return interp_return(dynamic_cast<const ReturnNode*>(node.get()));
+      // return interp_return(dynamic_cast<const ReturnNode*>(node.get()));
+      return interp_return(dynamic_cast<const ReturnNode*>(node));
     case 18: // Exit
-      return interp_exit(dynamic_cast<const ExitNode*>(node.get()));
+      // return interp_exit(dynamic_cast<const ExitNode*>(node.get()));
+      return interp_exit(dynamic_cast<const ExitNode*>(node));
     case 19: // SCD
-      return interp_scd(dynamic_cast<const SCDNode*>(node.get()));
+      // return interp_scd(dynamic_cast<const SCDNode*>(node.get()));
+      return interp_scd(dynamic_cast<const SCDNode*>(node));
     case 20: // import
-      return interp_import(dynamic_cast<const ImportNode*>(node.get()));
+      // return interp_import(dynamic_cast<const ImportNode*>(node.get()));
+      return interp_import(dynamic_cast<const ImportNode*>(node));
     case 21: // postfix
-      return interp_postfix(dynamic_cast<const PostFixNode*>(node.get()));
+      // return interp_postfix(dynamic_cast<const PostFixNode*>(node.get()));
+      return interp_postfix(dynamic_cast<const PostFixNode*>(node));
     case 22: // struct definition
-      return interp_struct_def(dynamic_cast<const StructDef*>(node.get()));
+      // return interp_struct_def(dynamic_cast<const StructDef*>(node.get()));
+      return interp_struct_def(dynamic_cast<const StructDef*>(node));
     case 23: // struct instance
       return Value();
     case 24: // struct access
@@ -102,391 +122,426 @@ Value Interpreter::interp_import(const ImportNode* node) {
 }
 
 Value Interpreter::interp_binop(const BinOpNode* node) {
-  std::string op = node->op;
-  Value left = interp(node->left);
-  Value right = interp(node->right);
+  std::cout << "TODO: Implement while" << std::endl;
+  (void)node;
+  return Value();
+  
+  // std::string op = node->op;
+  // Value left = interp(node->left);
+  // Value right = interp(node->right);
 
-  if (op == "+") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) + std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) + std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::get<double>(left) + std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::get<double>(left) + std::get<double>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "-") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) - std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) - std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::get<double>(left) - std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::get<double>(left) - std::get<double>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "*") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) * std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) * std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::get<double>(left) * std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::get<double>(left) * std::get<double>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-        throw error;
-    }
-  } else if (op == "/") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) / std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) / std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::get<double>(left) / std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::get<double>(left) / std::get<double>(right));
-    } else {
-      /* ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()}; */
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "%") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) % std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) % static_cast<int>(std::get<double>(right)));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(static_cast<int>(std::get<double>(left)) % std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(static_cast<int>(std::get<double>(left)) % static_cast<int>(std::get<double>(right)));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "^") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::pow(std::get<int>(left), std::get<int>(right)));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::pow(std::get<int>(left), std::get<double>(right)));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::pow(std::get<double>(left), std::get<int>(right)));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::pow(std::get<double>(left), std::get<double>(right)));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "==") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) == std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) == std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::get<double>(left) == std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::get<double>(left) == std::get<double>(right));
-    } else if (left.index() == 2 && right.index() == 2) {
-      return Value(std::get<std::string>(left) == std::get<std::string>(right));
-    } else if (left.index() == 3 && right.index() == 3) {
-      return Value(std::get<bool>(left) == std::get<bool>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "!=") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) != std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) != std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::get<double>(left) != std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::get<double>(left) != std::get<double>(right));
-    } else if (left.index() == 2 && right.index() == 2) {
-      return Value(std::get<std::string>(left) != std::get<std::string>(right));
-    } else if (left.index() == 3 && right.index() == 3) {
-      return Value(std::get<bool>(left) != std::get<bool>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "<") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) < std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) < std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::get<double>(left) < std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::get<double>(left) < std::get<double>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "<=") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) <= std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) <= std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::get<double>(left) <= std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::get<double>(left) <= std::get<double>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == ">") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) > std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) > std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::get<double>(left) > std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::get<double>(left) > std::get<double>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == ">=") {
-    if (left.index() == 0 && right.index() == 0) {
-      return Value(std::get<int>(left) >= std::get<int>(right));
-    } else if (left.index() == 0 && right.index() == 1) {
-      return Value(std::get<int>(left) >= std::get<double>(right));
-    } else if (left.index() == 1 && right.index() == 0) {
-      return Value(std::get<double>(left) >= std::get<int>(right));
-    } else if (left.index() == 1 && right.index() == 1) {
-      return Value(std::get<double>(left) >= std::get<double>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "&&") {
-    if (left.index() == 3 && right.index() == 3) {
-      return Value(std::get<bool>(left) && std::get<bool>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "||") {
-    if (left.index() == 3 && right.index() == 3) {
-      return Value(std::get<bool>(left) || std::get<bool>(right));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else {
-    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
-    throw error;
-  }
+  // if (op == "+") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) + std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) + std::get<double>(right));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::get<double>(left) + std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::get<double>(left) + std::get<double>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "-") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) - std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) - std::get<double>(right));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::get<double>(left) - std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::get<double>(left) - std::get<double>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "*") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) * std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) * std::get<double>(right));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::get<double>(left) * std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::get<double>(left) * std::get<double>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //       throw error;
+  //   }
+  // } else if (op == "/") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) / std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) / std::get<double>(right));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::get<double>(left) / std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::get<double>(left) / std::get<double>(right));
+  //   } else {
+  //     /* ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), Token()}; */
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "%") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) % std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) % static_cast<int>(std::get<double>(right)));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(static_cast<int>(std::get<double>(left)) % std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(static_cast<int>(std::get<double>(left)) % static_cast<int>(std::get<double>(right)));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "^") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::pow(std::get<int>(left), std::get<int>(right)));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::pow(std::get<int>(left), std::get<double>(right)));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::pow(std::get<double>(left), std::get<int>(right)));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::pow(std::get<double>(left), std::get<double>(right)));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "==") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) == std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) == std::get<double>(right));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::get<double>(left) == std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::get<double>(left) == std::get<double>(right));
+  //   } else if (left.index() == 2 && right.index() == 2) {
+  //     return Value(std::get<std::string>(left) == std::get<std::string>(right));
+  //   } else if (left.index() == 3 && right.index() == 3) {
+  //     return Value(std::get<bool>(left) == std::get<bool>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "!=") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) != std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) != std::get<double>(right));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::get<double>(left) != std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::get<double>(left) != std::get<double>(right));
+  //   } else if (left.index() == 2 && right.index() == 2) {
+  //     return Value(std::get<std::string>(left) != std::get<std::string>(right));
+  //   } else if (left.index() == 3 && right.index() == 3) {
+  //     return Value(std::get<bool>(left) != std::get<bool>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "<") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) < std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) < std::get<double>(right));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::get<double>(left) < std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::get<double>(left) < std::get<double>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "<=") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) <= std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) <= std::get<double>(right));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::get<double>(left) <= std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::get<double>(left) <= std::get<double>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == ">") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) > std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) > std::get<double>(right));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::get<double>(left) > std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::get<double>(left) > std::get<double>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == ">=") {
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     return Value(std::get<int>(left) >= std::get<int>(right));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     return Value(std::get<int>(left) >= std::get<double>(right));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     return Value(std::get<double>(left) >= std::get<int>(right));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     return Value(std::get<double>(left) >= std::get<double>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "&&") {
+  //   if (left.index() == 3 && right.index() == 3) {
+  //     return Value(std::get<bool>(left) && std::get<bool>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "||") {
+  //   if (left.index() == 3 && right.index() == 3) {
+  //     return Value(std::get<bool>(left) || std::get<bool>(right));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else {
+  //   ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
+  //   throw error;
+  // }
 }
 
 Value Interpreter::interp_unaryop(const UnaryOpNode* node) {
-  std::string op = node->op;
-  Value val = interp(node->expr);
+  std::cout << "TODO: Implement while" << std::endl;
+  (void)node;
+  return Value();
 
-  if (op == "-") {
-    if (val.index() == 0) {
-      return Value(-std::get<int>(val));
-    } else if (val.index() == 1) {
-      return Value(-std::get<double>(val));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(val.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "!") {
-    if (val.index() == 3) {
-      return Value(!std::get<bool>(val));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(val.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else {
-    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
-    throw error;
-  }
+  // std::string op = node->op;
+  // Value val = interp(node->expr);
+
+  // if (op == "-") {
+  //   if (val.index() == 0) {
+  //     return Value(-std::get<int>(val));
+  //   } else if (val.index() == 1) {
+  //     return Value(-std::get<double>(val));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(val.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "!") {
+  //   if (val.index() == 3) {
+  //     return Value(!std::get<bool>(val));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(val.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else {
+  //   ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
+  //   throw error;
+  // }
 }
 
 Value Interpreter::interp_postfix(const PostFixNode* node) {
-  std::string op = node->op;
-  std::string ident = node->ident;
-  
-  if (op == "++") {
-    /* scope.set_variable(ident, Value(scope.get_variable(ident) + 1)); */
-    std::cout << "Increment" << std::endl;
-  } else if (op == "--") {
-    std::cout << "Decrement" << std::endl;
-  } else {
-    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
-    throw error;
-  }
-
+  std::cout << "TODO: Implement while" << std::endl;
+  (void)node;
   return Value();
+
+  // std::string op = node->op;
+  // std::string ident = node->ident;
+  
+  // if (op == "++") {
+  //   /* scope.set_variable(ident, Value(scope.get_variable(ident) + 1)); */
+  //   std::cout << "Increment" << std::endl;
+  // } else if (op == "--") {
+  //   std::cout << "Decrement" << std::endl;
+  // } else {
+  //   ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
+  //   throw error;
+  // }
+
+  // return Value();
 }
 
 Value Interpreter::interp_let(const LetNode* node) {
-  std::string name = node->name;
-  Value value = interp(node->value);
-  scope.add_variable(name, value);
+  std::cout << "TODO: Implement while" << std::endl;
+  (void)node;
   return Value();
+  
+  // std::string name = node->name;
+  // Value value = interp(node->value);
+  // scope.add_variable(name, value);
+  // return Value();
 }
 
 Value Interpreter::interp_set(const SetNode* node) {
-  std::string op = node->op;
-  std::string var = node->ident;
-
-  if (!scope.variable_exists(var)) {
-    ErrorHandler error{ErrorType::SEMANTIC, "Variable " + var + " not found", node->line, node->col, node->snippet};
-    throw error;
-  }
-
-  Value right = interp(node->right);
-  
-  if (op == "=") {
-    scope.set_variable(var, right);
-  } else if (op == "+=") {
-    Value left = scope.get_variable(var);
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(var, Value(std::get<int>(left) + std::get<int>(right)));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(var, Value(std::get<int>(left) + std::get<double>(right)));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(var, Value(std::get<double>(left) + std::get<int>(right)));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(var, Value(std::get<double>(left) + std::get<double>(right)));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "-=") {
-    Value left = scope.get_variable(var);
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(var, Value(std::get<int>(left) - std::get<int>(right)));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(var, Value(std::get<int>(left) - std::get<double>(right)));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(var, Value(std::get<double>(left) - std::get<int>(right)));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(var, Value(std::get<double>(left) - std::get<double>(right)));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "*=") {
-    Value left = scope.get_variable(var);
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(var, Value(std::get<int>(left) * std::get<int>(right)));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(var, Value(std::get<int>(left) * std::get<double>(right)));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(var, Value(std::get<double>(left) * std::get<int>(right)));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(var, Value(std::get<double>(left) * std::get<double>(right)));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "/=") {
-    Value left = scope.get_variable(var);
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(var, Value(std::get<int>(left) / std::get<int>(right)));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(var, Value(std::get<int>(left) / std::get<double>(right)));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(var, Value(std::get<double>(left) / std::get<int>(right)));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(var, Value(std::get<double>(left) / std::get<double>(right)));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "%=") {
-    Value left = scope.get_variable(var);
-    if (left.index() == 0 && right.index() == 0) {
-      scope.set_variable(var, Value(std::get<int>(left) % std::get<int>(right)));
-    } else if (left.index() == 0 && right.index() == 1) {
-      scope.set_variable(var, Value(std::get<int>(left) % static_cast<int>(std::get<double>(right))));
-    } else if (left.index() == 1 && right.index() == 0) {
-      scope.set_variable(var, Value(static_cast<int>(std::get<double>(left)) % std::get<int>(right)));
-    } else if (left.index() == 1 && right.index() == 1) {
-      scope.set_variable(var, Value(static_cast<int>(std::get<double>(left)) % static_cast<int>(std::get<double>(right))));
-    } else {
-      ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
-      throw error;
-    }
-  } else if (op == "^=") {
-    std::cout << "Todo: ^=" << std::endl;
-  } else {
-    ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
-    throw error;
-  }
-
+  std::cout << "TODO: Implement while" << std::endl;
+  (void)node;
   return Value();
+
+  // std::string op = node->op;
+  // std::string var = node->ident;
+
+  // if (!scope.variable_exists(var)) {
+  //   ErrorHandler error{ErrorType::SEMANTIC, "Variable " + var + " not found", node->line, node->col, node->snippet};
+  //   throw error;
+  // }
+
+  // Value right = interp(node->right);
+  
+  // if (op == "=") {
+  //   scope.set_variable(var, right);
+  // } else if (op == "+=") {
+  //   Value left = scope.get_variable(var);
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     scope.set_variable(var, Value(std::get<int>(left) + std::get<int>(right)));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     scope.set_variable(var, Value(std::get<int>(left) + std::get<double>(right)));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     scope.set_variable(var, Value(std::get<double>(left) + std::get<int>(right)));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     scope.set_variable(var, Value(std::get<double>(left) + std::get<double>(right)));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "-=") {
+  //   Value left = scope.get_variable(var);
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     scope.set_variable(var, Value(std::get<int>(left) - std::get<int>(right)));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     scope.set_variable(var, Value(std::get<int>(left) - std::get<double>(right)));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     scope.set_variable(var, Value(std::get<double>(left) - std::get<int>(right)));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     scope.set_variable(var, Value(std::get<double>(left) - std::get<double>(right)));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "*=") {
+  //   Value left = scope.get_variable(var);
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     scope.set_variable(var, Value(std::get<int>(left) * std::get<int>(right)));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     scope.set_variable(var, Value(std::get<int>(left) * std::get<double>(right)));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     scope.set_variable(var, Value(std::get<double>(left) * std::get<int>(right)));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     scope.set_variable(var, Value(std::get<double>(left) * std::get<double>(right)));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "/=") {
+  //   Value left = scope.get_variable(var);
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     scope.set_variable(var, Value(std::get<int>(left) / std::get<int>(right)));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     scope.set_variable(var, Value(std::get<int>(left) / std::get<double>(right)));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     scope.set_variable(var, Value(std::get<double>(left) / std::get<int>(right)));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     scope.set_variable(var, Value(std::get<double>(left) / std::get<double>(right)));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "%=") {
+  //   Value left = scope.get_variable(var);
+  //   if (left.index() == 0 && right.index() == 0) {
+  //     scope.set_variable(var, Value(std::get<int>(left) % std::get<int>(right)));
+  //   } else if (left.index() == 0 && right.index() == 1) {
+  //     scope.set_variable(var, Value(std::get<int>(left) % static_cast<int>(std::get<double>(right))));
+  //   } else if (left.index() == 1 && right.index() == 0) {
+  //     scope.set_variable(var, Value(static_cast<int>(std::get<double>(left)) % std::get<int>(right)));
+  //   } else if (left.index() == 1 && right.index() == 1) {
+  //     scope.set_variable(var, Value(static_cast<int>(std::get<double>(left)) % static_cast<int>(std::get<double>(right))));
+  //   } else {
+  //     ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + std::to_string(left.index()) + std::to_string(right.index()), node->line, node->col, node->snippet};
+  //     throw error;
+  //   }
+  // } else if (op == "^=") {
+  //   std::cout << "Todo: ^=" << std::endl;
+  // } else {
+  //   ErrorHandler error{ErrorType::SEMANTIC, "Invalid operation: " + op, node->line, node->col, node->snippet};
+  //   throw error;
+  // }
+
+  // return Value();
 }
 
 Value Interpreter::interp_del(const DelNode* node) {
-  if (!scope.variable_exists(node->name)) {
-    ErrorHandler error{ErrorType::SEMANTIC, "Variable " + node->name + " not found", node->line, node->col, node->snippet};
-    throw error;
-  }
-  scope.delete_variable(node->name);
+  std::cout << "TODO: Implement while" << std::endl;
+  (void)node;
   return Value();
+  // if (!scope.variable_exists(node->name)) {
+  //   ErrorHandler error{ErrorType::SEMANTIC, "Variable " + node->name + " not found", node->line, node->col, node->snippet};
+  //   throw error;
+  // }
+  // scope.delete_variable(node->name);
+  // return Value();
 }
 
 Value Interpreter::interp_iee(const IEENode* node) {
-  Value if_condition = interp(node->if_condition);
-  if (std::get<bool>(if_condition)) {
-    for (auto& n : node->if_body) {
-      interp(n);
-    }
-  } else {
-    for (auto& elif : node->elifs) {
-      Value elif_condition = interp(elif.first);
-      if (std::get<bool>(elif_condition)) {
-        for (auto& n : elif.second) {
-          interp(n);
-        }
-        return Value();
-      }
-    }
-    for (auto& n : node->else_body) {
-      interp(n);
-    }
-  }
-
+  std::cout << "TODO: Implement while" << std::endl;
+  (void)node;
   return Value();
+  // Value if_condition = interp(node->if_condition);
+  // if (std::get<bool>(if_condition)) {
+  //   for (auto& n : node->if_body) {
+  //     interp(n);
+  //   }
+  // } else {
+  //   for (auto& elif : node->elifs) {
+  //     Value elif_condition = interp(elif.first);
+  //     if (std::get<bool>(elif_condition)) {
+  //       for (auto& n : elif.second) {
+  //         interp(n);
+  //       }
+  //       return Value();
+  //     }
+  //   }
+  //   for (auto& n : node->else_body) {
+  //     interp(n);
+  //   }
+  // }
+
+  // return Value();
 }
 
 Value Interpreter::interp_for(const ForNode* node) {
-  // init is already declared
-  while (std::get<bool>(interp(node->condition))) {
-    for (auto& n : node->body) {
-      interp(n);
-    }
-    interp(node->increment);
-  }
-
+  std::cout << "TODO: Implement while" << std::endl;
+  (void)node;
   return Value();
+
+  // also the below comment is wrong
+  // init is already declared
+  // while (std::get<bool>(interp(node->condition))) {
+  //   for (auto& n : node->body) {
+  //     interp(n);
+  //   }
+  //   interp(node->increment);
+  // }
+
+  // return Value();
 }
 
 Value Interpreter::interp_while(const WhileNode* node) {
-  while (std::get<bool>(interp(node->condition))) {
-    for (auto& n : node->body) {
-      interp(n);
-    }
-  }
-
+  std::cout << "TODO: Implement while" << std::endl;
+  (void)node;
   return Value();
+
+  // while (std::get<bool>(interp(node->condition))) {
+  //   for (auto& n : node->body) {
+  //     interp(n);
+  //   }
+  // }
+
+  // return Value();
 }
 
 Value Interpreter::interp_break(const BreakNode* node) {

@@ -5,17 +5,26 @@
 
 class Interpreter {
   public:
-  Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast, const std::filesystem::path file);
+  // Interpreter(const std::vector<std::unique_ptr<ASTNode>>& ast, const std::filesystem::path file);
+  Interpreter(const std::vector<ASTNode*>& ast, const std::filesystem::path file);
+
+  ~Interpreter() {
+    for (auto node : ast) {
+      delete node;
+    }
+  }
 
   // the main function to run the interpreter
   void run();
 
   private:
-  const std::vector<std::unique_ptr<ASTNode>>& ast;
+  // const std::vector<std::unique_ptr<ASTNode>>& ast;
+  const std::vector<ASTNode*>& ast;
   Scope scope;
   std::filesystem::path ran_file;
   
-  Value interp(const std::unique_ptr<ASTNode>& node);
+  // Value interp(const std::unique_ptr<ASTNode>& node);
+  Value interp(const ASTNode* node);
   Value interp_import(const ImportNode* node);
   Value interp_binop(const BinOpNode* node);
   Value interp_unaryop(const UnaryOpNode* node);

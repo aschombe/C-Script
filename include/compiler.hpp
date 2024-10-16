@@ -3,13 +3,14 @@
 
 class Compiler {
   public:
-  Compiler(const std::vector<std::unique_ptr<ASTNode>>& ast);
+  Compiler(const std::vector<ASTNode*>& ast);
 
   // main func to run compiler
   void run();
 
   private:
-  const std::vector<std::unique_ptr<ASTNode>>& ast;
+  // const std::vector<std::unique_ptr<ASTNode>>& ast;
+  const std::vector<ASTNode*>& ast;
   std::string code;
 
   /* void compile(const std::unique_ptr<ASTNode>& node); */
