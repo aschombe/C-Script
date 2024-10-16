@@ -30,6 +30,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 - [x] Error handling
 
 ## TODO
+- [ ] Switch everything from smart pointers to raw pointers
 - [ ] Potentially rework scoping (use environments or just make current scoping better)
 - [ ] Function definitions and function calls segfault during parsing
 - [ ] Everything in the control_flow example segfaults or doesnt work
