@@ -112,11 +112,17 @@ int main(int argc, char* argv[]) {
       std::cout << "]" << std::endl;
     }
 
-    // // interpret the code
-    Interpreter interpreter(ast, ran_file);
+    // delete the AST
+    for (auto node : ast) {
+      delete node;
+    }
+    ast.clear();
 
-    interpreter.run();
-    /* std::cout << "Error: interpretation is not implemented yet" << std::endl; */
+    // // interpret the code
+    // Interpreter interpreter(ast, ran_file);
+
+    // interpreter.run();
+    std::cout << "Error: interpretation is not implemented yet" << std::endl;
   }
 
   return 0;

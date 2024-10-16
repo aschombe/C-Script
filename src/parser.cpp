@@ -15,7 +15,7 @@ bool Parser::is_assignment(const Token& token) {
 
 std::vector<ASTNode*> Parser::parse() {
   while (current < tokens.size()) {
-    ASTNode* node = nullptr;
+    ASTNode* node;
     if (is_keyword(tokens[current]) || is_assignment(tokens[current])) {
       node = parse_keyword();
     } else {
@@ -24,7 +24,6 @@ std::vector<ASTNode*> Parser::parse() {
 
     if (node) {
       ast.push_back(node);
-      delete node;
     } else {
       std::cerr << "Error: Failed to create AST node: " << std::endl;
       token_to_string(tokens[current]);
@@ -675,7 +674,10 @@ ASTNode* Parser::parse_unary() {
     std::string op = tokens[current].value;
     current++;
     // remove previous token
-    ast.erase(ast.begin()+current-1);
+    // ast.erase(ast.begin()+current-1);
+    // dont erase the node, just mark the previous AST node to be ignored
+    ast[current-1]->ignore = true;
+
     if (tokens[current].value == ";") {
       current++;
     }
@@ -693,6 +695,9 @@ ASTNode* Parser::parse_primary() {
     current++;
     ASTNode* node = parse_expression();
     if (tokens[current].value != ")") {
+      // clean up
+      delete node;
+
       ErrorHandler error{ErrorType::SYNTACTIC, "Expected ')' after expression", tokens[current].line, tokens[current].col, tokens[current].snippet};
       throw error;
     }
@@ -714,6 +719,11 @@ ASTNode* Parser::parse_primary() {
         f_name = tokens[current].value;
         current++; // consume field name
         if (tokens[current].value != ":") {
+          // clean up
+          for (auto& [key, value] : fields) {
+            delete value;
+          }
+
           ErrorHandler error{ErrorType::SYNTACTIC, "Expected ':' after field name in struct initialization", tokens[current].line, tokens[current].col, tokens[current].snippet};
           throw error;
         }
@@ -727,6 +737,11 @@ ASTNode* Parser::parse_primary() {
         }
       }
       if (tokens[current].value != "}") {
+        // clean up
+        for (auto& [key, value] : fields) {
+          delete value;
+        }
+
         ErrorHandler error{ErrorType::SYNTACTIC, "Expected '}' after struct initialization", tokens[current].line, tokens[current].col, tokens[current].snippet};
         throw error;
       }
@@ -765,6 +780,11 @@ ASTNode* Parser::parse_primary() {
       }
       
       if (tokens[current].value != ")") {
+        // clean up
+        for (auto& arg : args) {
+          delete arg;
+        }
+
         ErrorHandler error{ErrorType::SYNTACTIC, "Expected ')' after function arguments", tokens[current].line, tokens[current].col, tokens[current].snippet};
         throw error;
       }
@@ -809,6 +829,7 @@ ASTNode* Parser::parse_primary() {
   }
   // reorder the parsing of primary expressions, check for literals first (int, double, string, bool)
   // TODO
+
   ErrorHandler error{ErrorType::SYNTACTIC, "Expected primary expression", tokens[current].line, tokens[current].col, tokens[current].snippet};
   throw error;
 }

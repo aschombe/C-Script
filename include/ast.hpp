@@ -15,6 +15,7 @@ class ASTNode {
   Value value;
   int line;
   int col;
+  bool ignore;
   std::string snippet;
   virtual ~ASTNode() = default;
   virtual int node_type() const = 0;
@@ -26,10 +27,11 @@ class IntNode : public ASTNode {
   public:
   int value;
   // line and col here should be the line and col that IntNode inherits from ASTNode
-  IntNode(int value, int line, int col, std::string snippet) : value(value) {
+  IntNode(int value, int line, int col, std::string snippet, bool ignore = false) : value(value) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -44,10 +46,11 @@ class IntNode : public ASTNode {
 class DoubleNode : public ASTNode {
   public:
   double value;
-  DoubleNode(double value, int line, int col, std::string snippet) : value(value) {
+  DoubleNode(double value, int line, int col, std::string snippet, bool ignore = false) : value(value) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -62,10 +65,11 @@ class DoubleNode : public ASTNode {
 class StringNode : public ASTNode {
   public:
   std::string value;
-  StringNode(const std::string& value, int line, int col, std::string snippet) : value(value) {
+  StringNode(const std::string& value, int line, int col, std::string snippet, bool ignore = false) : value(value) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
     
   int node_type() const override {
@@ -80,10 +84,11 @@ class StringNode : public ASTNode {
 class BoolNode : public ASTNode {
   public:
   bool value;
-  BoolNode(bool value, int line, int col, std::string snippet) : value(value) {
+  BoolNode(bool value, int line, int col, std::string snippet, bool ignore = false) : value(value) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -98,10 +103,11 @@ class BoolNode : public ASTNode {
 class VariableNode : public ASTNode {
   public:
   std::string name;
-  VariableNode(const std::string& name, int line, int col, std::string snippet) : name(name) {
+  VariableNode(const std::string& name, int line, int col, std::string snippet, bool ignore = false) : name(name) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -119,10 +125,11 @@ class BinOpNode : public ASTNode {
   
   ASTNode* left;
   ASTNode* right;
-  BinOpNode(const std::string& op, ASTNode* left, ASTNode* right, int line, int col, std::string snippet) : op(op), left(left), right(right) {
+  BinOpNode(const std::string& op, ASTNode* left, ASTNode* right, int line, int col, std::string snippet, bool ignore = false) : op(op), left(left), right(right) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -139,10 +146,11 @@ class UnaryOpNode : public ASTNode {
   std::string op;
   ASTNode* expr;
 
-  UnaryOpNode(const std::string& op, ASTNode* expr, int line, int col, std::string snippet) : op(op), expr(expr) {
+  UnaryOpNode(const std::string& op, ASTNode* expr, int line, int col, std::string snippet, bool ignore = false) : op(op), expr(expr) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -160,10 +168,11 @@ class LetNode : public ASTNode {
   Var_Types type;
 
   ASTNode* value;
-  LetNode(const std::string& name, Var_Types type, ASTNode* value, int line, int col, std::string snippet) : name(name), type(type), value(value) {
+  LetNode(const std::string& name, Var_Types type, ASTNode* value, int line, int col, std::string snippet, bool ignore = false) : name(name), type(type), value(value) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -181,10 +190,11 @@ class SetNode : public ASTNode {
   std::string ident;
 
   ASTNode* right;
-  SetNode(const std::string& op, const std::string& ident, ASTNode* right, int line, int col, std::string snippet) : op(op), ident(ident), right(right) {
+  SetNode(const std::string& op, const std::string& ident, ASTNode* right, int line, int col, std::string snippet, bool ignore = false) : op(op), ident(ident), right(right) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -199,10 +209,11 @@ class SetNode : public ASTNode {
 class DelNode : public ASTNode {
   public:
   std::string name;
-  DelNode(const std::string& name, int line, int col, std::string snippet) : name(name) {
+  DelNode(const std::string& name, int line, int col, std::string snippet, bool ignore = false) : name(name) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -221,10 +232,11 @@ class IEENode : public ASTNode {
   std::vector<ASTNode*> if_body;
   std::vector<std::pair<ASTNode*, std::vector<ASTNode*>>> elifs;
   std::vector<ASTNode*> else_body;
-  IEENode(ASTNode* if_condition, std::vector<ASTNode*> if_body, std::vector<std::pair<ASTNode*, std::vector<ASTNode*>>> elifs, std::vector<ASTNode*> else_body, int line, int col, std::string snippet) : if_condition(if_condition), if_body(if_body), elifs(elifs), else_body(else_body) {
+  IEENode(ASTNode* if_condition, std::vector<ASTNode*> if_body, std::vector<std::pair<ASTNode*, std::vector<ASTNode*>>> elifs, std::vector<ASTNode*> else_body, int line, int col, std::string snippet, bool ignore = false) : if_condition(if_condition), if_body(if_body), elifs(elifs), else_body(else_body) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -272,10 +284,11 @@ class ForNode : public ASTNode {
   ASTNode* increment;
   std::vector<ASTNode*> body;
 
-  ForNode(const std::string& init, ASTNode* condition, ASTNode* increment, std::vector<ASTNode*> body, int line, int col, std::string snippet) : init(init), condition(condition), increment(increment), body(body) {
+  ForNode(const std::string& init, ASTNode* condition, ASTNode* increment, std::vector<ASTNode*> body, int line, int col, std::string snippet, bool ignore = false) : init(init), condition(condition), increment(increment), body(body) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -300,10 +313,11 @@ class WhileNode : public ASTNode {
 
   ASTNode* condition;
   std::vector<ASTNode*> body;
-  WhileNode(ASTNode* condition, std::vector<ASTNode*> body, int line, int col, std::string snippet) : condition(condition), body(body) {
+  WhileNode(ASTNode* condition, std::vector<ASTNode*> body, int line, int col, std::string snippet, bool ignore = false) : condition(condition), body(body) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -325,10 +339,11 @@ class WhileNode : public ASTNode {
 
 class BreakNode : public ASTNode {
   public:
-  BreakNode(int line, int col, std::string snippet) {
+  BreakNode(int line, int col, std::string snippet, bool ignore = false) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -342,10 +357,11 @@ class BreakNode : public ASTNode {
 
 class ContinueNode : public ASTNode {
   public:
-  ContinueNode(int line, int col, std::string snippet) {
+  ContinueNode(int line, int col, std::string snippet, bool ignore = false) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -364,10 +380,11 @@ class FuncNode : public ASTNode {
   // vector of (arg, type) pairs
   std::vector<std::pair<std::string, Var_Types>> args;
   std::vector<ASTNode*> body;
-  FuncNode(const std::string& name, Func_Types type, std::vector<std::pair<std::string, Var_Types>> args, std::vector<ASTNode*> body, int line, int col, std::string snippet) : name(name), type(type), args(args), body(body) {
+  FuncNode(const std::string& name, Func_Types type, std::vector<std::pair<std::string, Var_Types>> args, std::vector<ASTNode*> body, int line, int col, std::string snippet, bool ignore = false) : name(name), type(type), args(args), body(body) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -399,10 +416,11 @@ class CallNode : public ASTNode {
   std::string name;
 
   std::vector<ASTNode*> args;
-  CallNode(const std::string& name, std::vector<ASTNode*> args, int line, int col, std::string snippet) : name(name), args(args) {
+  CallNode(const std::string& name, std::vector<ASTNode*> args, int line, int col, std::string snippet, bool ignore = false) : name(name), args(args) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -426,10 +444,11 @@ class ReturnNode : public ASTNode {
   public:
 
   ASTNode* value;
-  ReturnNode(ASTNode* value, int line, int col, std::string snippet) : value(value) {
+  ReturnNode(ASTNode* value, int line, int col, std::string snippet, bool ignore = false) : value(value) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -444,17 +463,18 @@ class ReturnNode : public ASTNode {
 class ExitNode : public ASTNode {
   public:
   // ASTNode* value;
-  // ExitNode(ASTNode* value, int line, int col, std::string snippet) : value(std::move(value)) {
+  // ExitNode(ASTNode* value, int line, int col, std::string snippet, bool ignore = false) : value(std::move(value)) {
   //   this->line = line;
   //   this->col = col;
   //   this->snippet = snippet;
   // }
 
   ASTNode* value;
-  ExitNode(ASTNode* value, int line, int col, std::string snippet) : value(value) {
+  ExitNode(ASTNode* value, int line, int col, std::string snippet, bool ignore = false) : value(value) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -492,10 +512,11 @@ class SCDNode : public ASTNode {
   ASTNode* value;
   std::vector<std::pair<ASTNode*, std::vector<ASTNode*>>> cases;
   std::vector<ASTNode*> default_body;
-  SCDNode(ASTNode* value, std::vector<std::pair<ASTNode*, std::vector<ASTNode*>>> cases, std::vector<ASTNode*> default_body, int line, int col, std::string snippet) : value(std::move(value)), cases(std::move(cases)), default_body(std::move(default_body)) {
+  SCDNode(ASTNode* value, std::vector<std::pair<ASTNode*, std::vector<ASTNode*>>> cases, std::vector<ASTNode*> default_body, int line, int col, std::string snippet, bool ignore = false) : value(std::move(value)), cases(std::move(cases)), default_body(std::move(default_body)) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -532,10 +553,11 @@ class SCDNode : public ASTNode {
 class ImportNode : public ASTNode {
   public:
   std::string value;
-  ImportNode(std::string rel_fpath, int line, int col, std::string snippet) : value(rel_fpath) {
+  ImportNode(std::string rel_fpath, int line, int col, std::string snippet, bool ignore = false) : value(rel_fpath) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -551,10 +573,11 @@ class PostFixNode : public ASTNode {
   public:
   std::string op;
   std::string ident;
-  PostFixNode(const std::string& op, const std::string& ident, int line, int col, std::string snippet) : op(op), ident(ident) {
+  PostFixNode(const std::string& op, const std::string& ident, int line, int col, std::string snippet, bool ignore = false) : op(op), ident(ident) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {
@@ -572,10 +595,11 @@ class StructDef : public ASTNode {
   std::unordered_map<std::string, Var_Types> fields;
   int num_fields;
 
-  StructDef(const std::string& name, std::unordered_map<std::string, Var_Types> fields, int line, int col, std::string snippet) : name(name), fields(fields) {
+  StructDef(const std::string& name, std::unordered_map<std::string, Var_Types> fields, int line, int col, std::string snippet, bool ignore = false) : name(name), fields(fields) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
     num_fields = fields.size();
   }
 
@@ -605,10 +629,11 @@ class StructInit : public ASTNode {
   std::unordered_map<std::string, ASTNode*> fields;
   int num_fields;
 
-  StructInit(const std::string& name, std::unordered_map<std::string, ASTNode*> fields, int line, int col, std::string snippet) : name(name), fields(fields) {
+  StructInit(const std::string& name, std::unordered_map<std::string, ASTNode*> fields, int line, int col, std::string snippet, bool ignore = false) : name(name), fields(fields) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
     num_fields = fields.size();
   }
 
@@ -635,10 +660,11 @@ class StructAccess : public ASTNode {
   public:
   std::string struct_name;
   std::string struct_field;
-  StructAccess(const std::string& struct_name, const std::string& struct_field, int line, int col, std::string snippet) : struct_name(struct_name), struct_field(struct_field) {
+  StructAccess(const std::string& struct_name, const std::string& struct_field, int line, int col, std::string snippet, bool ignore = false) : struct_name(struct_name), struct_field(struct_field) {
     this->line = line;
     this->col = col;
     this->snippet = snippet;
+    this->ignore = ignore;
   }
 
   int node_type() const override {

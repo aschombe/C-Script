@@ -39,6 +39,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
     - [ ] Upon further testing factorial(n-1); misses the (n-1) then seg faults
 - [ ] Type Checker (proper type checker) (maybe get rid of current scoping and implement proper environments)
 - [ ] Interpreter (everything):
+    - [ ] IF A NODE IS MARKED AS IGNORE, SKIP IT
     - [ ] Allow for loop init to be a let statement (grab the name before interp_let)
     - [ ] Maybe allow absolute file paths for importing
     - [ ] Maybe function overloading (based on: number of arguments and types of arguments)
