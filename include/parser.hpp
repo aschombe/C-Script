@@ -7,11 +7,11 @@ class Parser {
   public:
   Parser(const std::vector<Token>& tokens) : tokens(tokens) {}
   
-  ~Parser() {
-    for (auto node : ast) {
-      delete node;
-    }
-  }
+  /* ~Parser() { */
+  /*   for (auto node : ast) { */
+  /*     delete node; */
+  /*   } */
+  /* } */
 
   // std::vector<std::unique_ptr<ASTNode>> parse();
   std::vector<ASTNode*> parse();

@@ -1,7 +1,12 @@
-// let x:int = 5;
-// 
-// if (x > @) {
-//   exit(1);
-// }
+// 289 lines of valgrind error when testing:
+// int, float, bool, string, variable, function calls, struct access
 
-1
+// 258 lines of valgrind error when testing:
+// struct initialization (struct_name { key: value, key: value, ..., key: value })
+
+// 47 lines of valgrind error when testing grouped struct initialization:
+// (struct initialization (struct_name { key: value, key: value, ..., key: value }))
+
+// 0 errors when I group ( () ) single primitives in parenthesis:
+// ((int), (float), (bool), (string), (variable)), (function calls), (struct access)
+
