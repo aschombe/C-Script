@@ -54,7 +54,7 @@ ASTNode* Parser::parse_keyword() {
     case EXIT: return parse_exit();
     case FUNC: return parse_func();
     case SWITCH: return parse_switch();
-    case STRUCT_DEF: return parse_struct_def();
+    /* case STRUCT_DEF: return parse_struct_def(); */
     default: return parse_expression();
   }
 }
@@ -708,58 +708,58 @@ ASTNode* Parser::parse_primary() {
 
     // check for struct initialization
     // <name> { <field>: value, <feld>: value, ..., <field>: value }
-    if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == "{") {
-      std::string name = token;
-      current++; // consume the identifier
-      current++; // consume the {
-      std::unordered_map<std::string, ASTNode*> fields;
-      std::string f_name;
-      std::string f_type;
-      while (tokens[current].value != "}") {
-        f_name = tokens[current].value;
-        current++; // consume field name
-        if (tokens[current].value != ":") {
-          // clean up
-          for (auto& [key, value] : fields) {
-            delete value;
-          }
+    /* if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == "{") { */
+    /*   std::string name = token; */
+    /*   current++; // consume the identifier */
+    /*   current++; // consume the { */
+    /*   std::unordered_map<std::string, ASTNode*> fields; */
+    /*   std::string f_name; */
+    /*   std::string f_type; */
+    /*   while (tokens[current].value != "}") { */
+    /*     f_name = tokens[current].value; */
+    /*     current++; // consume field name */
+    /*     if (tokens[current].value != ":") { */
+    /*       // clean up */
+    /*       for (auto& [key, value] : fields) { */
+    /*         delete value; */
+    /*       } */
 
-          ErrorHandler error{ErrorType::SYNTACTIC, "Expected ':' after field name in struct initialization", tokens[current].line, tokens[current].col, tokens[current].snippet};
-          throw error;
-        }
-        current++; // consume :
-        ASTNode* value = parse_expression();
-        fields[f_name] = value;
-        if (tokens[current].value == ",") {
-          current++; // consume ','
-        } else {
-          break;
-        }
-      }
-      if (tokens[current].value != "}") {
-        // clean up
-        for (auto& [key, value] : fields) {
-          delete value;
-        }
+    /*       ErrorHandler error{ErrorType::SYNTACTIC, "Expected ':' after field name in struct initialization", tokens[current].line, tokens[current].col, tokens[current].snippet}; */
+    /*       throw error; */
+    /*     } */
+    /*     current++; // consume : */
+    /*     ASTNode* value = parse_expression(); */
+    /*     fields[f_name] = value; */
+    /*     if (tokens[current].value == ",") { */
+    /*       current++; // consume ',' */
+    /*     } else { */
+    /*       break; */
+    /*     } */
+    /*   } */
+    /*   if (tokens[current].value != "}") { */
+    /*     // clean up */
+    /*     for (auto& [key, value] : fields) { */
+    /*       delete value; */
+    /*     } */
 
-        ErrorHandler error{ErrorType::SYNTACTIC, "Expected '}' after struct initialization", tokens[current].line, tokens[current].col, tokens[current].snippet};
-        throw error;
-      }
-      current++; // consume the '}'
+    /*     ErrorHandler error{ErrorType::SYNTACTIC, "Expected '}' after struct initialization", tokens[current].line, tokens[current].col, tokens[current].snippet}; */
+    /*     throw error; */
+    /*   } */
+    /*   current++; // consume the '}' */
 
-      return new StructInit(name, fields, tokens[current].line, tokens[current].col, tokens[current].snippet);
-    }
+    /*   return new StructInit(name, fields, tokens[current].line, tokens[current].col, tokens[current].snippet); */
+    /* } */
 
     // Check for struct access
-    if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == ".") {
-      std::string struct_name = token;
-      current++; // consume the identifier
-      current++; // consume the '.'
-      std::string struct_field = tokens[current].value;
-      current++; // consume the field
+    /* if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == ".") { */
+    /*   std::string struct_name = token; */
+    /*   current++; // consume the identifier */
+    /*   current++; // consume the '.' */
+    /*   std::string struct_field = tokens[current].value; */
+    /*   current++; // consume the field */
       
-      return new StructAccess(struct_name, struct_field, tokens[current].line, tokens[current].col, tokens[current].snippet);
-    }
+    /*   return new StructAccess(struct_name, struct_field, tokens[current].line, tokens[current].col, tokens[current].snippet); */
+    /* } */
 
     // Check for function call
     if (std::regex_match(token, std::regex("[a-zA-Z_][a-zA-Z0-9_]*")) && current + 1 < tokens.size() && tokens[current + 1].value == "(") {
