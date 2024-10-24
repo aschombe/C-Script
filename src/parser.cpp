@@ -798,34 +798,34 @@ ASTNode* Parser::parse_primary() {
     // Check for INT
     if (std::regex_match(token, std::regex("[0-9]+"))) {
       current++;
-
+      std::cout << "Snippet: " << tokens[current].snippet << std::endl;
       return new IntNode(std::stoi(token), tokens[current].line, tokens[current].col, tokens[current].snippet);
     }
 
     // Check for FLOAT
     if (std::regex_match(token, std::regex("[0-9]+\\.[0-9]+"))) {
       current++;
-      
+      std::cout << "Snippet: " << tokens[current].snippet << std::endl;
       return new DoubleNode(std::stof(token), tokens[current].line, tokens[current].col, tokens[current].snippet);
     }
 
     // Check for STRING
     if (std::regex_match(token, std::regex("\"[^\"]*\""))) {
       current++;
-      
+      std::cout << "Snippet: " << tokens[current].snippet << std::endl;
       return new StringNode(token.substr(1, token.size() - 2), tokens[current].line, tokens[current].col, tokens[current].snippet);
     }
 
     // Check for Bool
     if (token == "true" || token == "false") {
       current++;
-      
+      std::cout << "Snippet: " << tokens[current].snippet << std::endl;
       return new BoolNode(token == "true", tokens[current].line, tokens[current].col, tokens[current].snippet);
     }
 
     // If it's not a primary, assume it's a variable
     current++;
-    
+    std::cout << "Snippet: " << tokens[current].snippet << std::endl;
     return new VariableNode(token, tokens[current].line, tokens[current].col, tokens[current].snippet);
   }
 

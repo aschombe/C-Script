@@ -155,6 +155,7 @@ inline std::string token_to_string(const Token& token) {
   Token: " + token_type_to_string(token.type) + "\
   Value: " + token.value + "\
   Line: " + std::to_string(token.line) + "\
-  Column: " + std::to_string(token.col);
+  Column: " + std::to_string(token.col) + "\
+  Snippet: " + token.snippet;
   return result;
 }

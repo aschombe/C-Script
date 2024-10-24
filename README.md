@@ -32,6 +32,7 @@ More about the `cst` tool can be found in the [cst.md](docs/cst.md) file.
 ## TODO
 - [ ] Switch everything from smart pointers to raw pointers
   - [ ] Lots of valgrind errors, debugging logs are in [examples/test.csf](examples/test.csf)
+  - [ ] No snippet parsing primaries??
 - [ ] Potentially rework scoping (use environments or just make current scoping better)
 - [ ] Function definitions and function calls segfault during parsing
 - [ ] Everything in the control_flow example segfaults or doesnt work
